@@ -1,0 +1,3012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GAM Vehicle Editor - Professional Game Vehicle Parameter Editor</title>
+    <meta name="description" content="GAM Vehicle Editor is a visual vehicle parameter editor for gamers. Supports SnowRunner, BeamNG.Drive and more. Adjust suspensions, engines, gearboxes and dozens of parameters without editing code. Export to game with one click.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #0d0d0d;
+            color: #ffffff;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;  /* ★ 调整项：全局容器最大宽度 */
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        /* 语言切换器 */
+        .lang-switcher {
+            display: flex;
+            align-items: center;
+        }
+        .lang-switcher select {
+            background: rgba(255,255,255,0.08);
+            color: #e0e0e0;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s;
+            height: 32px;
+        }
+        .lang-switcher select:hover {
+            border-color: rgba(255,255,255,0.35);
+        }
+        .lang-switcher select option {
+            background: #1a1a1a;
+            color: #e0e0e0;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(13, 13, 13, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+        }
+        
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            max-width: 1400px;          /* ★ 调整项：导航栏内容最大宽度 */
+            margin: 0 auto;
+        }
+        
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+        
+        .back-home {
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
+        
+        /* Pill 滑动 Tab 样式 */
+        .nav-tabs {
+            position: relative;
+            display: flex;
+            background: #3a3a3a;
+            border-radius: 10px;
+            padding: 4px;
+            gap: 0;
+        }
+        
+        /* 滑动白色背景块 */
+        .nav-tabs-slider {
+            position: absolute;
+            top: 4px;
+            bottom: 4px;
+            width: calc(33.333% - 3px);
+            background: #ffffff;
+            border-radius: 7px;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(0);
+        }
+        
+        .nav-tabs.active-benefit .nav-tabs-slider {
+            transform: translateX(calc(100% + 0px));
+        }
+        
+        .nav-tabs.active-changelog .nav-tabs-slider {
+            transform: translateX(calc(200% + 0px));
+        }
+        
+        .nav-tab {
+            position: relative;
+            z-index: 1;
+            padding: 0.3rem 1rem; /* ★ 调整项：Tab按钮大小，上下/左右内边距 */
+            border-radius: 6px;
+            font-size: 0.85rem; /* ★ 调整项：Tab按钮字号 */
+            font-weight: 600;
+            cursor: pointer;
+            color: #aaaaaa;
+            transition: color 0.25s ease;
+            border: none;
+            background: transparent;
+            user-select: none;
+        }
+        
+        .nav-tab.active {
+            color: #111111;
+        }
+        
+        .nav-tab:not(.active) {
+            color: #aaaaaa;
+        }
+        
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .nav-logo img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+        
+        .nav-logo span {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .download-btn {
+            background: #ffffff; /* ★ 调整项：右上角下载按钮背景色 */
+            color: #000;
+            border: none;
+            padding: 0.35rem 1.2rem; /* ★ 调整项：上下 padding 控制按钮高度 */
+            border-radius: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        /* 下载面板 */
+        .download-panel {
+            display: none;
+            background: #0d0d0d;         /* ★ 调整项：下载面板底色 */
+            position: fixed;
+            top: 61px;                   /* ★ 调整项：导航栏高度补偿 */
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 999;
+            padding: 2.5rem 0 3rem;
+            animation: slideDownPanel 0.35s ease;
+        }
+        
+        .download-panel.active {
+            display: block;
+        }
+        
+        @keyframes slideDownPanel {
+            from { opacity: 0; transform: translateY(-10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 面板顶部标题行（在卡片外部） */
+        .download-panel-header {
+            max-width: 1200px;
+            margin: 0 auto 1.5rem;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .download-panel-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 0;
+        }
+        
+        .download-panel-close {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 2rem;
+            cursor: pointer;
+            line-height: 1;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+            padding: 0;
+        }
+        
+        .download-panel-close:hover { opacity: 1; }
+
+        /* 内容卡片（深色底色） */
+        .download-panel-card {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2.5rem 3rem;
+            background: #171716;         /* ★ 调整项：内容卡片底色 */
+            border-radius: 12px;
+        }
+        
+        .download-panel-inner {
+            display: grid;
+            grid-template-columns: 1fr 1.4fr;  /* ★ 调整项：右列截图列更宽 */
+            gap: 3rem;
+            align-items: center;              /* ★ 调整项：内容垂直居中 */
+        }
+        
+        .download-panel h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.75rem;
+        }
+        
+        .download-panel-subtitle {
+            color: #a3a3a3;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .download-panel-steps {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 2rem 0;
+        }
+        
+        .download-panel-steps li {
+            color: #c8c8c8;
+            font-size: 0.9rem;
+            padding: 0.3rem 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+        
+        .download-panel-steps li::before {
+            content: '•';
+            color: #22c55e;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        
+        .download-panel-cta-title {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #fff;
+            margin-bottom: 0.4rem;
+        }
+        
+        .download-panel-link {
+            font-size: 0.85rem;
+            color: #a3a3a3;
+            margin-bottom: 1.2rem;
+            display: block;              /* ★ 调整项：了解链接独占一行 */
+        }
+
+        .download-panel-link-icon {
+            display: inline-flex;
+            align-items: center;
+            color: #a3a3a3;
+            text-decoration: none;
+            font-size: 0.85rem;
+            gap: 4px;
+            transition: color 0.2s;
+        }
+
+        .download-panel-link-icon:hover {
+            color: #fff;
+        }
+        
+        .download-panel-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: #22c55e;
+            color: #000;
+            border: none;
+            padding: 0.6rem 2rem;
+            border-radius: 6px;         /* ★ 调整项：下载按钮圆角 */
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        
+        .download-panel-btn:hover { background: #16a34a; }
+        
+        .download-panel-unsupported {
+            margin-top: 0.8rem;
+            color: rgba(255,255,255,0.35);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;                 /* ★ 调整项：图标转文字间距更紧凑 */
+        }
+
+        .download-panel-unsupported svg {
+            vertical-align: middle;
+            opacity: 0.5;
+        }
+
+        .download-panel-unsupported span {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .download-panel-screenshot {
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .download-panel-screenshot img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        section {
+            padding: 6rem 2rem;
+        }
+        
+        h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: left;
+            margin-bottom: 1rem;
+        }
+        
+        .section-subtitle {
+            text-align: left;
+            color: #a3a3a3;
+            margin-bottom: 4rem;
+        }
+        
+        /* Hero 区域 */
+        .hero {
+            padding: 8rem 2rem 4rem;
+            background: linear-gradient(180deg, #0d0d0d 0%, #1a1a1a 100%);
+        }
+        
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+        
+        .hero-text h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.3; /* ★ 调整项A：Hero标题两行间距 */
+        }
+        
+        .hero-text h1 span {
+            color: #22c55e;
+        }
+        
+        .hero-text p {
+            font-size: 1.1rem;
+            color: #a3a3a3;
+            margin: 1.5rem 0 2rem;
+            line-height: 1.8;
+        }
+        
+        .cta-button {
+            background: #22c55e;         /* ★ 调整项①：按钮背景色 */
+            color: #000;                 /* ★ 调整项②：按钮文字颜色 */
+            border: none;
+            padding: 0.5rem 1.8rem;      /* ★ 调整项③：上下 padding=按钮高度，左右 padding=按钮宽度 */
+            border-radius: 24px;         /* ★ 调整项④：圆角大小，越大越圆 */
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;           /* ★ 调整项⑤：按钮文字大小 */
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 14px rgba(34, 197, 94, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;                    /* ★ 调整项⑥：图标与文字之间的间距 */
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+        }
+        
+        .cta-button-outline {
+            background: rgba(26, 26, 26, 0.4);   /* ★ 调整项：观看使用说明按钮底色（60% 透明度） */
+            color: rgba(255, 255, 255, 0.4);     /* ★ 调整项：观看使用说明按钮文字（60% 透明度） */
+            border: 1px solid rgba(255, 255, 255, 0.4);   /* ★ 调整项：白色边框（60% 透明度） */
+            box-shadow: none;            /* ★ 调整项：无阴影 */
+            padding: 0.4rem 1.2rem;      /* ★ 调整项：缩小高度和宽度 */
+            font-size: 0.85rem;          /* ★ 调整项：缩小字号 */
+            border-radius: 20px;         /* ★ 调整项：缩小圆角 */
+        }
+        
+        .cta-button-outline:hover {
+            background: #2a2a2a;         /* ★ 调整项：悬停时底色变亮 */
+            transform: translateY(-2px);
+            box-shadow: none;            /* ★ 调整项：悬停时无阴影 */
+        }
+        
+        .hero-logo {
+            text-align: right;
+        }
+        
+        .logo-display {
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .logo-display img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+        }
+        
+        /* 可视化编辑区域 */
+        .visual-editing {
+            margin-top: 6rem;
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            border-radius: 16px;
+            padding: 2.5rem 3rem 60px;  /* 底部留出导航按钮空间 */
+            transition: background 0.6s ease;  /* ★ 调整项：轮播切换背景过渡速度 */
+            position: relative;
+            height: 440px;              /* ★ 调整项C：可视化编辑区域高度 */
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        
+        /* 轮播导航按钮区域（左下角）*/
+        .visual-nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: absolute;      /* ★ 调整项：导航按钮绝对定位 */
+            bottom: 20px;            /* ★ 调整项D：导航按钮距底边距离 */
+            left: 3rem;
+        }
+        
+        .visual-nav-btn {
+            width: 36px;            /* ★ 调整项：左右箭头按钮大小 */
+            height: 36px;
+            border-radius: 50%;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        
+        .visual-nav-btn:hover {
+            background: rgba(0,0,0,0.15);
+        }
+        
+        .visual-nav-btn img {
+            width: 20px;            /* ★ 调整项：箭头图标大小 */
+            height: 20px;
+        }
+        
+        /* 轮播指示点（已隐藏） */
+        .visual-dots {
+            display: none;
+        }
+        
+        /* 轮播内容淡入淡出 */
+        .visual-slide {
+            display: none;
+        }
+        
+        .visual-slide.active {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 3rem;
+            align-items: stretch;   /* 两列撑满 grid 行高 */
+            height: 100%;
+        }
+
+        /* 右侧图片列垂直居中 */
+        .visual-slide.active > div:last-child {
+            display: flex;
+            align-items: center;    /* ★ 调整项：右侧图片垂直居中 */
+        }
+        
+        .visual-features h2 {
+            text-align: left;
+            margin-bottom: 1.5rem;
+            color: #000;
+        }
+        
+        .visual-features ul {
+            list-style: none;
+        }
+        
+        .visual-features li {
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 0.75rem;
+            color: #000;
+        }
+        
+        .visual-features li:last-child {
+            margin-bottom: 0;
+        }
+        
+        .checkmark {
+            color: #000;
+            font-weight: 700;
+        }
+        
+        .screenshot {
+            width: 100%;
+            border-radius: 8px;
+        }
+        
+        /* 智能缓存 */
+        .cache-section {
+            background: #0d0d0d;
+        }
+        
+        .cache-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+        
+        /* 左侧文字时间轴：整体相对定位，左侧一条连续竖线 */
+        .cache-timeline {
+            position: relative;
+            padding-left: 20px;  /* ★ 调整项：竖线到文字的间距 */
+        }
+
+        /* 灰色背景长竖线（始终显示） */
+        .cache-timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 2rem;        /* ★ 调整项：竖线底部裁切（与文字块margin-bottom一致） */
+            width: 3px;          /* ★ 调整项：竖线宽度 */
+            background: #3a3a3a;
+            border-radius: 2px;
+        }
+
+        /* 绿色滑块（在灰线上滑动） */
+        .cache-slider {
+            position: absolute;
+            left: 0;
+            width: 3px;          /* 与竖线同宽 */
+            border-radius: 2px;
+            background: #22c55e;
+            transition: top 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                        height 0.5s cubic-bezier(0.4, 0, 0.2, 1);  /* ★ 调整项：滑动动画时长 */
+        }
+
+        .cache-timeline > div {
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 0;
+            align-items: stretch;
+        }
+
+        /* 隐藏原来每行的单独竖线（由连续线替代） */
+        .cache-vbar {
+            display: none;
+        }
+
+        /* 文字块 */
+        .cache-text-block {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .cache-timeline p {
+            color: #4c4c48;      /* ★ 调整项：文字默认颜色 */
+            font-size: 0.95rem;
+            margin: 0;
+            line-height: 1.7;
+            transition: color 0.4s ease;
+        }
+        
+        /* 激活状态：第一行绿色，第二行灰色 */
+        .cache-timeline > div.active p .line1 {
+            color: #53eb79;      /* ★ 调整项：激活时第一行颜色 */
+        }
+
+        /* 激活时第一行的图标wrapper和SVG跟随变绿 */
+        .cache-timeline > div.active p > span:first-child {
+            color: #53eb79;
+        }
+        .cache-timeline > div.active p > span:first-child svg {
+            color: #53eb79;
+        }
+        
+        .cache-timeline > div.active p .line2 {
+            color: #b4b4ad;      /* ★ 调整项：激活时第二行颜色 */
+        }
+        
+        /* 右侧 loading 动画区域 */
+        .cache-icon-wrapper {
+            text-align: center;
+        }
+        
+        .cache-loading-anim {
+            width: 160px;        /* ★ 调整项：loading动画尺寸 */
+            height: 160px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        /* 所有图层绝对定位叠放 */
+        .cache-loading-anim img {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0; left: 0;
+        }
+        
+        /* Loading-3.png 扇形遮罩（进度层，初始0%） */
+        .cache-loading-anim .layer-3 {
+            clip-path: polygon(50% 50%, 50% 0%);  /* 初始：0度扇形（不可见）*/
+        }
+        
+        /* Loading-1.png 白色Logo（顶层，透明度呼吸） */
+        .cache-loading-anim .layer-1 {
+            opacity: 0;
+            transition: opacity 0.05s linear;
+        }
+        
+        .cache-icon-wrapper p {
+            margin-top: 1.5rem;
+            font-size: 1rem;
+            color: #a3a3a3;
+        }
+        
+        /* 多游戏支持 */
+        .games-section {
+            background: #111111;
+        }
+        
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+        
+        .game-card {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            aspect-ratio: 4 / 3;  /* ★ 调整项：卡片宽高比 */
+            cursor: default;
+            border: 0.5px solid rgba(255,255,255,0.2);  /* ★ 调整项：图片边框 */
+            transform: translateY(0);
+            transition: transform 0.25s ease;  /* ★ 调整项：悬停上移动画时长 */
+        }
+
+        .game-card:hover {
+            transform: translateY(-2px);  /* ★ 调整项：悬停上移距离 */
+        }
+
+        /* 背景图片铺满 */
+        .game-card-bg {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            position: absolute;
+            top: 0; left: 0;
+        }
+
+        /* 底部渐变遮罩，让文字可读 */
+        .game-card::after {
+            content: '';
+            position: absolute;
+            left: 0; right: 0; bottom: 0;
+            height: 55%;  /* ★ 调整项：渐变遮罩高度 */
+            background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%);
+            border-radius: 0 0 12px 12px;
+        }
+
+        /* 文字层浮于左下角 */
+        .game-card-text {
+            position: absolute;
+            bottom: 1.2rem;   /* ★ 调整项：文字距底部距离 */
+            left: 1.2rem;     /* ★ 调整项：文字距左边距离 */
+            z-index: 2;
+        }
+
+        .game-card-text h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+            margin: 0 0 0.3rem 0;
+        }
+
+        .game-card-text p {
+            color: rgba(255,255,255,0.75);
+            font-size: 0.85rem;
+            margin: 0;
+            line-height: 1.5;
+        }
+        
+        .ui-preview {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* 备份系统 */
+        .backup-section {
+            background: #0d0d0d;
+        }
+        
+        .backup-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+        
+        .backup-features {
+            
+        }
+        
+        .backup-item {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+            cursor: pointer;
+            align-items: flex-start;
+        }
+        
+        .backup-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        /* 图标：deselected 状态默认显示 */
+        .backup-icon {
+            flex-shrink: 0;
+            width: 48px;   /* ★ 调整项：图标尺寸 */
+            height: 48px;
+            position: relative;
+        }
+
+        .backup-icon img {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0; left: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .backup-icon .icon-deselected { opacity: 1; }
+        .backup-icon .icon-selected   { opacity: 0; }
+
+        .backup-item.active .backup-icon .icon-deselected { opacity: 0; }
+        .backup-item.active .backup-icon .icon-selected   { opacity: 1; }
+        
+        /* 文字：未激活时与小字相同颜色，激活时白色 */
+        .backup-text h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: #a3a3a3;       /* ★ 调整项：未激活标题颜色 */
+            transition: color 0.3s ease;
+        }
+
+        .backup-item.active .backup-text h3 {
+            color: #ffffff;       /* ★ 调整项：激活标题颜色 */
+        }
+        
+        /* 右侧图片区域 */
+        .backup-right {
+            position: relative;
+            display: flex;
+            justify-content: flex-end;  /* ★ 调整项：图片对齐方向（flex-end=右对齐，center=居中） */
+            align-items: center;
+        }
+
+        /* 用第一张图撑开容器，其余绝对叠放 */
+        .backup-right-img {
+            width: auto;
+            max-height: 230px;   /* ★ 调整项：右侧图片最大高度 */
+            border-radius: 12px;
+            display: block;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+
+        /* 非第一张（index>0）绝对定位叠在第一张上，右对齐 */
+        .backup-right-img:not(:first-child) {
+            position: absolute;
+            top: 0; right: 0;
+        }
+
+        .backup-right-img.active {
+            opacity: 1;
+        }
+
+        /* 说明小字不换行 */
+        .backup-text p {
+            color: #a3a3a3;
+            line-height: 1.6;
+            white-space: nowrap;  /* ★ 调整项：小字不换行，如需换行改为 normal */
+        }
+        
+        /* 功能对比表 */
+        .comparison-section {
+            background: #111111;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 3rem;
+        }
+        
+        .comparison-table thead tr {
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .comparison-table th {
+            padding: 0.85rem 0;        /* ★ 调整项：表头行间距 */
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .comparison-table th:first-child {
+            text-align: left;
+            width: 50%;                /* ★ 调整项：功能列宽度 */
+        }
+        
+        .comparison-table tbody tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .comparison-table td {
+            padding: 0.7rem 0;         /* ★ 调整项：行间距（原1.25rem） */
+            text-align: center;
+        }
+        
+        .comparison-table td:first-child {
+            text-align: left;
+        }
+
+        /* 非会员列宽度 */
+        .comparison-table th:nth-child(2),
+        .comparison-table td:nth-child(2) {
+            width: 25%;
+            padding-left: 0;
+            transform: translateX(-100px);  /* ★ 调整项：非会员列左移量 */
+        }
+        
+        .check-green {
+            color: #22c55e;
+        }
+        
+        .cross-red {
+            color: #ef4444;
+        }
+        
+        .limit-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: linear-gradient(135deg, #ec4899, #8b5cf6);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #fff;
+        }
+        
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 50% 25% 25%;  /* ★ 调整项：与表格列宽严格对齐 */
+            gap: 0;
+            margin-top: 1.5rem;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 0.5rem 1.5rem;    /* ★ 调整项：开始使用按钮大小 */
+            border-radius: 28px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;         /* ★ 调整项：开始使用字号 */
+            transition: all 0.3s ease;
+            justify-self: center;
+            transform: translateX(-100px);  /* ★ 调整项：与非会员列对齐偏移量 */
+        }
+        
+        .btn-primary {
+            background: #22c55e;
+            color: #000;
+            border: none;
+            padding: 0.5rem 1.5rem;    /* ★ 调整项：升级到会员按钮大小 */
+            border-radius: 28px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;         /* ★ 调整项：升级到会员字号 */
+            transition: all 0.3s ease;
+            justify-self: center;
+        }
+
+        .btn-outline:hover {
+            background: #22c55e;       /* ★ 调整项：开始使用悬停底色 */
+            color: #000;               /* ★ 调整项：开始使用悬停文字色 */
+            border-color: #22c55e;
+        }
+
+        .btn-primary:hover {
+            background: #e62d7f;       /* ★ 调整项：升级到会员悬停底色 */
+            color: #fff;               /* ★ 调整项：升级到会员悬停文字色 */
+        }
+        
+        /* FAQ */
+        .faq-section {
+            background: #f5f5f5;
+            color: #1a1a1a;
+            padding-bottom: 1rem;  /* ★ 调整项：FAQ区域底部间距 */
+        }
+
+        /* 两列：左侧标题，右侧色块列表，顶部对齐 */
+        .faq-inner {
+            display: grid;
+            grid-template-columns: 1fr 680px;  /* ★ 调整项：右列宽度与色块宽度一致 */
+            gap: 2rem;
+            align-items: start;
+        }
+        
+        .faq-section h2 {
+            text-align: left;
+        }
+        
+        .faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding-top: 80px;   /* ★ 调整项：右侧色块向下偏移距离 */
+        }
+        
+        details {
+            background: #fff;
+            border-radius: 8px;
+            padding: 0 1.5rem;   /* 上下 padding 由 summary 控制 */
+            cursor: pointer;
+            width: 100%;         /* ★ 调整项：色块宽度由右列 grid 宽度控制 */
+        }
+        
+        summary {
+            font-weight: 600;
+            font-size: 1rem;
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;        /* ★ 调整项：色块未展开高度 */
+        }
+        
+        summary::-webkit-details-marker {
+            display: none;
+        }
+        
+        summary span {
+            color: #22c55e;
+            font-size: 1.5rem;
+            font-weight: 300;
+        }
+        
+        details p {
+            margin-top: 0;
+            padding: 0.75rem 0 1.25rem 0;  /* ★ 调整项：展开内容上下间距 */
+            color: #666;
+            line-height: 1.7;
+        }
+        
+        /* Footer */
+        footer {
+            background: #0a0a0a;
+            padding: 3rem 2rem;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+        
+        .footer-logos {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .footer-logos img {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+        }
+        
+        .footer-text {
+            font-size: 0.85rem;
+            color: #a3a3a3;
+            line-height: 1.8;
+        }
+        
+        .footer-text a {
+            color: #a3a3a3;
+            text-decoration: underline;
+        }
+        
+        .qr-codes {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .qr-item {
+            text-align: center;
+        }
+        
+        .qr-item img {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 0.5rem;
+            border-radius: 6px;  /* ★ 调整项：二维码图片圆角 */
+        }
+        
+        .qr-item p {
+            font-size: 0.8rem;
+            color: #a3a3a3;
+        }
+        
+        @media (max-width: 1024px) {
+            .hero-content,
+            .visual-grid,
+            .cache-grid,
+            .games-grid,
+            .backup-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .comparison-table {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="nav-left">
+                <div class="lang-switcher">
+                    <select id="lang-select" onchange="switchLang(this.value)">
+                        <option value="en">English</option>
+                        <option value="zh">简体中文</option>
+                        <option value="de">Deutsch</option>
+                        <option value="ru">Русский</option>
+                        <option value="fr">Français</option>
+                        <option value="es">Español</option>
+                    </select>
+                </div>
+                <div class="nav-tabs" id="nav-tabs">
+                    <div class="nav-tabs-slider"></div>
+                    <span class="nav-tab active" id="tab-intro" onclick="switchTab('intro')" data-i18n="nav.tab.intro">Introduction</span>
+                    <span class="nav-tab" id="tab-benefit" onclick="switchTab('benefit')" data-i18n="nav.tab.benefit">Benefits</span>
+                    <span class="nav-tab" id="tab-changelog" onclick="switchTab('changelog')" data-i18n="nav.tab.changelog">Changelog</span>
+                </div>
+            </div>
+            <div class="nav-logo">
+                <img src="https://modfans.cc/gam/editor/page/editor-logo.png" alt="GAM Editor">
+                <span>GAM Vehicle Editor</span>
+            </div>
+            <button class="download-btn" onclick="openDownloadPanel()" data-i18n="nav.download"> Download</button>
+        </div>
+    </nav>
+
+    <!-- 下载面板（导航栏正下方，hero 上方） -->
+    <div id="download-panel" class="download-panel">
+        <!-- 顶部标题行 -->
+        <div class="download-panel-header">
+            <h2 class="download-panel-title" data-i18n="download.title">Download</h2>
+            <button class="download-panel-close" onclick="closeDownloadPanel()" title="Close">&times;</button>
+        </div>
+        <!-- 内容卡片 -->
+        <div class="download-panel-card">
+        <div class="download-panel-inner">
+            <!-- 左列：文字说明 -->
+            <div>
+                <h2 data-i18n="download.headline">GAM Editor is integrated into <strong>GAM Mod Manager</strong></h2>
+                <p class="download-panel-subtitle" data-i18n="download.sub">If you have already installed GAM Mod Manager, no need to download again.</p>
+                <ul class="download-panel-steps">
+                    <li data-i18n="download.step1">Open GAM Mod Manager</li>
+                    <li data-i18n="download.step2">Update GAM Mod Manager when prompted</li>
+                    <li data-i18n="download.step3">Add a supported game, e.g. SnowRunner</li>
+                    <li data-i18n="download.step4">After adding, the Editor button will appear in the top menu bar</li>
+                    <li data-i18n="download.step5">Click the Editor button — it will auto-download required config files</li>
+                    <li data-i18n="download.step6">The editor will launch automatically after download</li>
+                </ul>
+                <p class="download-panel-cta-title" data-i18n="download.cta">If you haven't downloaded GAM Mod Manager yet, click the button below</p>
+                <p class="download-panel-link">
+                    <a href="https://www.modfans.cc/20301.html" target="_blank" class="download-panel-link-icon" data-i18n="download.learn">
+                        Learn about GAM Mod Manager
+                        <!-- 外链图标 -->
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    </a>
+                </p>
+                <a href="https://modfans.cc/gam/downloads/GAM.zip" download class="download-panel-btn">
+                    <img src="https://modfans.cc/gam/editor/page/logos_windows-filled.png" alt="" style="width:20px;height:20px;position:relative;top:1px;">
+                    <span data-i18n="download.btn">Windows 10/11&nbsp;&nbsp;Download Now</span>
+                </a>
+                <div class="download-panel-unsupported">
+                    <span data-i18n="download.unsupported">Not supported:</span>
+                    <span>
+                        <!-- Apple/macOS 图标 -->
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.3.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                        MacOS
+                    </span>
+                    <span>
+                        <!-- Linux Tux 图标 -->
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.79 2 8 3.79 8 6v4c0 1.1.45 2.1 1.17 2.83-.1.24-.17.5-.17.78 0 .55.22 1.05.59 1.41-.37.36-.59.86-.59 1.41 0 1.1.9 2 2 2h2c1.1 0 2-.9 2-2 0-.55-.22-1.05-.59-1.41.37-.36.59-.86.59-1.41 0-.28-.07-.54-.17-.78C15.55 12.1 16 11.1 16 10V6c0-2.21-1.79-4-4-4zm-1 14h2v1h-2v-1zm0-3h2v2h-2v-2zm1-9c1.1 0 2 .9 2 2v4c0 1.1-.9 2-2 2s-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M7 19c0 1.66 2.24 3 5 3s5-1.34 5-3c0-.88-.56-1.67-1.45-2.24C14.9 16.27 13.5 16 12 16s-2.9.27-3.55.76C7.56 17.33 7 18.12 7 19z"/></svg>
+                        Linux
+                    </span>
+                </div>
+            </div>
+            <!-- 右列：截图 -->
+            <div class="download-panel-screenshot">
+                <img src="https://modfans.cc/gam/editor/page/gam-screenshot.png" alt="GAM模组管理器" loading="lazy">
+            </div>
+        </div>
+        </div>
+    </div>
+    
+    <!-- 介绍内容区域 -->
+    <div id="intro-content">
+    
+    <!-- Hero 区域 + 可视化编辑 -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1>GAM Vehicle Editor<br><span style="color: #ffffff; font-size: 2rem; font-weight: 400;" data-i18n="hero.subtitle">Professional Game Vehicle Parameter Editor</span></h1>  <!-- ★ 调整项B：副标题字号/字重 -->
+                    <p style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">GAM Vehicle Editor 是一款专为游戏玩家设计的车辆属性可视化编辑工具，支持雪地奔驰（SnowRunner）、BeamNG.Drive 等游戏，无需手动修改代码即可调整悬架、发动机、变速箱等数十种参数，修改完成后一键导出至游戏目录，内置自动备份保护原始文件。</p>
+                    <!-- ★ 调整项⑦：图标大小改 width/height；上下位置改 top（正值下移，负值上移） -->
+                    <button class="cta-button" onclick="openDownloadPanel()"><img src="https://modfans.cc/gam/editor/page/logos_windows-filled.png" alt="" style="width:22px;height:22px;position:relative;top:2.2px;"><span data-i18n="hero.cta">Download for Windows</span></button>
+                    <button class="cta-button cta-button-outline" onclick="openVideoModal()" style="display:none;"><svg style="width:20px;height:20px;flex-shrink:0;margin-right:6px;vertical-align:middle;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg><span data-i18n="hero.video">Watch Demo</span></button>
+                </div>
+                <!-- Hero 右侧动图 -->
+                <div style="display:flex; justify-content:center; align-items:center; gap:2rem;">
+                    <img src="https://modfans.cc/gam/editor/page/suspension.gif" alt="suspension"
+                         style="width:100px; height:100px; object-fit:contain;"
+                         loading="lazy">
+                    <img src="https://modfans.cc/gam/editor/page/motor.gif" alt="motor"
+                         style="width:100px; height:100px; object-fit:contain;"
+                         loading="lazy">
+                    <img src="https://modfans.cc/gam/editor/page/disc-brake.gif" alt="disc-brake"
+                         style="width:100px; height:100px; object-fit:contain;"
+                         loading="lazy">
+                </div>
+            </div>
+            
+            <div class="visual-editing" id="visual-editing-box">
+
+                <!-- 轮播 Slide 1：可视化编辑（绿色） -->
+                <div class="visual-slide active" id="visual-slide-0">
+                    <div class="visual-features">
+                        <h2>可视化编辑</h2>
+                        <ul>
+                            <li>
+                                <span class="checkmark">✓</span>
+                                <span>所有载具属性标签化展示，无需手动编辑代码</span>
+                            </li>
+                            <li>
+                                <span class="checkmark">✓</span>
+                                <span>支持发动机、轮胎、悬挂、变速箱等数十种参数</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <img src="https://modfans.cc/gam/editor/page/editor-screenshot.png" alt="编辑器界面截图" class="screenshot" loading="lazy">
+                    </div>
+                </div>
+
+                <!-- 轮播 Slide 2：一键导出（深色） -->
+                <!-- ★ 调整项：第二页图片替换 slide2-screenshot.png；文字在下方修改 -->
+                <div class="visual-slide" id="visual-slide-1">
+                    <div class="visual-features">
+                        <h2>一键导出</h2>
+                        <ul>
+                            <li>
+                                <span class="checkmark">✓</span>
+                                <span>修改完成后一键导出至游戏目录，即改即用</span>
+                            </li>
+                            <li>
+                                <span class="checkmark">✓</span>
+                                <span>导出前自动校验参数合法性，避免游戏崩溃</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <!-- ★ 调整项：后续将 slide2-screenshot.png 替换为实际截图 -->
+                        <img src="https://modfans.cc/gam/editor/page/editor-screenshot-2.png" alt="一键导出" class="screenshot" loading="lazy">
+                    </div>
+                </div>
+
+                <!-- 左下角导航按钮 -->
+                <div class="visual-nav">
+                    <button class="visual-nav-btn" onclick="visualPrev()">
+                        <img src="https://modfans.cc/gam/editor/page/arrow-left-s-line.png" alt="上一页">
+                    </button>
+                    <div class="visual-dots">
+                        <div class="visual-dot active" id="visual-dot-0" onclick="visualGoto(0)"></div>
+                        <div class="visual-dot" id="visual-dot-1" onclick="visualGoto(1)"></div>
+                    </div>
+                    <button class="visual-nav-btn" onclick="visualNext()">
+                        <img src="https://modfans.cc/gam/editor/page/arrow-right-s-line.png" alt="下一页">
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </section>
+    
+    <!-- 智能缓存机制 -->
+    <section class="cache-section">
+        <div class="container">
+            <h2 data-i18n="section.cache">Smart Caching</h2>
+            <p class="section-subtitle" data-i18n="section.cache.sub">Fast reads, instant startup</p>
+            <div class="cache-grid">
+                <!-- 左侧：三段文字 + 竖线，自动轮播激活 -->
+                <div class="cache-timeline" id="cache-timeline">
+                    <!-- 绿色滑块，JS控制top/height -->
+                    <div class="cache-slider" id="cache-slider"></div>
+                    <div id="cache-item-0">
+                        <div class="cache-vbar"></div>
+                        <div class="cache-text-block">
+                            <p>
+                                <!-- 存储/缓存图标 -->
+                                <span style="display:inline-flex;align-items:center;gap:5px;margin-bottom:2px;">
+                                    <svg style="width:13px;height:13px;flex-shrink:0;vertical-align:middle;color:inherit;transition:color 0.4s ease;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4.03 3-9 3S3 13.66 3 12"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/></svg>
+                                    <span class="line1" data-i18n="cache.item0.l1">Auto-cached after first load,</span>
+                                </span><br><span class="line2" data-i18n="cache.item0.l2">instant startup from then on</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div id="cache-item-1">
+                        <div class="cache-vbar"></div>
+                        <div class="cache-text-block">
+                            <p>
+                                <!-- 闪电/智能识别图标 -->
+                                <span style="display:inline-flex;align-items:center;gap:5px;margin-bottom:2px;">
+                                    <svg style="width:13px;height:13px;flex-shrink:0;vertical-align:middle;color:inherit;transition:color 0.4s ease;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                    <span class="line1" data-i18n="cache.item1.l1">Smart detection after export,</span>
+                                </span><br><span class="line2" data-i18n="cache.item1.l2">avoids redundant re-reads</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div id="cache-item-2">
+                        <div class="cache-vbar"></div>
+                        <div class="cache-text-block">
+                            <p>
+                                <!-- 刷新/同步图标 -->
+                                <span style="display:inline-flex;align-items:center;gap:5px;margin-bottom:2px;">
+                                    <svg style="width:13px;height:13px;flex-shrink:0;vertical-align:middle;color:inherit;transition:color 0.4s ease;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                                    <span class="line1" data-i18n="cache.item2.l1">Auto re-reads on game update,</span>
+                                </span><br><span class="line2" data-i18n="cache.item2.l2">always stays up to date</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 中间：第一次打开（慢速加载，10秒一轮）-->
+                <div class="cache-icon-wrapper">
+                    <div class="cache-loading-anim" id="loading-slow">
+                        <!-- 图层由上到下：1最顶，4最底 -->
+                        <img src="https://modfans.cc/gam/editor/page/Loading-4.png" alt="" style="z-index:1;" loading="lazy">
+                        <img src="https://modfans.cc/gam/editor/page/Loading-3.png" alt="" class="layer-3" style="z-index:2;" loading="lazy">
+                        <img src="https://modfans.cc/gam/editor/page/Loading-2.png" alt="" style="z-index:3;" loading="lazy">
+                        <img src="https://modfans.cc/gam/editor/page/Loading-1.png" alt="" class="layer-1" style="z-index:4;" loading="lazy">
+                    </div>
+                    <p data-i18n="cache.slow">First open</p>
+                </div>
+
+                <!-- 右侧：后续打开（快速加载，2秒一轮）-->
+                <div class="cache-icon-wrapper">
+                    <div class="cache-loading-anim" id="loading-fast">
+                        <img src="https://modfans.cc/gam/editor/page/Loading-4.png" alt="" style="z-index:1;" loading="lazy">
+                        <img src="https://modfans.cc/gam/editor/page/Loading-3.png" alt="" class="layer-3" style="z-index:2;" loading="lazy">
+                        <img src="https://modfans.cc/gam/editor/page/Loading-2.png" alt="" style="z-index:3;" loading="lazy">
+                        <img src="https://modfans.cc/gam/editor/page/Loading-1.png" alt="" class="layer-1" style="z-index:4;" loading="lazy">
+                    </div>
+                    <p data-i18n="cache.fast">Subsequent opens</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 多游戏多平台支持 -->
+    <section class="games-section">
+        <div class="container">
+            <h2 data-i18n="section.games">Multi-Game &amp; Multi-Platform</h2>
+            <p class="section-subtitle" data-i18n="section.games.sub">Broad compatibility with major platforms and games</p>
+            <div class="games-grid">
+                <div class="game-card">
+                    <img src="https://modfans.cc/gam/editor/page/game-1.png" alt="多游戏支持" class="game-card-bg" loading="lazy">
+                    <div class="game-card-text">
+                        <h3 data-i18n="games.card1.title">Multi-Game Support</h3>
+                        <p data-i18n="games.card1.desc">Supports SnowRunner, BeamNG.Drive, with more games coming soon</p>
+                    </div>
+                </div>
+                <div class="game-card">
+                    <img src="https://modfans.cc/gam/editor/page/game-2.png" alt="多平台支持" class="game-card-bg" loading="lazy">
+                    <div class="game-card-text">
+                        <h3 data-i18n="games.card2.title">Multi-Platform Support</h3>
+                        <p data-i18n="games.card2.desc">Supports games on Steam, Epic and more</p>
+                    </div>
+                </div>
+                <div class="game-card">
+                    <img src="https://modfans.cc/gam/editor/page/game-3.png" alt="统一 UI 框架" class="game-card-bg" loading="lazy">
+                    <div class="game-card-text">
+                        <h3 data-i18n="games.card3.title">Unified UI Framework</h3>
+                        <p data-i18n="games.card3.desc">Independent config per game, consistent UI design</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 安全备份系统 -->
+    <section class="backup-section">
+        <div class="container">
+            <h2 data-i18n="section.backup">Safe Backup System</h2>
+            <p class="section-subtitle" data-i18n="section.backup.sub">Multiple protections, mod with confidence</p>
+            <div class="backup-grid">
+                <div class="backup-features">
+                    <div class="backup-item" id="backup-item-0">
+                        <div class="backup-icon">
+                            <img src="https://modfans.cc/gam/editor/page/safety-1-deselected.png" alt="" class="icon-deselected" loading="lazy">
+                            <img src="https://modfans.cc/gam/editor/page/safety-1.png" alt="" class="icon-selected" loading="lazy">
+                        </div>
+                        <div class="backup-text">
+                            <h3 data-i18n="backup.item0.title">Auto-backup on first run</h3>
+                            <p data-i18n="backup.item0.desc">A full backup of your game files is created on first launch, keeping originals safe.</p>
+                        </div>
+                    </div>
+                    <div class="backup-item" id="backup-item-1">
+                        <div class="backup-icon">
+                            <img src="https://modfans.cc/gam/editor/page/safety-2-deselected.png" alt="" class="icon-deselected" loading="lazy">
+                            <img src="https://modfans.cc/gam/editor/page/safety-2.png" alt="" class="icon-selected" loading="lazy">
+                        </div>
+                        <div class="backup-text">
+                            <h3 data-i18n="backup.item1.title">Multiple named snapshots</h3>
+                            <p data-i18n="backup.item1.desc">Create multiple backup versions for different mod setups, switch between them anytime.</p>
+                        </div>
+                    </div>
+                    <div class="backup-item" id="backup-item-2">
+                        <div class="backup-icon">
+                            <img src="https://modfans.cc/gam/editor/page/safety-3-deselected.png" alt="" class="icon-deselected" loading="lazy">
+                            <img src="https://modfans.cc/gam/editor/page/safety-3.png" alt="" class="icon-selected" loading="lazy">
+                        </div>
+                        <div class="backup-text">
+                            <h3 data-i18n="backup.item2.title">Restore any version instantly</h3>
+                            <p data-i18n="backup.item2.desc">Not happy with a change? Restore to any previous backup point in one click, zero risk.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- 右侧：三张图片叠放，对应激活项 -->
+                <div class="backup-right">
+                    <img src="https://modfans.cc/gam/editor/page/safety-1-right.gif" alt="" class="backup-right-img active" id="backup-right-0" loading="lazy">
+                    <img src="https://modfans.cc/gam/editor/page/safety-2-right.gif" alt="" class="backup-right-img" id="backup-right-1" loading="lazy">
+                    <img src="https://modfans.cc/gam/editor/page/safety-3-right.gif" alt="" class="backup-right-img" id="backup-right-2" loading="lazy">
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    </div><!-- end intro-content -->
+    
+    <!-- 权益对比内容区域（默认隐藏） -->
+    <div id="benefit-content" style="display:none;">
+    
+    <!-- 功能对比表 -->
+    <section class="comparison-section">
+        <div class="container" style="max-width: 1000px;">
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th style="text-align: left;" data-i18n="benefit.col.feature">Feature</th>
+                        <th data-i18n="benefit.col.free">Free</th>
+                        <th data-i18n="benefit.col.pro">Pro</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td data-i18n="benefit.local_cache">Local Cache</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.reset">Restore Original</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.auto_backup">Auto Backup</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.visual_edit">Visual UI Editor</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.basic_params">Basic Parameter Edit</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.dlc">DLC Vehicle Edit</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.mod">MOD Vehicle Edit</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.reset_btn">Reset Function</td><td><span class="cross-red">✗</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.save">Save Function</td><td><span class="cross-red">✗</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.snapshot">Snapshot Function</td><td><span class="cross-red">✗</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.export">Export to Game</td><td data-i18n="benefit.export.free">5 times/day</td><td data-i18n="benefit.export.pro">Unlimited</td></tr>
+                    <tr><td data-i18n="benefit.batch">Batch Export</td><td><span class="limit-badge" data-i18n="benefit.batch.free">Limited Free</span></td><td><span class="check-green">✓</span></td></tr>
+                </tbody>
+            </table>
+            <div class="action-buttons">
+                <div></div>
+                <button class="btn-outline" onclick="openDownloadPanel()" data-i18n="benefit.start">Get Started</button>
+                <a href="https://www.modfans.cc/user?page=vip" target="_blank" class="btn-primary" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center;" data-i18n="benefit.upgrade">Upgrade to Pro</a>
+            </div>
+        </div>
+    </section>
+    
+    </div><!-- end benefit-content -->
+
+    <!-- 更新日志内容区域（默认隐藏） -->
+    <div id="changelog-content" style="display:none;">
+    <section style="padding: 6rem 0 5rem; background: #0d0d0d;">
+        <div class="container">
+        <div style="max-width: 760px;">
+
+            <!-- 标题 -->
+            <div style="margin-bottom: 3rem;">
+                <h2 data-i18n="changelog.title">Changelog</h2>
+                <p style="color:rgba(255,255,255,0.45); font-size:0.9rem; margin:0;" data-i18n="changelog.sub">GAM Vehicle Editor Version History</p>
+            </div>
+
+            <!-- 最新版本：动态渲染占位块 -->
+            <div id="changelog-latest" style="margin-bottom: 2.5rem;">
+                <!-- 加载中状态 -->
+                <div id="changelog-loading" style="color:rgba(255,255,255,0.35); font-size:0.85rem; padding-left:1.5rem;" data-i18n="changelog.loading">Loading latest version info…</div>
+            </div>
+
+            <!-- 历史版本：动态渲染占位块 -->
+            <div id="changelog-history"></div>
+
+            <!-- v0.1.x -->
+            <div style="margin-bottom: 2.5rem; border-left: 3px solid rgba(255,255,255,0.12); padding-left: 1.5rem;">
+                <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom: 1rem;">
+                    <span style="background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.6); font-size:0.8rem; font-weight:700; padding:0.2rem 0.7rem; border-radius:20px;">v0.1.x</span>
+                    <span style="color:rgba(255,255,255,0.35); font-size:0.82rem;">2026 早期版本</span>
+                </div>
+                <div style="color:rgba(255,255,255,0.65); font-size:0.875rem; line-height:1.7; padding-left:0.5rem;">
+                    · SnowRunner 载具编辑器核心功能<br>
+                    · 参数面板：悬架、发动机、变速箱等<br>
+                    · DLC / MOD 双路径扫描与缓存机制<br>
+                    · 双阶段保存（本地缓存 + 导出至游戏）<br>
+                    · 备份与还原支持<br>
+                    · 登录系统与会员权限控制
+                </div>
+            </div>
+
+        </div>
+
+        </div><!-- end container -->
+    </section>
+    </div><!-- end changelog-content -->
+
+        <section class="faq-section">
+        <div class="container">
+            <div class="faq-inner">
+                <!-- Left column -->
+                <div style="display:flex; flex-direction:column; justify-content:space-between; min-height:200px;">
+                    <div>
+                        <h2 data-i18n="faq.title">FAQ</h2>
+                        <p class="section-subtitle" style="text-align: left;" data-i18n="faq.sub">Answers to common questions</p>
+                    </div>
+                    <img src="https://modfans.cc/gam/editor/page/question.gif"
+                         alt="FAQ"
+                         style="width:220px; height:220px; display:block; margin-top:3rem;">
+                </div>
+                <!-- 右列：色块列表，与标题顶部对齐 -->
+                <div class="faq-list">
+                    <details>
+                        <summary>
+                            <span data-i18n="faq.q1">Do I need to purchase the game to use this editor?</span>
+                            <span>+</span>
+                        </summary>
+                        <p data-i18n="faq.a1">Yes. This editor is only for modifying game assets you have legally obtained. Please ensure you own a valid license for the game.</p>
+                    </details>
+                    <details>
+                        <summary>
+                            <span data-i18n="faq.q2">Will modified files affect multiplayer?</span>
+                            <span>+</span>
+                        </summary>
+                        <p data-i18n="faq.a2">No impact in single-player mode. In multiplayer, some servers may detect and restrict modified vehicles. We recommend using it in single-player only.</p>
+                    </details>
+                    <details>
+                        <summary>
+                            <span data-i18n="faq.q3">Will my modifications be lost after a game update?</span>
+                            <span>+</span>
+                        </summary>
+                        <p data-i18n="faq.a3">Major game updates may overwrite modified files. We recommend re-exporting your save after each game update, then using the Load Save feature to restore previous modifications.</p>
+                    </details>
+                    <details>
+                        <summary>
+                            <span data-i18n="faq.q4">Can the export limit be removed?</span>
+                            <span>+</span>
+                        </summary>
+                        <p data-i18n="faq.a4">Upgrading to a membership unlocks unlimited exports, along with advanced features like saves and snapshots.</p>
+                    </details>
+                    <details>
+                        <summary>
+                            <span data-i18n="faq.q5">Does it support other games?</span>
+                            <span>+</span>
+                        </summary>
+                        <p data-i18n="faq.a5">Currently supports SnowRunner and BeamNG.Drive at launch. Support for more games will be added gradually.</p>
+                    </details>
+                    <details>
+                        <summary>
+                            <span data-i18n="faq.q6">&quot;Game installation directory not found&quot; after switching games?</span>
+                            <span>+</span>
+                        </summary>
+                        <p data-i18n="faq.a6">Please add the game in the GAM main application first. The editor reads game paths from GAM configuration. For BeamNG.Drive, make sure the mod deployment path is configured correctly.</p>
+                    </details>
+                    <details>
+                        <summary>
+                            <span data-i18n="faq.q7">The editor cannot detect installed mods?</span>
+                            <span>+</span>
+                        </summary>
+                        <p data-i18n="faq.a7">For BeamNG.Drive, make sure the mod deployment path is set. Other games set it automatically after being added, so no manual configuration is needed.</p>
+                    </details>
+                    <details>
+                        <summary>
+                            <span data-i18n="faq.q8">No changes appear in-game after editing?</span>
+                            <span>+</span>
+                        </summary>
+                        <p data-i18n="faq.a8">After editing, save the parameters first, then click "Export to Game". Make sure the game is closed before exporting, otherwise the export will have no effect.</p>
+                    </details>
+                    <details>
+                        <summary>
+                            <span data-i18n="faq.q9">How is GAM Vehicle Editor different from editing game files directly?</span>
+                            <span>+</span>
+                        </summary>
+                        <p data-i18n="faq.a9">Directly editing game files requires locating config files and writing code - error-prone and hard to undo. GAM Vehicle Editor provides a visual interface, auto-backup before editing, and one-click restore, greatly reducing the risk of mistakes.</p>
+                    </details>
+                    <details>
+                        <summary>
+                            <span data-i18n="faq.q10">How do I use the SnowRunner / BeamNG.Drive vehicle editor?</span>
+                            <span>+</span>
+                        </summary>
+                        <p data-i18n="faq.a10">After adding the game in GAM mod manager, click the "Editor" button in the top menu to launch it. The editor scans all vehicles automatically. Select a vehicle to adjust parameters, then click "Export to Game" to apply changes instantly.</p>
+                    </details>
+                    <details>
+                        <summary>
+                            <span data-i18n="faq.q11">Which tool is recommended for modifying BeamNG.Drive vehicles?</span>
+                            <span>+</span>
+                        </summary>
+                        <p data-i18n="faq.a11">GAM Vehicle Editor supports visual editing of BeamNG.Drive vehicle parameters - suspension, engine, tires - with auto-backup before changes, never corrupting original game data, and supporting reset to defaults at any time.</p>
+                    </details>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 系统配置要求 -->
+    <section style="padding: 4rem 2rem; background: #f5f5f5;">
+        <div class="container">
+            <h2 style="color: #1a1a1a; margin-bottom: 0.75rem;" data-i18n="sysreq.title">System Requirements</h2>
+            <p class="section-subtitle" style="text-align: left; color: rgba(0,0,0,0.45); margin-bottom: 3rem;" data-i18n="sysreq.sub">Recommended hardware to run GAM Vehicle Editor</p>
+
+            <!-- 表头 -->
+            <div style="display: grid; grid-template-columns: 160px 1fr 1fr; gap: 0; margin-bottom: 0;">
+                <div style="padding: 0.6rem 1rem 0.6rem 0; font-size: 0.8rem; font-weight: 600; color: rgba(0,0,0,0.35); text-transform: uppercase; letter-spacing: 0.05em;" data-i18n="sysreq.col.item">Component</div>
+                <div style="padding: 0.6rem 1rem; font-size: 0.8rem; font-weight: 600; color: rgba(0,0,0,0.35); text-transform: uppercase; letter-spacing: 0.05em;" data-i18n="sysreq.col.min">Minimum</div>
+                <div style="padding: 0.6rem 1rem; font-size: 0.8rem; font-weight: 600; color: #27bd51; text-transform: uppercase; letter-spacing: 0.05em;" data-i18n="sysreq.col.rec">Recommended</div>
+            </div>
+            <!-- 表体 -->
+            <div style="display: flex; flex-direction: column;">
+                <!-- CPU -->
+                <div style="display: grid; grid-template-columns: 160px 1fr 1fr; gap: 0; border-top: 1px solid #e0e0e0; padding: 0.85rem 0;">
+                    <div style="padding: 0 1rem 0 0; font-size: 0.9rem; font-weight: 600; color: #1a1a1a; display: flex; align-items: center;">CPU</div>
+                    <div style="padding: 0 1rem; font-size: 0.9rem; color: rgba(0,0,0,0.6); display: flex; align-items: center;" data-i18n="sysreq.cpu.min">4 cores (post-2016)</div>
+                    <div style="padding: 0 1rem; font-size: 0.9rem; color: rgba(0,0,0,0.8); display: flex; align-items: center;" data-i18n="sysreq.cpu.rec">8 cores or more</div>
+                </div>
+                <!-- 内存 -->
+                <div style="display: grid; grid-template-columns: 160px 1fr 1fr; gap: 0; border-top: 1px solid #e0e0e0; padding: 0.85rem 0;">
+                    <div style="padding: 0 1rem 0 0; font-size: 0.9rem; font-weight: 600; color: #1a1a1a; display: flex; align-items: center;" data-i18n="sysreq.ram.label">RAM</div>
+                    <div style="padding: 0 1rem; font-size: 0.9rem; color: rgba(0,0,0,0.6); display: flex; align-items: center;" data-i18n="sysreq.ram.min">4 GB available</div>
+                    <div style="padding: 0 1rem; font-size: 0.9rem; color: rgba(0,0,0,0.8); display: flex; align-items: center;" data-i18n="sysreq.ram.rec">8 GB available</div>
+                </div>
+                <!-- 磁盘空间 -->
+                <div style="display: grid; grid-template-columns: 160px 1fr 1fr; gap: 0; border-top: 1px solid #e0e0e0; padding: 0.85rem 0;">
+                    <div style="padding: 0 1rem 0 0; font-size: 0.9rem; font-weight: 600; color: #1a1a1a; display: flex; align-items: center;" data-i18n="sysreq.disk.label">Disk Space</div>
+                    <div style="padding: 0 1rem; font-size: 0.9rem; color: rgba(0,0,0,0.6); display: flex; align-items: center;" data-i18n="sysreq.disk.min">2 GB free</div>
+                    <div style="padding: 0 1rem; font-size: 0.9rem; color: rgba(0,0,0,0.8); display: flex; align-items: center;" data-i18n="sysreq.disk.rec">5 GB free (SnowRunner temp + BeamNG + backups)</div>
+                </div>
+                <!-- 磁盘类型 -->
+                <div style="display: grid; grid-template-columns: 160px 1fr 1fr; gap: 0; border-top: 1px solid #e0e0e0; padding: 0.85rem 0;">
+                    <div style="padding: 0 1rem 0 0; font-size: 0.9rem; font-weight: 600; color: #1a1a1a; display: flex; align-items: center;" data-i18n="sysreq.disktype.label">Disk Type</div>
+                    <div style="padding: 0 1rem; font-size: 0.9rem; color: rgba(0,0,0,0.6); display: flex; align-items: center;" data-i18n="sysreq.disktype.min">HDD (slower)</div>
+                    <div style="padding: 0 1rem; font-size: 0.9rem; color: #27bd51; font-weight: 600; display: flex; align-items: center;" data-i18n="sysreq.disktype.rec">SSD strongly recommended (3–10x faster cache I/O)</div>
+                </div>
+                <!-- 操作系统 -->
+                <div style="display: grid; grid-template-columns: 160px 1fr 1fr; gap: 0; border-top: 1px solid #e0e0e0; padding: 0.85rem 0;">
+                    <div style="padding: 0 1rem 0 0; font-size: 0.9rem; font-weight: 600; color: #1a1a1a; display: flex; align-items: center;" data-i18n="sysreq.os.label">OS</div>
+                    <div style="padding: 0 1rem; font-size: 0.9rem; color: rgba(0,0,0,0.6); display: flex; align-items: center;">Windows 10</div>
+                    <div style="padding: 0 1rem; font-size: 0.9rem; color: rgba(0,0,0,0.8); display: flex; align-items: center;">Windows 11</div>
+                </div>
+                <!-- 依赖 -->
+                <div style="display: grid; grid-template-columns: 160px 1fr 1fr; gap: 0; border-top: 1px solid #e0e0e0; border-bottom: 1px solid #e0e0e0; padding: 0.85rem 0;">
+                    <div style="padding: 0 1rem 0 0; font-size: 0.9rem; font-weight: 600; color: #1a1a1a; display: flex; align-items: center;" data-i18n="sysreq.dep.label">Dependencies</div>
+                    <div style="padding: 0 1rem; font-size: 0.9rem; color: rgba(0,0,0,0.6); display: flex; align-items: center;">
+                        <span onclick="confirmDownloadWinRAR()" style="cursor:pointer; text-decoration:underline dotted; text-underline-offset:3px;" data-i18n="sysreq.dep.val">WinRAR (required for SnowRunner)</span>
+                    </div>
+                    <div style="padding: 0 1rem; font-size: 0.9rem; color: rgba(0,0,0,0.8); display: flex; align-items: center;">
+                        <span onclick="confirmDownloadWinRAR()" style="cursor:pointer; text-decoration:underline dotted; text-underline-offset:3px;" data-i18n="sysreq.dep.val">WinRAR (required for SnowRunner)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 法律与合规 -->
+    <section style="padding: 3rem 2rem 6rem; background: #f5f5f5;">
+        <div class="container">
+            <h2 style="color: #1a1a1a; margin-bottom: 3rem;" data-i18n="legal.title">Legal &amp; Compliance</h2>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;">
+
+                <!-- 卡片1：使用条款 -->
+                <div style="background: #445149; border-radius: 12px; padding: 2rem; position: relative; overflow: hidden;">
+                    <img src="https://modfans.cc/gam/editor/page/law-1.png" alt="" style="position:absolute; top:1.2rem; right:1.2rem; width:52px; height:52px; object-fit:contain;" loading="lazy">
+                    <h3 style="font-size: 1.1rem; color: #fff; margin-bottom: 1.5rem; margin-top: 0.5rem;" data-i18n="legal.terms.title">Terms of Use Summary</h3>
+                    <ul style="list-style: none; padding: 0; margin: 0; color: rgba(255,255,255,0.75); font-size: 0.9rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                        <li style="display:flex; align-items:flex-start; gap:0.5rem;">
+                            <!-- 允许：✓ 勾选图标 -->
+                            <svg style="width:16px;height:16px;flex-shrink:0;margin-top:2px;color:#4ade80;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span data-i18n="legal.terms.allow">Permitted: personal use, study, research, and appreciation</span>
+                        </li>
+                        <li style="display:flex; align-items:flex-start; gap:0.5rem;">
+                            <!-- 禁止：✗ 叉号图标 -->
+                            <svg style="width:16px;height:16px;flex-shrink:0;margin-top:2px;color:#f87171;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            <span data-i18n="legal.terms.prohibit">Prohibited: redistribution, reverse engineering, commercial use, or removing copyright notices</span>
+                        </li>
+                        <li style="display:flex; align-items:flex-start; gap:0.5rem;">
+                            <!-- 提醒：! 感叹号图标 -->
+                            <svg style="width:16px;height:16px;flex-shrink:0;margin-top:2px;color:#fbbf24;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            <span data-i18n="legal.terms.remind">Reminder: comply with game EULA; single-player use only</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 卡片2：完整政策 -->
+                <div style="background: #2f4864; border-radius: 12px; padding: 2rem; position: relative; overflow: hidden;">
+                    <img src="https://modfans.cc/gam/editor/page/law-2.png" alt="" style="position:absolute; top:1.2rem; right:1.2rem; width:52px; height:52px; object-fit:contain;" loading="lazy">
+                    <h3 style="font-size: 1.1rem; color: #fff; margin-bottom: 1.5rem; margin-top: 0.5rem;" data-i18n="legal.policy.title">Full Policies</h3>
+                    <!-- First row: two buttons -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+                        <a href="https://gam-editor.com/terms.html" target="_blank" style="background: #fff; border: none; padding: 0.75rem; border-radius: 6px; color: #1a1a1a; cursor: pointer; text-align: center; font-size: 0.9rem; font-weight: 500; text-decoration: none; display: block; transition: background 0.2s, color 0.2s;" onmouseover="this.style.background='#22c55e';this.style.color='#000'" onmouseout="this.style.background='#fff';this.style.color='#1a1a1a'" data-i18n="legal.policy.terms">Terms of Service</a>
+                        <a href="https://gam-editor.com/privacy.html" target="_blank" style="background: #fff; border: none; padding: 0.75rem; border-radius: 6px; color: #1a1a1a; cursor: pointer; text-align: center; font-size: 0.9rem; font-weight: 500; text-decoration: none; display: block; transition: background 0.2s, color 0.2s;" onmouseover="this.style.background='#22c55e';this.style.color='#000'" onmouseout="this.style.background='#fff';this.style.color='#1a1a1a'" data-i18n="legal.policy.privacy">Privacy Policy</a>
+                    </div>
+                    <!-- Second row: disclaimer button -->
+                    <button onclick="openDisclaimer()" style="width: 100%; background: #fff; border: none; padding: 0.75rem; border-radius: 6px; color: #1a1a1a; cursor: pointer; text-align: center; font-size: 0.9rem; font-weight: 500; transition: background 0.2s, color 0.2s;" onmouseover="this.style.background='#22c55e';this.style.color='#000'" onmouseout="this.style.background='#fff';this.style.color='#1a1a1a'" data-i18n="legal.policy.disclaimer">Important Notice</button>
+                </div>
+
+                <!-- 卡片3：著作权登记 -->
+                <div style="background: #32322e; border-radius: 12px; padding: 2rem; position: relative; overflow: hidden;">
+                    <img src="https://modfans.cc/gam/editor/page/law-3.png" alt="" style="position:absolute; top:1.2rem; right:1.2rem; width:52px; height:52px; object-fit:contain;" loading="lazy">
+                    <h3 style="font-size: 1.1rem; color: #fff; margin-bottom: 1.5rem; margin-top: 0.5rem;" data-i18n="legal.copyright.title">Copyright Registration</h3>
+                    <ul style="list-style: none; padding: 0; margin: 0; color: rgba(255,255,255,0.75); font-size: 0.9rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                        <li style="display:flex; align-items:flex-start; gap:0.5rem;">
+                            <!-- 登记号：# 编号图标 -->
+                            <svg style="width:16px;height:16px;flex-shrink:0;margin-top:2px;color:#a3e635;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>
+                            <span data-i18n="legal.copyright.reg">Copyright registration applied</span>
+                        </li>
+                        <li style="display:flex; align-items:flex-start; gap:0.5rem;">
+                            <!-- 著作权人：人物图标 -->
+                            <svg style="width:16px;height:16px;flex-shrink:0;margin-top:2px;color:#a3e635;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            <span data-i18n="legal.copyright.owner">ModFans Development Team</span>
+                        </li>
+                        <li style="display:flex; align-items:flex-start; gap:0.5rem;">
+                            <!-- 保留权利：盾牌图标 -->
+                            <svg style="width:16px;height:16px;flex-shrink:0;margin-top:2px;color:#a3e635;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            <span data-i18n="legal.copyright.rights">Closed source. All rights reserved.</span>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <div class="footer-logos">
+                        <img src="https://modfans.cc/gam/editor/page/modfans-logo.png" alt="ModFans">
+                        <img src="https://modfans.cc/gam/editor/page/gam-logo.png" alt="GAM" style="border-radius: 0;">
+                        <img src="https://modfans.cc/gam/editor/page/editor-logo.png" alt="Editor">
+                    </div>
+                    <div class="footer-text">
+                        <p data-i18n="footer.copyright">&copy; 2026 ModFans Development Team. All rights reserved.</p>
+                        <p><a href="https://gam-editor.com/privacy.html" target="_blank" data-i18n="footer.privacy">Privacy Policy</a> &nbsp;&middot;&nbsp; <a href="https://gam-editor.com/terms.html" target="_blank" data-i18n="footer.terms">Terms of Service</a></p>
+                        <p style="font-size:0.78rem; color:rgba(255,255,255,0.3); margin-top:0.25rem;"><a href="https://www.flaticon.com" title="sedan animated icons" target="_blank" style="color:rgba(255,255,255,0.3); text-decoration:none;">Sedan animated icons created by Freepik - Flaticon</a></p>
+                    </div>
+                </div>
+                <div>
+                    <div class="qr-codes">
+                        <!-- Chinese platform QR codes hidden for overseas version -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+    /* ===== WinRAR 下载确认 ===== */
+    function confirmDownloadWinRAR() {
+        document.getElementById('winrar-modal').style.display = 'flex';
+    }
+    function closeWinRARModal() {
+        document.getElementById('winrar-modal').style.display = 'none';
+    }
+    function doDownloadWinRAR() {
+        closeWinRARModal();
+        window.location.href = 'https://winrar.org.cn/download.html';
+    }
+
+    /* ===== 下载面板开关 ===== */
+    function openDownloadPanel() {
+        var panel = document.getElementById('download-panel');
+        panel.classList.add('active');
+        document.body.style.overflow = 'hidden'; /* 锁定底层页面滚动 */
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function closeDownloadPanel() {
+        document.getElementById('download-panel').classList.remove('active');
+        document.body.style.overflow = ''; /* 恢复底层页面滚动 */
+    }
+
+    function openDisclaimer() {
+        document.getElementById('disclaimer-modal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+    function closeDisclaimer() {
+        document.getElementById('disclaimer-modal').style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    // ===== 视频列表数据（后续增加视频在此追加） =====
+    var VIDEO_LIST = [
+        {
+            title: '还有我爬不上去的坡？',
+            bvid: 'BV1f397BjEAz',
+            desc: 'GAM编辑器轮胎参数调整演示',
+            cover: 'https://modfans.cc/gam/editor/covers/video1.jpg',
+            date: '2026-03-30'
+        },
+        {
+            title: '改车不求人：GAM编辑器使用方法',
+            bvid: 'BV1KhXrBZEgQ',
+            desc: '编辑器完整功能介绍与使用流程',
+            cover: 'https://modfans.cc/gam/editor/covers/video2.jpg',
+            date: '2026-03-29'
+        },
+        {
+            title: '改车不求人：一键调整车辆动力、悬架、变速箱',
+            bvid: 'BV1yXXQBpErv',
+            desc: '动力、悬架、变速箱参数修改演示',
+            cover: 'https://modfans.cc/gam/editor/covers/video3.jpg',
+            date: '2026-03-27'
+        }
+    ];
+
+    var _videoCurrentIndex = -1;
+
+    // B站封面图地址
+    function getBiliThumb(bvid) {
+        // 使用 B站封面代理（通过 vid 拼接）
+        return 'https://i1.hdslb.com/bfs/archive/' + bvid + '.jpg';
+    }
+
+    // 渲染封面网格（初始状态）
+    function renderVideoGrid() {
+        var container = document.getElementById('video-grid');
+        if (!container) return;
+        container.innerHTML = VIDEO_LIST.map(function(v, i) {
+            var coverUrl = v.cover || '';
+            return '<div onclick="playVideo(' + i + ')" style="cursor:pointer;border-radius:8px;overflow:hidden;background:#222;transition:transform 0.15s,box-shadow 0.15s;" onmouseover="this.style.transform=\'translateY(-3px)\';this.style.boxShadow=\'0 8px 24px rgba(0,0,0,0.6)\'" onmouseout="this.style.transform=\'\';this.style.boxShadow=\'\'">'
+                + '<div style="position:relative;padding-bottom:56.25%;background:#2a2a2a;">'
+                + (coverUrl ? '<img src="' + coverUrl + '" alt="' + v.title + '" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;">' : '')
+                + '<div class="play-ovl" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);opacity:0;transition:opacity 0.15s;" onmouseover="this.style.opacity=\'1\'" onmouseout="this.style.opacity=\'0\'">'
+                + '<div style="width:46px;height:46px;background:rgba(0,0,0,0.75);border-radius:50%;display:flex;align-items:center;justify-content:center;">'
+                + '<svg width="18" height="18" viewBox="0 0 24 24" fill="#fff" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg></div></div>'
+                + '</div>'
+                + '<div style="padding:0.5rem 0.7rem 0.65rem;background:#1c1c1c;">'
+                + '<div style="color:#ddd;font-size:0.82rem;font-weight:500;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">' + v.title + '</div>'
+                + (v.date ? '<div style="color:#555;font-size:0.72rem;margin-top:4px;">' + v.date + '</div>' : '')
+                + '</div></div>';
+        }).join('');
+    }
+
+    // 渲染右侧缩略图列表（播放模式）
+    function renderVideoSidebar(activeIndex) {
+        var container = document.getElementById('video-sidebar');
+        if (!container) return;
+        container.innerHTML = VIDEO_LIST.map(function(v, i) {
+            var isActive = (i === activeIndex);
+            return '<div onclick="playVideo(' + i + ')" style="display:flex;flex-direction:column;border-radius:6px;overflow:hidden;cursor:pointer;border:1px solid ' + (isActive ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.1)') + ';transition:border-color 0.15s;" onmouseover="this.style.borderColor=\'rgba(255,255,255,0.25)\'" onmouseout="this.style.borderColor=\'' + (isActive ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.1)') + '\'">'
+                + '<div style="position:relative;padding-bottom:56.25%;background:#2a2a2a;">'
+                + '<img src="' + (v.cover || '') + '" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">'
+                + (isActive ? '<div style="position:absolute;inset:0;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>' : '')
+                + '</div>'
+                + '<div style="padding:0.4rem 0.55rem 0.5rem;background:#1e1e1e;">'
+                + '<div style="color:' + (isActive ? '#fff' : '#ccc') + ';font-size:0.75rem;font-weight:' + (isActive ? '600' : '400') + ';line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">' + v.title + '</div>'
+                + '</div></div>';
+        }).join('');
+    }
+
+    // 打开视频弹窗（网格模式）
+    function openVideoModal() {
+        _videoCurrentIndex = -1;
+        renderVideoGrid();
+        document.getElementById('video-modal-grid').style.display = 'block';
+        document.getElementById('video-modal-player').style.display = 'none';
+        document.getElementById('video-iframe').src = '';
+        // 网格模式：最大1200px，屏幕不足则撑满
+        document.getElementById('video-modal').querySelector('div').style.maxWidth = '1200px';
+        document.getElementById('video-modal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+    function closeVideoModal() {
+        document.getElementById('video-iframe').src = '';
+        document.getElementById('video-modal').style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    // 播放指定视频（切换为播放模式）
+    function playVideo(index) {
+        var v = VIDEO_LIST[index];
+        if (!v) return;
+        _videoCurrentIndex = index;
+        document.getElementById('video-modal-grid').style.display = 'none';
+        document.getElementById('video-modal-player').style.display = 'flex';
+        document.getElementById('video-playing-title').textContent = v.title;
+        document.getElementById('video-iframe').src = '//player.bilibili.com/player.html?bvid=' + v.bvid + '&page=1&autoplay=1';
+        // 播放模式：与网格模式同宽
+        document.getElementById('video-modal').querySelector('div').style.maxWidth = '1200px';
+        renderVideoSidebar(index);
+    }
+
+    // 返回网格列表
+    function backToVideoGrid() {
+        document.getElementById('video-iframe').src = '';
+        document.getElementById('video-modal-player').style.display = 'none';
+        document.getElementById('video-modal-grid').style.display = 'block';
+        document.getElementById('video-modal').querySelector('div').style.maxWidth = '1200px';
+        _videoCurrentIndex = -1;
+    }
+
+    // 监听B站播放器消息，视频结束时自动播放下一个
+    window.addEventListener('message', function(e) {
+        if (!e.data) return;
+        var data = e.data;
+        // B站播放器播放结束时会发送包含 ended 的消息
+        if (typeof data === 'object' && data.event === 'ended') {
+            var next = _videoCurrentIndex + 1;
+            if (next < VIDEO_LIST.length) {
+                playVideo(next);
+            }
+        }
+        // 部分版本以字符串形式发送
+        if (typeof data === 'string') {
+            try { data = JSON.parse(data); } catch(err) { return; }
+            if (data.event === 'ended') {
+                var next = _videoCurrentIndex + 1;
+                if (next < VIDEO_LIST.length) {
+                    playVideo(next);
+                }
+            }
+        }
+    });
+
+    // 兼容旧函数名（保留备用）
+    function closeVideoPlayer() { closeVideoModal(); }
+    function backToVideoList() { backToVideoGrid(); }
+
+    // 点击面板内容区下方空白关闭（点到 panel 本身但不是 inner 时）
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('download-panel').addEventListener('click', function(e) {
+            if (e.target === this) closeDownloadPanel();
+        });
+    });
+
+    /* ===== 更新日志：fetch OSS version.json 动态渲染最新版本 ===== */
+    (function () {
+        var VERSION_URL = 'https://modfans.cc/gam/editor/updates/version.json';
+        var loaded = false;
+
+        function renderHistory(historyArr) {
+            if (!historyArr || !historyArr.length) return;
+            var container = document.getElementById('changelog-history');
+            if (!container) return;
+            var html = '';
+            historyArr.forEach(function(item) {
+                var ver   = item.version || '';
+                var date  = item.date    || '';
+                var notes = item.notes   || '';
+                var lines = notes.split('\n').filter(function(l){ return l.trim() !== ''; });
+                var linesHtml = lines.map(function(l, i) {
+                    var isBullet = /^[-·]/.test(l.trim());
+                    if (isBullet) {
+                        return '<span style="display:block; padding-left:0.5rem;">· ' + l.replace(/^[-·] ?/, '').trim() + '</span>';
+                    } else if (i === 0) {
+                        return '<span style="display:block; font-weight:700; color:rgba(255,255,255,0.85); margin-bottom:0.4rem;">' + l.trim() + '</span>';
+                    } else {
+                        return '<span style="display:block; margin-top:0.6rem; color:rgba(255,255,255,0.85);">' + l.trim() + '</span>';
+                    }
+                }).join('');
+                html += '<div style="margin-bottom:2.5rem; border-left:3px solid rgba(255,255,255,0.12); padding-left:1.5rem;">'
+                    + '<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">'
+                    + '<span style="background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.6); font-size:0.8rem; font-weight:700; padding:0.2rem 0.7rem; border-radius:20px;">v' + ver + '</span>'
+                    + '<span style="color:rgba(255,255,255,0.35); font-size:0.82rem;">' + date + '</span>'
+                    + '</div>'
+                    + '<div style="color:rgba(255,255,255,0.65); font-size:0.875rem; line-height:1.7; padding-left:0.5rem;">'
+                    + linesHtml
+                    + '</div></div>';
+            });
+            container.innerHTML = html;
+        }
+
+        function renderLatest(data) {
+            var ver     = data.latest_version || '';
+            var date    = data.release_date   || '';
+            var notes   = data.release_notes  || '';
+            // release_notes 按 \n 分行，过滤空行，每行渲染为一个条目
+            var lines = notes.split('\n').filter(function(l){ return l.trim() !== ''; });
+            var linesHtml = lines.map(function(l, i) {
+                var isBullet = /^[-·]/.test(l.trim());
+                if (isBullet) {
+                    // 列表项：加 · 符号
+                    return '<span style="display:block; padding-left:0.5rem;">· ' + l.replace(/^[-·] ?/, '').trim() + '</span>';
+                } else if (i === 0) {
+                    // 第一行作为版本标题：加粗
+                    return '<span style="display:block; font-weight:700; color:rgba(255,255,255,0.9); margin-bottom:0.5rem;">' + l.trim() + '</span>';
+                } else {
+                    // 段落介绍或分类标题：不加列表符号，稍加间距
+                    return '<span style="display:block; margin-top:0.6rem; color:rgba(255,255,255,0.85);">' + l.trim() + '</span>';
+                }
+            }).join('');
+
+            var html = '<div style="border-left:3px solid #27bd51; padding-left:1.5rem;">'
+                + '<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">'
+                + '<span style="background:#27bd51; color:#fff; font-size:0.8rem; font-weight:700; padding:0.2rem 0.7rem; border-radius:20px;">v' + ver + '</span>'
+                + '<span style="color:rgba(255,255,255,0.35); font-size:0.82rem;">' + date + '</span>'
+                + '<span style="background:rgba(39,189,81,0.15); color:#27bd51; font-size:0.75rem; padding:0.1rem 0.5rem; border-radius:4px;">最新</span>'
+                + '</div>'
+                + '<div style="color:rgba(255,255,255,0.65); font-size:0.875rem; line-height:1.9; padding-left:0.25rem;">'
+                + linesHtml
+                + '</div></div>';
+
+            var container = document.getElementById('changelog-latest');
+            if (container) container.innerHTML = html;
+        }
+
+        function loadChangelog() {
+            if (loaded) return;
+            loaded = true;
+            fetch(VERSION_URL + '?t=' + Date.now())
+                .then(function(r){ return r.json(); })
+                .then(function(data){ renderLatest(data); renderHistory(data.history); })
+                .catch(function() {
+                    // 静默降级：fetch 失败时显示静态备用内容
+                     var fallback = '<div style="border-left:3px solid #27bd51; padding-left:1.5rem;">'
+                        + '<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">'
+                        + '<span style="background:#27bd51; color:#fff; font-size:0.8rem; font-weight:700; padding:0.2rem 0.7rem; border-radius:20px;">v0.2.3</span>'
+                        + '<span style="color:rgba(255,255,255,0.35); font-size:0.82rem;">2026-03-31</span>'
+                        + '<span style="background:rgba(39,189,81,0.15); color:#27bd51; font-size:0.75rem; padding:0.1rem 0.5rem; border-radius:4px;">最新</span>'
+                        + '</div>'
+                        + '<div style="color:rgba(255,255,255,0.65); font-size:0.875rem; line-height:1.9; padding-left:0.25rem;">'
+                        + '<span style="display:block; font-weight:700; color:rgba(255,255,255,0.9); margin-bottom:0.5rem;">GAM 编辑器 v0.2.3</span>'
+                        + '<span style="display:block; margin-top:0.4rem; color:rgba(255,255,255,0.85);">功能修复</span>'
+                        + '<span style="display:block; padding-left:0.5rem;">· BeamNG: 修复载入存档后引擎、刹车、变速箱等参数未在面板中刷新显示的问题</span>'
+                        + '</div></div>';
+                    var container = document.getElementById('changelog-latest');
+                    if (container) container.innerHTML = fallback;
+                });
+        }
+
+        // 点击更新 tab 时才加载（惰性加载）
+        var tabChangelog = document.getElementById('tab-changelog');
+        if (tabChangelog) {
+            tabChangelog.addEventListener('click', function() {
+                setTimeout(loadChangelog, 50);
+            });
+        }
+        // 暴露到全局，供哈希跳转直接调用
+        window._loadChangelog = loadChangelog;
+    })();
+
+    function switchTab(tab) {
+        var introContent = document.getElementById('intro-content');
+        var benefitContent = document.getElementById('benefit-content');
+        var changelogContent = document.getElementById('changelog-content');
+        var tabIntro = document.getElementById('tab-intro');
+        var tabBenefit = document.getElementById('tab-benefit');
+        var tabChangelog = document.getElementById('tab-changelog');
+        var navTabs = document.getElementById('nav-tabs');
+
+        // 全部隐藏 / 取消激活
+        introContent.style.display = 'none';
+        benefitContent.style.display = 'none';
+        changelogContent.style.display = 'none';
+        tabIntro.classList.remove('active');
+        tabBenefit.classList.remove('active');
+        tabChangelog.classList.remove('active');
+        navTabs.classList.remove('active-benefit', 'active-changelog');
+
+        if (tab === 'intro') {
+            introContent.style.display = 'block';
+            tabIntro.classList.add('active');
+        } else if (tab === 'benefit') {
+            benefitContent.style.display = 'block';
+            tabBenefit.classList.add('active');
+            navTabs.classList.add('active-benefit');
+        } else {
+            changelogContent.style.display = 'block';
+            tabChangelog.classList.add('active');
+            navTabs.classList.add('active-changelog');
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* ===== URL 哈希自动切换标签页 ===== */
+    (function () {
+        function applyHashTab() {
+            var hash = window.location.hash; // e.g. "#changelog" / "#benefit"
+            if (hash === '#changelog' || hash === '#changelog-content') {
+                switchTab('changelog');
+                // 直接调用已暴露的 loadChangelog
+                if (window._loadChangelog) setTimeout(window._loadChangelog, 50);
+            } else if (hash === '#benefit') {
+                switchTab('benefit');
+            }
+        }
+        // 脚本块已在页面底部，DOM 已就绪，直接调用即可
+        applyHashTab();
+        // 浏览器前进/后退时重新检测
+        window.addEventListener('hashchange', applyHashTab);
+    })();
+
+    /* ===== 可视化编辑区域轮播 ===== */
+    /* ★ 调整项：轮播配置 */
+    var VISUAL_TOTAL = 2;           // ★ 轮播总页数，新增 slide 时同步+1
+    var VISUAL_INTERVAL = 5000;     // ★ 自动切换间隔，单位毫秒（5000=5秒）
+    var VISUAL_BACKGROUNDS = [
+        'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',  // ★ 第1页背景（绿色）
+        'linear-gradient(135deg, #2c3631 0%, #1e2620 100%)'   // ★ 第2页背景（深色）
+    ];
+
+    var visualCurrent = 0;
+    var visualTimer = null;
+
+    function visualGoto(index) {
+        // 隐藏当前 slide 和圆点
+        document.getElementById('visual-slide-' + visualCurrent).classList.remove('active');
+        document.getElementById('visual-dot-' + visualCurrent).classList.remove('active');
+        // 切换
+        visualCurrent = index;
+        document.getElementById('visual-slide-' + visualCurrent).classList.add('active');
+        document.getElementById('visual-dot-' + visualCurrent).classList.add('active');
+        // 更换背景色
+        document.getElementById('visual-editing-box').style.background = VISUAL_BACKGROUNDS[visualCurrent];
+        // ★ 切换文字颜色：第0页黑色（绿色背景），其余页白色（暗色背景）
+        var textColor = visualCurrent === 0 ? '#000000' : '#ffffff';
+        var box = document.getElementById('visual-editing-box');
+        box.querySelectorAll('.visual-features h2, .visual-features li span, .checkmark').forEach(function(el) {
+            el.style.color = textColor;
+        });
+        // ★ 切换箭头颜色：第0页黑色，其余页白色（invert翻转PNG）
+        var arrowFilter = visualCurrent === 0 ? 'none' : 'invert(1)';
+        box.querySelectorAll('.visual-nav-btn img').forEach(function(img) {
+            img.style.filter = arrowFilter;
+        });
+        // 重置定时器
+        clearInterval(visualTimer);
+        visualTimer = setInterval(visualNext, VISUAL_INTERVAL);
+    }
+
+    function visualNext() {
+        visualGoto((visualCurrent + 1) % VISUAL_TOTAL);
+    }
+
+    function visualPrev() {
+        visualGoto((visualCurrent - 1 + VISUAL_TOTAL) % VISUAL_TOTAL);
+    }
+
+    // 页面加载后启动自动轮播
+    visualTimer = setInterval(visualNext, VISUAL_INTERVAL);
+
+    /* ===== 安全备份系统：点击切换 + 自动轮播 ===== */
+    var BACKUP_TOTAL = 3;
+    var backupCurrent = 0;
+    var BACKUP_INTERVAL = 5000;  // ★ 调整项：自动切换间隔（毫秒）
+
+    function backupGoto(index) {
+        // 清除旧激活
+        document.getElementById('backup-item-' + backupCurrent).classList.remove('active');
+        document.getElementById('backup-right-' + backupCurrent).classList.remove('active');
+        // 激活新项
+        backupCurrent = index;
+        document.getElementById('backup-item-' + backupCurrent).classList.add('active');
+        document.getElementById('backup-right-' + backupCurrent).classList.add('active');
+    }
+
+    // 初始激活第0项
+    backupGoto(0);
+
+    // 点击切换（点击后重置自动轮播计时）
+    var backupTimer = null;
+    function startBackupTimer() {
+        if (backupTimer) clearInterval(backupTimer);
+        backupTimer = setInterval(function() {
+            backupGoto((backupCurrent + 1) % BACKUP_TOTAL);
+        }, BACKUP_INTERVAL);
+    }
+
+    for (var bi = 0; bi < BACKUP_TOTAL; bi++) {
+        (function(i) {
+            document.getElementById('backup-item-' + i).addEventListener('click', function() {
+                backupGoto(i);
+                startBackupTimer();  // 重置自动计时
+            });
+        })(bi);
+    }
+
+    // 启动自动轮播
+    startBackupTimer();
+
+    /* ===== 智能缓存区域：文字轮播 + loading 动画 ===== */
+
+    // --- 文字竖线轮播（连续竖线 + 绿色滑块） ---
+    var CACHE_TEXT_TOTAL = 3;
+    var CACHE_TEXT_INTERVAL = 3000;  // ★ 调整项：文字轮播切换间隔（毫秒）
+    var cacheTextCurrent = 0;
+
+    function updateCacheSlider(index) {
+        var timeline = document.getElementById('cache-timeline');
+        var slider = document.getElementById('cache-slider');
+        var item = document.getElementById('cache-item-' + index);
+        if (!slider || !item) return;
+        // 计算item相对于timeline的偏移和高度
+        var timelineTop = timeline.getBoundingClientRect().top;
+        var itemRect = item.getBoundingClientRect();
+        var relTop = itemRect.top - timelineTop;
+        var relHeight = itemRect.height;
+        slider.style.top = relTop + 'px';
+        slider.style.height = relHeight + 'px';
+    }
+
+    function cacheTextGoto(index) {
+        // 清除旧激活
+        var prev = document.getElementById('cache-item-' + cacheTextCurrent);
+        prev.classList.remove('active');
+        // 激活新项
+        cacheTextCurrent = index;
+        var cur = document.getElementById('cache-item-' + cacheTextCurrent);
+        cur.classList.add('active');
+        // 滑动绿色滑块
+        updateCacheSlider(index);
+    }
+
+    // 初始激活第0项（等DOM稳定后再初始化滑块位置）
+    cacheTextGoto(0);
+    // 确保字体和布局加载完后再刷一次位置
+    window.addEventListener('load', function() { updateCacheSlider(cacheTextCurrent); });
+    setInterval(function() {
+        cacheTextGoto((cacheTextCurrent + 1) % CACHE_TEXT_TOTAL);
+    }, CACHE_TEXT_INTERVAL);
+
+    // --- Loading 四层叠加动画 ---
+    // Loading-3.png：扇形展开（clip-path polygon，0→360度）
+    // Loading-1.png：白色Logo呼吸灯（opacity正弦波动）
+    
+    var SLOW_TOTAL_MS = 10000;   // ★ 调整项：慢速总时长（毫秒）
+    var FAST_TOTAL_MS = 2000;    // ★ 调整项：快速总时长（毫秒）
+    var ANIM_TICK = 50;          // ★ 调整项：动画刷新间隔（毫秒，越小越平滑）
+
+    // 呼吸灯相位
+    var slowBreathPhase = 0;
+    var fastBreathPhase = 0;
+    // 进度 0~100
+    var slowProgress = 0;
+    var fastProgress = 0;
+    // 快速完成标志
+    var fastDone = false;
+    var slowDone = false;
+
+    // 计算扇形 clip-path polygon（从12点顺时针）
+    // 使用细密插值点，避免角点遗漏导致缺口
+    function progressToClipPath(progress) {
+        if (progress <= 0) return 'polygon(50% 50%, 50% 0%)';
+        if (progress >= 100) return 'none'; // 100%时不裁剪，完整显示
+
+        var totalAngle = (progress / 100) * 360; // 0~360度
+        var points = ['50% 50%'];
+
+        // 从-90度（12点方向）顺时针，每5度取一个点，延伸到足够远以覆盖整个方形
+        for (var a = -90; a <= -90 + totalAngle; a += 2) {
+            var rad = a * Math.PI / 180;
+            // 向外延伸到边界：用足够大的半径（150%）确保覆盖四角
+            var scale = 1 / Math.max(Math.abs(Math.cos(rad)), Math.abs(Math.sin(rad)));
+            var tx = 50 + 80 * Math.cos(rad) * scale;
+            var ty = 50 + 80 * Math.sin(rad) * scale;
+            tx = Math.max(-10, Math.min(110, tx));
+            ty = Math.max(-10, Math.min(110, ty));
+            points.push(tx.toFixed(1) + '% ' + ty.toFixed(1) + '%');
+        }
+        // 补上最后一个精确终点
+        var lastRad = (-90 + totalAngle) * Math.PI / 180;
+        var lastScale = 1 / Math.max(0.001, Math.max(Math.abs(Math.cos(lastRad)), Math.abs(Math.sin(lastRad))));
+        var lx = 50 + 80 * Math.cos(lastRad) * lastScale;
+        var ly = 50 + 80 * Math.sin(lastRad) * lastScale;
+        lx = Math.max(-10, Math.min(110, lx));
+        ly = Math.max(-10, Math.min(110, ly));
+        points.push(lx.toFixed(1) + '% ' + ly.toFixed(1) + '%');
+
+        return 'polygon(' + points.join(', ') + ')';
+    }
+
+    function applyLoadingAnim(id, progress, breathPhase) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        // 层：层形展开（clip-path）
+        var layer3 = el.querySelector('.layer-3');
+        if (layer3) layer3.style.clipPath = progressToClipPath(progress);
+        // 呼吸灯由独立循环控制，这里不再操作 layer1
+    }
+
+    // 独立呼吸灯循环（页面加载同时就开始，永远运行）
+    var breathPhaseIndep = { fast: 0, slow: 0 };
+    setInterval(function() {
+        ['loading-fast', 'loading-slow'].forEach(function(id, i) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            var layer1 = el.querySelector('.layer-1');
+            if (!layer1) return;
+            var key = i === 0 ? 'fast' : 'slow';
+            var speed = i === 0 ? 18 : 8;       // ★ 调整项：快/慢呼吸灯速度
+            breathPhaseIndep[key] = (breathPhaseIndep[key] + speed) % 360;
+            // 进度还没开始时 base=0，纯波动(0~0.4)；进行时随进度增大
+            var prog = i === 0 ? fastProgress : slowProgress;
+            var base = (prog / 100) * 0.6;
+            var wave = (Math.sin(breathPhaseIndep[key] * Math.PI / 180) + 1) / 2 * 0.4;
+            layer1.style.opacity = Math.min(1, base + wave).toFixed(3);
+        });
+    }, ANIM_TICK);
+
+    function resetLoading(id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        var layer3 = el.querySelector('.layer-3');
+        if (layer3) layer3.style.clipPath = 'polygon(50% 50%, 50% 0%, 50% 0%)';
+        // layer1(呼吸灯)由独立循环控制，这里不重置
+    }
+
+    // 主动画循环（用 IntersectionObserver 监听缓存区域，进入视口后延1s启动）
+    var slowElapsed = 0;
+    var fastElapsed = 0;
+    var animTimer = null;   // setInterval 句柄
+    var animStarted = false; // 是否已启动过
+
+    function startCacheAnim() {
+        if (animTimer) return; // 已在运行，不重复启动
+        animTimer = setInterval(function() {
+            // 快速动画
+            if (!fastDone) {
+                fastElapsed += ANIM_TICK;
+                fastProgress = Math.min(100, (fastElapsed / FAST_TOTAL_MS) * 100);
+                fastBreathPhase = (fastBreathPhase + 18) % 360;  // ★ 调整项：快速呼吸灯速度
+                applyLoadingAnim('loading-fast', fastProgress, fastBreathPhase);
+                if (fastProgress >= 100) {
+                    fastDone = true;
+                    fastElapsed = 0;
+                }
+            }
+            // 慢速动画
+            if (!slowDone) {
+                slowElapsed += ANIM_TICK;
+                slowProgress = Math.min(100, (slowElapsed / SLOW_TOTAL_MS) * 100);
+                slowBreathPhase = (slowBreathPhase + 8) % 360;  // ★ 调整项：慢速呼吸灯速度
+                applyLoadingAnim('loading-slow', slowProgress, slowBreathPhase);
+                if (slowProgress >= 100) {
+                    slowDone = true;
+                    slowElapsed = 0;
+                }
+            }
+            // 两个都完成后同时重置
+            if (fastDone && slowDone) {
+                fastDone = false;
+                slowDone = false;
+                fastProgress = 0;
+                slowProgress = 0;
+                resetLoading('loading-slow');
+                resetLoading('loading-fast');
+            }
+        }, ANIM_TICK);
+    }
+
+    // 用 IntersectionObserver 监听缓存区域，进入视口后延迟 1s 再启动
+    var cacheSection = document.querySelector('.cache-section');
+    if (cacheSection && 'IntersectionObserver' in window) {
+        var cacheObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting && !animStarted) {
+                    animStarted = true;
+                    setTimeout(startCacheAnim, 1000); // 延迟 1 秒开始
+                }
+            });
+        }, { threshold: 0.2 }); // 至屑20%进入视口时触发
+        cacheObserver.observe(cacheSection);
+    } else {
+        // 降级处理：不支持 IntersectionObserver 的环境直接启动
+        setTimeout(startCacheAnim, 1000);
+    }
+    </script>
+<!-- Important Notice Modal -->
+<div id="disclaimer-modal" style="display:none; position:fixed; inset:0; z-index:2000; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1.5rem;" onclick="if(event.target===this)closeDisclaimer()">
+    <div style="background:#2f4864; border-radius:16px; max-width:640px; width:100%; padding:2.5rem 2.5rem 2rem; position:relative; animation:slideDownPanel 0.3s ease; max-height:85vh; overflow-y:auto;">
+        <!-- Close button -->
+        <button onclick="closeDisclaimer()" style="position:absolute; top:1.2rem; right:1.4rem; background:none; border:none; color:rgba(255,255,255,0.5); font-size:1.8rem; cursor:pointer; line-height:1; padding:0;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">&times;</button>
+        <!-- Title -->
+        <h3 style="color:#fff; font-size:1.25rem; font-weight:700; margin:0 0 1.5rem;" data-i18n="disclaimer.title">Important Notice</h3>
+        <!-- Terms list -->
+        <ol style="margin:0; padding-left:1.25rem; color:rgba(255,255,255,0.85); font-size:0.9rem; line-height:1.8; display:flex; flex-direction:column; gap:1rem;">
+            <li><strong style="color:#fff;" data-i18n="disclaimer.item1.title">Prerequisite</strong>: <span data-i18n="disclaimer.item1.body">This editor is only for modifying game assets you have legally obtained (base game / DLC / mods). It must be used in single-player / offline mode. Use in any online or competitive context is strictly prohibited.</span></li>
+            <li><strong style="color:#fff;" data-i18n="disclaimer.item2.title">EULA Reminder</strong>: <span data-i18n="disclaimer.item2.body">You are solely responsible for reviewing and complying with the End User License Agreement (EULA) of each game you play. Any consequences arising from improper use are your own responsibility.</span></li>
+            <li><strong style="color:#fff;" data-i18n="disclaimer.item3.title">Copyright Notice</strong>: <span data-i18n="disclaimer.item3.body">This software is exclusively owned by the ModFans Development Team. Unauthorized redistribution, resale, or removal of copyright notices is prohibited. Full terms at </span><a href="https://gam-editor.com/terms.html" target="_blank" style="color:#60a5fa;">gam-editor.com/terms.html</a>.</li>
+        </ol>
+        <!-- Bottom close button -->
+        <div style="margin-top:2rem; text-align:right;">
+            <button onclick="closeDisclaimer()" style="background:#22c55e; color:#000; border:none; padding:0.6rem 2rem; border-radius:6px; font-weight:700; font-size:0.9rem; cursor:pointer;" data-i18n="disclaimer.confirm">Got it</button>
+        </div>
+    </div>
+</div>
+
+<!-- WinRAR Download Confirmation Modal -->
+<div id="winrar-modal" style="display:none; position:fixed; inset:0; z-index:2000; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1.5rem;" onclick="if(event.target===this)closeWinRARModal()">
+    <div style="background:#1e2a1e; border-radius:16px; max-width:420px; width:100%; padding:2rem 2rem 1.75rem; position:relative; animation:slideDownPanel 0.3s ease;">
+        <!-- Close button -->
+        <button onclick="closeWinRARModal()" style="position:absolute; top:1rem; right:1.25rem; background:none; border:none; color:rgba(255,255,255,0.4); font-size:1.6rem; cursor:pointer; line-height:1; padding:0;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.4)'">&times;</button>
+        <!-- Icon + Title -->
+        <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1.25rem;">
+            <svg style="width:24px;height:24px;color:#27bd51;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <h3 style="color:#fff; font-size:1.1rem; font-weight:700; margin:0;" data-i18n="winrar.title">Download WinRAR</h3>
+        </div>
+        <!-- Description -->
+        <p style="color:rgba(255,255,255,0.7); font-size:0.9rem; line-height:1.7; margin:0 0 0.5rem;" data-i18n="winrar.desc">WinRAR is required by the SnowRunner editor to read and load game files.</p>
+        <p style="color:rgba(255,255,255,0.45); font-size:0.82rem; line-height:1.6; margin:0 0 1.75rem;" data-i18n="winrar.hint">After clicking "Download", winrar-x64.exe will start downloading automatically. Please install it to <strong style="color:#bcc0bc; font-weight:700;">&ensp;C:\Program Files&ensp;</strong>.</p>
+        <!-- Buttons -->
+        <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
+            <button onclick="closeWinRARModal()" style="background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.6); border:none; padding:0.55rem 1.5rem; border-radius:6px; font-size:0.9rem; cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.14)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'" data-i18n="winrar.cancel">Cancel</button>
+            <button onclick="doDownloadWinRAR()" style="background:#27bd51; color:#fff; border:none; padding:0.55rem 1.75rem; border-radius:6px; font-weight:700; font-size:0.9rem; cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='#22a847'" onmouseout="this.style.background='#27bd51'" data-i18n="winrar.confirm">Download</button>
+        </div>
+    </div>
+</div>
+
+<!-- 观看使用说明视频弹窗（网格+播放二合一） -->
+<div id="video-modal" style="display:none !important; position:fixed; inset:0; z-index:2000; background:rgba(0,0,0,0.8); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1.5rem;" onclick="if(event.target===this)closeVideoModal()">
+    <!-- 关闭按钮：固定在遮罩右上角，与内容区无关 -->
+    <button onclick="closeVideoModal()" style="position:fixed; top:1rem; right:1.5rem; z-index:2010; background:rgba(0,0,0,0.55); border:none; color:#ccc; font-size:1.4rem; cursor:pointer; line-height:1; padding:0.25rem 0.6rem; border-radius:4px;" onmouseover="this.style.background='rgba(0,0,0,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.55)'">&times;</button>
+
+    <div style="background:transparent; border-radius:12px; width:100%; position:relative; animation:slideDownPanel 0.3s ease; overflow:hidden;">
+
+        <!-- ── 网格模式 ── -->
+        <div id="video-modal-grid" style="padding:0 0 0.85rem;">
+            <div id="video-grid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:0.85rem;"></div>
+        </div>
+
+        <!-- ── 播放模式（左播放器 + 右侧边栏，无顶栏） ── -->
+        <div id="video-modal-player" style="display:none; flex-direction:row; align-items:stretch; background:#111; border-radius:12px; overflow:hidden;">
+            <!-- 左：播放器 -->
+            <div style="flex:1; min-width:0; background:#000;">
+                <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden;">
+                    <iframe id="video-iframe" src="" style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;" scrolling="no" frameborder="no" framespacing="0" allowfullscreen="true" referrerpolicy="no-referrer"></iframe>
+                </div>
+                <div id="video-playing-title" style="padding:0.6rem 0.9rem; color:#ccc; font-size:0.85rem; border-top:1px solid rgba(255,255,255,0.06); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; background:#111;"></div>
+            </div>
+            <!-- 右：缩略图列表，高度跟随左侧，内容超出滚动 -->
+            <div id="video-sidebar" style="width:220px; flex-shrink:0; border-left:1px solid rgba(255,255,255,0.07); overflow-y:auto; padding:0.6rem 0.5rem; display:flex; flex-direction:column; gap:0.6rem; background:#111;"></div>
+        </div>
+
+    </div>
+</div>
+
+
+</body>
+
+<script>
+/* ============================================================
+   i18n - GAM Vehicle Editor Overseas
+   Supported: en, zh, de, ru, fr, es
+   ============================================================ */
+var TRANSLATIONS = {
+  en: {
+    'nav.tab.intro': 'Introduction',
+    'nav.tab.benefit': 'Benefits',
+    'nav.tab.changelog': 'Changelog',
+    'nav.download': 'Download',
+    'hero.subtitle': 'Professional Game Vehicle Parameter Editor',
+    'hero.cta': 'Download for Windows',
+    'section.cache': 'Smart Caching',
+    'section.cache.sub': 'Instant load - intelligent file analysis and caching for lightning-fast startup',
+    'section.games': 'Multi-Game & Multi-Platform',
+    'section.games.sub': 'One tool to rule them all - SnowRunner, BeamNG.Drive and more',
+    'section.backup': 'Safe Backup System',
+    'section.backup.sub': 'Auto-backup before every edit - restore originals with one click',
+    'section.benefit': 'Why Go Premium?',
+    'section.benefit.sub': 'Unlock the full power of GAM Vehicle Editor',
+    'section.changelog': 'Changelog',
+    'section.changelog.sub': "What's new in the latest version",
+    'faq.title': 'FAQ',
+    'faq.sub': 'Answers to common questions',
+    'faq.q1': 'Do I need to purchase the game to use this editor?',
+    'faq.a1': 'Yes. This editor is only for modifying game assets you have legally obtained. Please ensure you own a valid license for the game.',
+    'faq.q2': 'Will modified files affect multiplayer?',
+    'faq.a2': 'No impact in single-player mode. In multiplayer, some servers may detect and restrict modified vehicles. We recommend using it in single-player only.',
+    'faq.q3': 'Will my modifications be lost after a game update?',
+    'faq.a3': 'Major game updates may overwrite modified files. We recommend re-exporting your save after each game update, then using the Load Save feature to restore previous modifications.',
+    'faq.q4': 'Can the export limit be removed?',
+    'faq.a4': 'Upgrading to a membership unlocks unlimited exports, along with advanced features like saves and snapshots.',
+    'faq.q5': 'Does it support other games?',
+    'faq.a5': 'Currently supports SnowRunner and BeamNG.Drive at launch. Support for more games will be added gradually.',
+    'faq.q6': 'Game installation directory not found after switching games?',
+    'faq.a6': 'Please add the game in the GAM main application first. The editor reads game paths from GAM configuration. For BeamNG.Drive, make sure the mod deployment path is configured correctly.',
+    'faq.q7': 'The editor cannot detect installed mods?',
+    'faq.a7': 'For BeamNG.Drive, make sure the mod deployment path is set. Other games set it automatically after being added, so no manual configuration is needed.',
+    'faq.q8': 'No changes appear in-game after editing?',
+    'faq.a8': 'After editing, save the parameters first, then click Export to Game. Make sure the game is closed before exporting, otherwise the export will have no effect.',
+    'faq.q9': 'How is GAM Vehicle Editor different from editing game files directly?',
+    'faq.a9': 'Directly editing game files requires locating config files and writing code - error-prone and hard to undo. GAM Vehicle Editor provides a visual interface, auto-backup before editing, and one-click restore, greatly reducing the risk of mistakes.',
+    'faq.q10': 'How do I use the SnowRunner / BeamNG.Drive vehicle editor?',
+    'faq.a10': 'After adding the game in GAM mod manager, click the Editor button in the top menu to launch it. The editor scans all vehicles automatically. Select a vehicle to adjust parameters, then click Export to Game to apply changes instantly.',
+    'faq.q11': 'Which tool is recommended for modifying BeamNG.Drive vehicles?',
+    'faq.a11': 'GAM Vehicle Editor supports visual editing of BeamNG.Drive vehicle parameters - suspension, engine, tires - with auto-backup before changes, never corrupting original game data, and supporting reset to defaults at any time.',
+    'sysreq.title': 'System Requirements',
+    'sysreq.sub': 'Recommended hardware to run GAM Vehicle Editor',
+    'sysreq.col.item': 'Component',
+    'sysreq.col.min': 'Minimum',
+    'sysreq.col.rec': 'Recommended',
+    'sysreq.cpu.min': '4 cores (post-2016)',
+    'sysreq.cpu.rec': '8 cores or more',
+    'sysreq.ram.label': 'RAM',
+    'sysreq.ram.min': '4 GB available',
+    'sysreq.ram.rec': '8 GB available',
+    'sysreq.disk.label': 'Disk Space',
+    'sysreq.disk.min': '2 GB free',
+    'sysreq.disk.rec': '5 GB free (SnowRunner temp + BeamNG + backups)',
+    'sysreq.disktype.label': 'Disk Type',
+    'sysreq.disktype.min': 'HDD (slower)',
+    'sysreq.disktype.rec': 'SSD strongly recommended (3-10x faster cache I/O)',
+    'sysreq.os.label': 'OS',
+    'sysreq.dep.label': 'Dependencies',
+    'sysreq.dep.val': 'WinRAR (required for SnowRunner)',
+    'legal.title': 'Legal & Compliance',
+    'legal.terms.title': 'Terms of Use Summary',
+    'legal.terms.allow': 'Permitted: personal use, study, research, and appreciation',
+    'legal.terms.prohibit': 'Prohibited: redistribution, reverse engineering, commercial use, or removing copyright notices',
+    'legal.terms.remind': 'Reminder: comply with game EULA; single-player use only',
+    'legal.policy.title': 'Full Policies',
+    'legal.policy.terms': 'Terms of Service',
+    'legal.policy.privacy': 'Privacy Policy',
+    'legal.policy.disclaimer': 'Important Notice',
+    'legal.copyright.title': 'Copyright Registration',
+    'legal.copyright.reg': 'Copyright registration applied',
+    'legal.copyright.owner': 'ModFans Development Team',
+    'legal.copyright.rights': 'Closed source. All rights reserved.',
+    'footer.copyright': '© 2026 ModFans Development Team. All rights reserved.',
+    'footer.privacy': 'Privacy Policy',
+    'footer.terms': 'Terms of Service',
+    'disclaimer.title': 'Important Notice',
+    'disclaimer.item1.title': 'Prerequisite',
+    'disclaimer.item1.body': 'This editor is only for modifying game assets you have legally obtained (base game / DLC / mods). It must be used in single-player / offline mode. Use in any online or competitive context is strictly prohibited.',
+    'disclaimer.item2.title': 'EULA Reminder',
+    'disclaimer.item2.body': 'You are solely responsible for reviewing and complying with the End User License Agreement (EULA) of each game you play. Any consequences arising from improper use are your own responsibility.',
+    'disclaimer.item3.title': 'Copyright Notice',
+    'disclaimer.item3.body': 'This software is exclusively owned by the ModFans Development Team. Unauthorized redistribution, resale, or removal of copyright notices is prohibited. Full terms at ',
+    'disclaimer.confirm': 'Got it',
+    'winrar.title': 'Download WinRAR',
+    'winrar.desc': 'WinRAR is required by the SnowRunner editor to read and load game files.',
+    'winrar.hint': 'After clicking Download, winrar-x64.exe will start downloading automatically. Please install it to C:\\Program Files.',
+    'winrar.cancel': 'Cancel',
+    'winrar.confirm': 'Download'
+  },
+  zh: {
+    'nav.tab.intro': '介绍',
+    'nav.tab.benefit': '权益',
+    'nav.tab.changelog': '更新',
+    'nav.download': '下载',
+    'hero.subtitle': '专业的游戏载具属性编辑器',
+    'hero.cta': '立即下载',
+    'section.cache': '智能缓存机制',
+    'section.cache.sub': '极速启动 — 智能文件分析与缓存，瞬间加载',
+    'section.games': '多游戏 · 多平台',
+    'section.games.sub': '一个工具搮定一切 — 雪地奔驰、BeamNG.Drive 等',
+    'section.backup': '安全备份系统',
+    'section.backup.sub': '每次编辑前自动备份 — 一键还原原始文件',
+    'section.benefit': '为什么选择会员？',
+    'section.benefit.sub': '解锁 GAM Vehicle Editor 的全部功能',
+    'section.changelog': '更新日志',
+    'section.changelog.sub': '最新版本的新增内容',
+    'faq.title': 'FAQ',
+    'faq.sub': '常见问题解答',
+    'faq.q1': '是否需要购买游戏才能使用？',
+    'faq.a1': '是的。本编辑器仅用于修改用户已获得的游戏资产，请确保你拥有游戏的合法授权。',
+    'faq.q2': '修改后的文件会影响联机吗？',
+    'faq.a2': '单人模式无影响。联机模式下部分服务器可能会检测并限制修改后的车辆，建议仅在单机使用。',
+    'faq.q3': '游戏更新后修改会丢失吗？',
+    'faq.a3': '游戏大版本更新可能会覆盖修改文件。建议在每次游戏更新后重新导出存档，然后使用载入存档功能恢复之前的修改内容。',
+    'faq.q4': '导出次数限制能否解除？',
+    'faq.a4': '升级为会员即可获得无限次导出权限，同时解锁存档、快照等高级功能。',
+    'faq.q5': '是否支持其他游戏的修改？',
+    'faq.a5': '目前首发支持 SnowRunner、BeamNG.Drive，后续将陆续添加对更多游戏的支持。',
+    'faq.q6': '切换游戏后提示「找不到安装目录」？',
+    'faq.a6': '请先在 GAM 主程序中添加对应游戏，编辑器从 GAM 配置中读取游戏路径。如果是 BeamNG.Drive，请设置好模组部署路径。',
+    'faq.q7': '编辑器无法识别已安装的模组？',
+    'faq.a7': '如果是 BeamNG.Drive，请设置好模组部署路径，否则无法识别模组。其他游戏添加后会自动设置，无需手动配置。',
+    'faq.q8': '修改后在游戏中没有变化？',
+    'faq.a8': '修改完成后先保存参数，然后点击导出至游戏。并确保游戏已经退出，否则导出无效。',
+    'faq.q9': 'GAM Vehicle Editor 和直接修改游戏文件有什么区别？',
+    'faq.a9': '直接修改游戏文件需要手动找到配置文件并编辑代码，容易出错且难以恢复。GAM 提供可视化界面、自动备份和一键还原，大幅降低操作风险。',
+    'faq.q10': '雪地奔驰（SnowRunner）/BeamNG.Drive 车辆属性编辑器怎么用？',
+    'faq.a10': '在 GAM 模组管理器中添加游戏后，点击顶部菜单的「编辑器」按鈕即可启动。编辑器会自动扫描游戏内全部载具，选择载具后调整参数，然后点击「导出至游戏」即刻生效。',
+    'faq.q11': 'BeamNG.Drive 改车工具推荐用哪个？',
+    'faq.a11': 'GAM Vehicle Editor 支持 BeamNG.Drive 车辆属性的可视化编辑，自动备份原始数据，不破坏游戏文件，支持随时重置还原。',
+    'sysreq.title': '系统配置要求',
+    'sysreq.sub': '运行 GAM Vehicle Editor 所需的硬件环境参考',
+    'sysreq.col.item': '配置项',
+    'sysreq.col.min': '最低',
+    'sysreq.col.rec': '推荐',
+    'sysreq.cpu.min': '4 核（2016 年后）',
+    'sysreq.cpu.rec': '8 核及以上',
+    'sysreq.ram.label': '内存',
+    'sysreq.ram.min': '4 GB 可用',
+    'sysreq.ram.rec': '8 GB 可用',
+    'sysreq.disk.label': '磁盘空间',
+    'sysreq.disk.min': '2 GB 空闲',
+    'sysreq.disk.rec': '5 GB 空闲（SnowRunner temp + BeamNG + 备份）',
+    'sysreq.disktype.label': '磁盘类型',
+    'sysreq.disktype.min': '机械硬盘（较慢）',
+    'sysreq.disktype.rec': 'SSD 强烈推荐（缓存读写速度提升 3–10 倍）',
+    'sysreq.os.label': '操作系统',
+    'sysreq.dep.label': '依赖',
+    'sysreq.dep.val': 'WinRAR（SnowRunner 必需）',
+    'legal.title': '法律与合规',
+    'legal.terms.title': '使用条款摘要',
+    'legal.terms.allow': '允许：个人学习、研究、欣赏',
+    'legal.terms.prohibit': '禁止：二次分发、逆向工程、商业用途、删除版权信息',
+    'legal.terms.remind': '提醒：遵守游戏 EULA，仅限单机模式使用',
+    'legal.policy.title': '完整政策',
+    'legal.policy.terms': '用户政策',
+    'legal.policy.privacy': '隐私政策',
+    'legal.policy.disclaimer': '用前须知',
+    'legal.copyright.title': '著作权登记',
+    'legal.copyright.reg': '已申请版权',
+    'legal.copyright.owner': 'ModFans 开发团队',
+    'legal.copyright.rights': '闭源，非开源，保留所有权利',
+    'footer.copyright': '© 2026 ModFans Development Team. All rights reserved.',
+    'footer.privacy': '隐私政策',
+    'footer.terms': '使用条款',
+    'disclaimer.title': '用前须知',
+    'disclaimer.item1.title': '使用前提',
+    'disclaimer.item1.body': '本编辑器仅限于修改用户已合法获得的游戏资产（含本体/DLC/MOD），必须运行于单机/离线模式，严禁用于任何联网对战场景。',
+    'disclaimer.item2.title': '用户协议提醒',
+    'disclaimer.item2.body': '用户须自行审阅并严格遵守所玩游戏的最终用户许可协议（EULA），因违规使用导致的一切责任由用户自行承担。',
+    'disclaimer.item3.title': '著作权声明',
+    'disclaimer.item3.body': '本软件著作权归 ModFans 开发团队独家所有；未经授权，不得转载、分发、出售本工具，或删除版权信息。完整条款详见 ',
+    'disclaimer.confirm': '我已了解',
+    'winrar.title': '下载 WinRAR',
+    'winrar.desc': 'SnowRunner 编辑器必须依赖 WinRAR 才能读取和加载文件。',
+    'winrar.hint': '点击「确定下载」后将自动开始下载 winrar-x64.exe。下载完成后请自行安装至 C:\\Program Files。',
+    'winrar.cancel': '取消',
+    'winrar.confirm': '确定下载'
+  },
+  de: {
+    'nav.tab.intro': 'Einf\u00fchrung',
+    'nav.tab.benefit': 'Vorteile',
+    'nav.tab.changelog': '\u00c4nderungen',
+    'nav.download': 'Herunterladen',
+    'hero.subtitle': 'Professioneller Fahrzeugparameter-Editor f\u00fcr Spiele',
+    'hero.cta': 'F\u00fcr Windows herunterladen',
+    'section.cache': 'Intelligentes Caching',
+    'section.cache.sub': 'Sofortstart \u2014 intelligente Dateianalyse und Caching',
+    'section.games': 'Multi-Spiel & Multi-Plattform',
+    'section.games.sub': 'Ein Tool f\u00fcr alles \u2014 SnowRunner, BeamNG.Drive und mehr',
+    'section.backup': 'Sicheres Backup-System',
+    'section.backup.sub': 'Automatisches Backup vor jeder Bearbeitung \u2014 mit einem Klick wiederherstellen',
+    'section.benefit': 'Warum Premium w\u00e4hlen?',
+    'section.benefit.sub': 'Entfesseln Sie die volle Leistung des GAM Vehicle Editors',
+    'section.changelog': '\u00c4nderungsprotokoll',
+    'section.changelog.sub': 'Neuerungen in der aktuellen Version',
+    'faq.title': 'FAQ',
+    'faq.sub': 'Antworten auf h\u00e4ufige Fragen',
+    'faq.q1': 'Muss ich das Spiel kaufen, um den Editor zu verwenden?',
+    'faq.a1': 'Ja. Dieser Editor dient nur zur \u00c4nderung von Spielinhalten, die Sie legal erworben haben.',
+    'faq.q2': 'Beeinflussen \u00c4nderungen den Mehrspielermodus?',
+    'faq.a2': 'Im Einzelspielermodus keine Auswirkungen. Im Mehrspieler k\u00f6nnen einige Server modifizierte Fahrzeuge erkennen.',
+    'faq.q3': 'Gehen meine \u00c4nderungen nach einem Spielupdate verloren?',
+    'faq.a3': 'Gro\u00dfe Spielupdates k\u00f6nnen Dateien \u00fcberschreiben. Wir empfehlen, nach jedem Update neu zu exportieren.',
+    'faq.q4': 'Kann das Exportlimit aufgehoben werden?',
+    'faq.a4': 'Mit einer Mitgliedschaft erhalten Sie unbegrenzte Exporte und erweiterte Funktionen.',
+    'faq.q5': 'Werden weitere Spiele unterst\u00fctzt?',
+    'faq.a5': 'Derzeit werden SnowRunner und BeamNG.Drive unterst\u00fctzt. Weitere Spiele folgen.',
+    'faq.q6': 'Spielinstallationsverzeichnis nicht gefunden nach dem Wechsel?',
+    'faq.a6': 'Bitte f\u00fcgen Sie das Spiel zun\u00e4chst in der GAM-Hauptanwendung hinzu.',
+    'faq.q7': 'Der Editor erkennt installierte Mods nicht?',
+    'faq.a7': 'F\u00fcr BeamNG.Drive muss der Mod-Bereitstellungspfad konfiguriert sein.',
+    'faq.q8': 'Im Spiel sind keine \u00c4nderungen sichtbar?',
+    'faq.a8': 'Speichern Sie zuerst die Parameter und klicken Sie dann auf In Spiel exportieren.',
+    'faq.q9': 'Was ist der Unterschied zwischen GAM und direkter Dateibearbeitung?',
+    'faq.a9': 'GAM bietet eine visuelle Oberfl\u00e4che, automatische Sicherungen und Einzel-Klick-Wiederherstellung.',
+    'faq.q10': 'Wie benutze ich den Fahrzeugeditor?',
+    'faq.a10': 'F\u00fcgen Sie das Spiel in GAM hinzu, klicken Sie auf die Schaltfl\u00e4che Editor im Men\u00fc.',
+    'faq.q11': 'Welches Tool empfehlen Sie f\u00fcr BeamNG.Drive?',
+    'faq.a11': 'GAM Vehicle Editor unterst\u00fctzt die visuelle Bearbeitung von BeamNG.Drive-Fahrzeugparametern.',
+    'sysreq.title': 'Systemanforderungen',
+    'sysreq.sub': 'Empfohlene Hardware f\u00fcr GAM Vehicle Editor',
+    'sysreq.col.item': 'Komponente',
+    'sysreq.col.min': 'Minimum',
+    'sysreq.col.rec': 'Empfohlen',
+    'sysreq.cpu.min': '4 Kerne (nach 2016)',
+    'sysreq.cpu.rec': '8 oder mehr Kerne',
+    'sysreq.ram.label': 'RAM',
+    'sysreq.ram.min': '4 GB verf\u00fcgbar',
+    'sysreq.ram.rec': '8 GB verf\u00fcgbar',
+    'sysreq.disk.label': 'Festplattenplatz',
+    'sysreq.disk.min': '2 GB frei',
+    'sysreq.disk.rec': '5 GB frei',
+    'sysreq.disktype.label': 'Laufwerkstyp',
+    'sysreq.disktype.min': 'HDD (langsamer)',
+    'sysreq.disktype.rec': 'SSD sehr empfohlen (3\u201310x schneller)',
+    'sysreq.os.label': 'Betriebssystem',
+    'sysreq.dep.label': 'Abh\u00e4ngigkeiten',
+    'sysreq.dep.val': 'WinRAR (f\u00fcr SnowRunner erforderlich)',
+    'legal.title': 'Rechtliches & Compliance',
+    'legal.terms.title': 'Nutzungsbedingungen (Zusammenfassung)',
+    'legal.terms.allow': 'Erlaubt: pers\u00f6nliche Nutzung, Studium, Forschung',
+    'legal.terms.prohibit': 'Verboten: Weiterverteilung, Reverse Engineering, kommerzielle Nutzung',
+    'legal.terms.remind': 'Hinweis: EULA des Spiels beachten; nur Einzelspieler',
+    'legal.policy.title': 'Vollst\u00e4ndige Richtlinien',
+    'legal.policy.terms': 'Nutzungsbedingungen',
+    'legal.policy.privacy': 'Datenschutzrichtlinie',
+    'legal.policy.disclaimer': 'Wichtiger Hinweis',
+    'legal.copyright.title': 'Urheberrechtsregistrierung',
+    'legal.copyright.reg': 'Urheberrechtsregistrierung beantragt',
+    'legal.copyright.owner': 'ModFans Entwicklungsteam',
+    'legal.copyright.rights': 'Closed Source. Alle Rechte vorbehalten.',
+    'footer.copyright': '\u00a9 2026 ModFans Development Team. Alle Rechte vorbehalten.',
+    'footer.privacy': 'Datenschutzrichtlinie',
+    'footer.terms': 'Nutzungsbedingungen',
+    'disclaimer.title': 'Wichtiger Hinweis',
+    'disclaimer.item1.title': 'Voraussetzung',
+    'disclaimer.item1.body': 'Dieser Editor darf nur f\u00fcr legal erworbene Spielinhalte im Einzelspieler-/Offline-Modus verwendet werden.',
+    'disclaimer.item2.title': 'EULA-Erinnerung',
+    'disclaimer.item2.body': 'Sie sind f\u00fcr die Einhaltung der EULA des jeweiligen Spiels selbst verantwortlich.',
+    'disclaimer.item3.title': 'Urheberrechtshinweis',
+    'disclaimer.item3.body': 'Diese Software geh\u00f6rt ausschlie\u00dflich dem ModFans Entwicklungsteam. Vollst\u00e4ndige Bedingungen unter ',
+    'disclaimer.confirm': 'Verstanden',
+    'winrar.title': 'WinRAR herunterladen',
+    'winrar.desc': 'WinRAR ist f\u00fcr den SnowRunner-Editor erforderlich.',
+    'winrar.hint': 'Nach dem Klicken auf Herunterladen startet der Download automatisch.',
+    'winrar.cancel': 'Abbrechen',
+    'winrar.confirm': 'Herunterladen'
+  },
+  ru: {
+    'nav.tab.intro': '\u0412\u0432\u0435\u0434\u0435\u043d\u0438\u0435',
+    'nav.tab.benefit': '\u041f\u0440\u0435\u0438\u043c\u0443\u0449\u0435\u0441\u0442\u0432\u0430',
+    'nav.tab.changelog': '\u041e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u044f',
+    'nav.download': '\u0421\u043a\u0430\u0447\u0430\u0442\u044c',
+    'hero.subtitle': '\u041f\u0440\u043e\u0444\u0435\u0441\u0441\u0438\u043e\u043d\u0430\u043b\u044c\u043d\u044b\u0439 \u0440\u0435\u0434\u0430\u043a\u0442\u043e\u0440 \u043f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u043e\u0432 \u0442\u0440\u0430\u043d\u0441\u043f\u043e\u0440\u0442\u043d\u044b\u0445 \u0441\u0440\u0435\u0434\u0441\u0442\u0432',
+    'hero.cta': '\u0421\u043a\u0430\u0447\u0430\u0442\u044c \u0434\u043b\u044f Windows',
+    'section.cache': '\u0423\u043c\u043d\u043e\u0435 \u043a\u044d\u0448\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u0435',
+    'section.cache.sub': '\u041c\u0433\u043d\u043e\u0432\u0435\u043d\u043d\u044b\u0439 \u0437\u0430\u043f\u0443\u0441\u043a',
+    'section.games': '\u041c\u0443\u043b\u044c\u0442\u0438\u0438\u0433\u0440\u043e\u0432\u0430\u044f \u043f\u043e\u0434\u0434\u0435\u0440\u0436\u043a\u0430',
+    'section.games.sub': '\u041e\u0434\u0438\u043d \u0438\u043d\u0441\u0442\u0440\u0443\u043c\u0435\u043d\u0442 \u2014 SnowRunner, BeamNG.Drive \u0438 \u0434\u0440.',
+    'section.backup': '\u0411\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u043e\u0435 \u0440\u0435\u0437\u0435\u0440\u0432\u043d\u043e\u0435 \u043a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u0435',
+    'section.backup.sub': '\u0410\u0432\u0442\u043e\u043c\u0430\u0442\u0438\u0447\u0435\u0441\u043a\u043e\u0435 \u0440\u0435\u0437\u0435\u0440\u0432\u043d\u043e\u0435 \u043a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u0435 \u043f\u0435\u0440\u0435\u0434 \u043a\u0430\u0436\u0434\u044b\u043c \u0440\u0435\u0434\u0430\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u0435\u043c',
+    'section.benefit': '\u0417\u0430\u0447\u0435\u043c \u0432\u044b\u0431\u0438\u0440\u0430\u0442\u044c Premium?',
+    'section.benefit.sub': '\u041e\u0442\u043a\u0440\u043e\u0439\u0442\u0435 \u043f\u043e\u043b\u043d\u044b\u0439 \u043f\u043e\u0442\u0435\u043d\u0446\u0438\u0430\u043b GAM Vehicle Editor',
+    'section.changelog': '\u0418\u0441\u0442\u043e\u0440\u0438\u044f \u0438\u0437\u043c\u0435\u043d\u0435\u043d\u0438\u0439',
+    'section.changelog.sub': '\u0427\u0442\u043e \u043d\u043e\u0432\u043e\u0433\u043e \u0432 \u043f\u043e\u0441\u043b\u0435\u0434\u043d\u0435\u0439 \u0432\u0435\u0440\u0441\u0438\u0438',
+    'faq.title': 'FAQ',
+    'faq.sub': '\u041e\u0442\u0432\u0435\u0442\u044b \u043d\u0430 \u0447\u0430\u0441\u0442\u044b\u0435 \u0432\u043e\u043f\u0440\u043e\u0441\u044b',
+    'faq.q1': '\u041d\u0443\u0436\u043d\u043e \u043b\u0438 \u043f\u043e\u043a\u0443\u043f\u0430\u0442\u044c \u0438\u0433\u0440\u0443 \u0434\u043b\u044f \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u043d\u0438\u044f \u0440\u0435\u0434\u0430\u043a\u0442\u043e\u0440\u0430?',
+    'faq.a1': '\u0414\u0430. \u0420\u0435\u0434\u0430\u043a\u0442\u043e\u0440 \u043f\u0440\u0435\u0434\u043d\u0430\u0437\u043d\u0430\u0447\u0435\u043d \u0442\u043e\u043b\u044c\u043a\u043e \u0434\u043b\u044f \u0438\u0437\u043c\u0435\u043d\u0435\u043d\u0438\u044f \u043b\u0435\u0433\u0430\u043b\u044c\u043d\u043e \u043f\u0440\u0438\u043e\u0431\u0440\u0435\u0442\u0451\u043d\u043d\u044b\u0445 \u0440\u0435\u0441\u0443\u0440\u0441\u043e\u0432 \u0438\u0433\u0440\u044b.',
+    'faq.q2': '\u0412\u043b\u0438\u044f\u044e\u0442 \u043b\u0438 \u0438\u0437\u043c\u0435\u043d\u0435\u043d\u0438\u044f \u043d\u0430 \u043c\u043d\u043e\u0433\u043e\u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044c\u0441\u043a\u0438\u0439 \u0440\u0435\u0436\u0438\u043c?',
+    'faq.a2': '\u0412 \u043e\u0434\u0438\u043d\u043e\u0447\u043d\u043e\u043c \u0440\u0435\u0436\u0438\u043c\u0435 \u043d\u0435\u0442 \u044d\u0444\u0444\u0435\u043a\u0442\u0430. \u0412 \u043c\u0443\u043b\u044c\u0442\u0438\u043f\u043b\u0435\u0435\u0440\u0435 \u043d\u0435\u043a\u043e\u0442\u043e\u0440\u044b\u0435 \u0441\u0435\u0440\u0432\u0435\u0440\u044b \u043c\u043e\u0433\u0443\u0442 \u043e\u0431\u043d\u0430\u0440\u0443\u0436\u0438\u0432\u0430\u0442\u044c \u0438\u0437\u043c\u0435\u043d\u0451\u043d\u043d\u044b\u0435 \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u0438.',
+    'faq.q3': '\u0411\u0443\u0434\u0443\u0442 \u043b\u0438 \u043f\u043e\u0442\u0435\u0440\u044f\u043d\u044b \u0438\u0437\u043c\u0435\u043d\u0435\u043d\u0438\u044f \u043f\u043e\u0441\u043b\u0435 \u043e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u044f \u0438\u0433\u0440\u044b?',
+    'faq.a3': '\u041a\u0440\u0443\u043f\u043d\u044b\u0435 \u043e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u044f \u043c\u043e\u0433\u0443\u0442 \u043f\u0435\u0440\u0435\u0437\u0430\u043f\u0438\u0441\u0430\u0442\u044c \u0444\u0430\u0439\u043b\u044b. \u0420\u0435\u043a\u043e\u043c\u0435\u043d\u0434\u0443\u0435\u043c \u043f\u043e\u0432\u0442\u043e\u0440\u043d\u043e \u044d\u043a\u0441\u043f\u043e\u0440\u0442\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u043f\u043e\u0441\u043b\u0435 \u043e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u044f.',
+    'faq.q4': '\u041c\u043e\u0436\u043d\u043e \u043b\u0438 \u0441\u043d\u044f\u0442\u044c \u043e\u0433\u0440\u0430\u043d\u0438\u0447\u0435\u043d\u0438\u0435 \u043d\u0430 \u044d\u043a\u0441\u043f\u043e\u0440\u0442?',
+    'faq.a4': '\u041f\u043e\u0434\u043f\u0438\u0441\u043a\u0430 \u043e\u0442\u043a\u0440\u044b\u0432\u0430\u0435\u0442 \u043d\u0435\u043e\u0433\u0440\u0430\u043d\u0438\u0447\u0435\u043d\u043d\u044b\u0439 \u044d\u043a\u0441\u043f\u043e\u0440\u0442 \u0438 \u0440\u0430\u0441\u0448\u0438\u0440\u0435\u043d\u043d\u044b\u0435 \u0444\u0443\u043d\u043a\u0446\u0438\u0438.',
+    'faq.q5': '\u041f\u043e\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u044e\u0442\u0441\u044f \u043b\u0438 \u0434\u0440\u0443\u0433\u0438\u0435 \u0438\u0433\u0440\u044b?',
+    'faq.a5': '\u0421\u0435\u0439\u0447\u0430\u0441 \u043f\u043e\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u044e\u0442\u0441\u044f SnowRunner \u0438 BeamNG.Drive. \u0414\u0440\u0443\u0433\u0438\u0435 \u0438\u0433\u0440\u044b \u0431\u0443\u0434\u0443\u0442 \u0434\u043e\u0431\u0430\u0432\u043b\u0435\u043d\u044b.',
+    'faq.q6': '\u041a\u0430\u0442\u0430\u043b\u043e\u0433 \u0443\u0441\u0442\u0430\u043d\u043e\u0432\u043a\u0438 \u0438\u0433\u0440\u044b \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d?',
+    'faq.a6': '\u0421\u043d\u0430\u0447\u0430\u043b\u0430 \u0434\u043e\u0431\u0430\u0432\u044c\u0442\u0435 \u0438\u0433\u0440\u0443 \u0432 \u043e\u0441\u043d\u043e\u0432\u043d\u043e\u0435 \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0435 GAM.',
+    'faq.q7': '\u0420\u0435\u0434\u0430\u043a\u0442\u043e\u0440 \u043d\u0435 \u043e\u0431\u043d\u0430\u0440\u0443\u0436\u0438\u0432\u0430\u0435\u0442 \u0443\u0441\u0442\u0430\u043d\u043e\u0432\u043b\u0435\u043d\u043d\u044b\u0435 \u043c\u043e\u0434\u044b?',
+    'faq.a7': '\u0414\u043b\u044f BeamNG.Drive \u0443\u043a\u0430\u0436\u0438\u0442\u0435 \u043f\u0443\u0442\u044c \u0440\u0430\u0437\u0432\u0451\u0440\u0442\u044b\u0432\u0430\u043d\u0438\u044f \u043c\u043e\u0434\u043e\u0432.',
+    'faq.q8': '\u0412 \u0438\u0433\u0440\u0435 \u043d\u0435 \u0432\u0438\u0434\u043d\u044b \u0438\u0437\u043c\u0435\u043d\u0435\u043d\u0438\u044f?',
+    'faq.a8': '\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u0435 \u043f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u044b, \u0437\u0430\u0442\u0435\u043c \u043d\u0430\u0436\u043c\u0438\u0442\u0435 \u042d\u043a\u0441\u043f\u043e\u0440\u0442 \u0432 \u0438\u0433\u0440\u0443. \u0423\u0431\u0435\u0434\u0438\u0442\u0435\u0441\u044c, \u0447\u0442\u043e \u0438\u0433\u0440\u0430 \u0437\u0430\u043a\u0440\u044b\u0442\u0430.',
+    'faq.q9': '\u0427\u0435\u043c GAM \u043e\u0442\u043b\u0438\u0447\u0430\u0435\u0442\u0441\u044f \u043e\u0442 \u043f\u0440\u044f\u043c\u043e\u0433\u043e \u0440\u0435\u0434\u0430\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u044f \u0444\u0430\u0439\u043b\u043e\u0432?',
+    'faq.a9': 'GAM \u043f\u0440\u0435\u0434\u043e\u0441\u0442\u0430\u0432\u043b\u044f\u0435\u0442 \u0432\u0438\u0437\u0443\u0430\u043b\u044c\u043d\u044b\u0439 \u0438\u043d\u0442\u0435\u0440\u0444\u0435\u0439\u0441, \u0430\u0432\u0442\u043e\u0440\u0435\u0437\u0435\u0440\u0432\u043d\u043e\u0435 \u043a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u0435 \u0438 \u0432\u043e\u0441\u0441\u0442\u0430\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u0435 \u043e\u0434\u043d\u0438\u043c \u043a\u043b\u0438\u043a\u043e\u043c.',
+    'faq.q10': '\u041a\u0430\u043a \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u044c \u0440\u0435\u0434\u0430\u043a\u0442\u043e\u0440 \u0442\u0440\u0430\u043d\u0441\u043f\u043e\u0440\u0442\u043d\u044b\u0445 \u0441\u0440\u0435\u0434\u0441\u0442\u0432?',
+    'faq.a10': '\u0414\u043e\u0431\u0430\u0432\u044c\u0442\u0435 \u0438\u0433\u0440\u0443 \u0432 GAM, \u043d\u0430\u0436\u043c\u0438\u0442\u0435 \u043a\u043d\u043e\u043f\u043a\u0443 \u0420\u0435\u0434\u0430\u043a\u0442\u043e\u0440 \u0432 \u043c\u0435\u043d\u044e.',
+    'faq.q11': '\u041a\u0430\u043a\u043e\u0439 \u0438\u043d\u0441\u0442\u0440\u0443\u043c\u0435\u043d\u0442 \u0440\u0435\u043a\u043e\u043c\u0435\u043d\u0434\u0443\u0435\u0442\u0435\u0441\u044c \u0434\u043b\u044f BeamNG.Drive?',
+    'faq.a11': 'GAM Vehicle Editor \u043f\u043e\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0435\u0442 \u0432\u0438\u0437\u0443\u0430\u043b\u044c\u043d\u043e\u0435 \u0440\u0435\u0434\u0430\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u0435 \u043f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u043e\u0432 BeamNG.Drive.',
+    'sysreq.title': '\u0421\u0438\u0441\u0442\u0435\u043c\u043d\u044b\u0435 \u0442\u0440\u0435\u0431\u043e\u0432\u0430\u043d\u0438\u044f',
+    'sysreq.sub': '\u0420\u0435\u043a\u043e\u043c\u0435\u043d\u0434\u0443\u0435\u043c\u043e\u0435 \u043e\u0431\u043e\u0440\u0443\u0434\u043e\u0432\u0430\u043d\u0438\u0435 \u0434\u043b\u044f GAM Vehicle Editor',
+    'sysreq.col.item': '\u041a\u043e\u043c\u043f\u043e\u043d\u0435\u043d\u0442',
+    'sysreq.col.min': '\u041c\u0438\u043d\u0438\u043c\u0443\u043c',
+    'sysreq.col.rec': '\u0420\u0435\u043a\u043e\u043c\u0435\u043d\u0434\u0443\u0435\u0442\u0441\u044f',
+    'sysreq.cpu.min': '4 \u044f\u0434\u0440\u0430 (\u043f\u043e\u0441\u043b\u0435 2016 \u0433.)',
+    'sysreq.cpu.rec': '8 \u0438 \u0431\u043e\u043b\u0435\u0435 \u044f\u0434\u0435\u0440',
+    'sysreq.ram.label': '\u041e\u0417\u0423',
+    'sysreq.ram.min': '4 \u0413\u0411 \u0441\u0432\u043e\u0431\u043e\u0434\u043d\u043e',
+    'sysreq.ram.rec': '8 \u0413\u0411 \u0441\u0432\u043e\u0431\u043e\u0434\u043d\u043e',
+    'sysreq.disk.label': '\u041c\u0435\u0441\u0442\u043e \u043d\u0430 \u0434\u0438\u0441\u043a\u0435',
+    'sysreq.disk.min': '2 \u0413\u0411 \u0441\u0432\u043e\u0431\u043e\u0434\u043d\u043e',
+    'sysreq.disk.rec': '5 \u0413\u0411 \u0441\u0432\u043e\u0431\u043e\u0434\u043d\u043e',
+    'sysreq.disktype.label': '\u0422\u0438\u043f \u0434\u0438\u0441\u043a\u0430',
+    'sysreq.disktype.min': 'HDD (\u043c\u0435\u0434\u043b\u0435\u043d\u043d\u0435\u0435)',
+    'sysreq.disktype.rec': 'SSD \u043d\u0430\u0441\u0442\u043e\u044f\u0442\u0435\u043b\u044c\u043d\u043e \u0440\u0435\u043a\u043e\u043c\u0435\u043d\u0434\u0443\u0435\u0442\u0441\u044f (\u0432 3\u201310 \u0440\u0430\u0437 \u0431\u044b\u0441\u0442\u0440\u0435\u0435)',
+    'sysreq.os.label': '\u041e\u0421',
+    'sysreq.dep.label': '\u0417\u0430\u0432\u0438\u0441\u0438\u043c\u043e\u0441\u0442\u0438',
+    'sysreq.dep.val': 'WinRAR (\u043d\u0435\u043e\u0431\u0445\u043e\u0434\u0438\u043c \u0434\u043b\u044f SnowRunner)',
+    'legal.title': '\u041f\u0440\u0430\u0432\u043e\u0432\u043e\u0435 \u0441\u043e\u043e\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u0438\u0435',
+    'legal.terms.title': '\u041a\u0440\u0430\u0442\u043a\u0438\u0435 \u0443\u0441\u043b\u043e\u0432\u0438\u044f \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u043d\u0438\u044f',
+    'legal.terms.allow': '\u0420\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u043e: \u043b\u0438\u0447\u043d\u043e\u0435 \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u043d\u0438\u0435, \u043e\u0431\u0443\u0447\u0435\u043d\u0438\u0435, \u0438\u0441\u0441\u043b\u0435\u0434\u043e\u0432\u0430\u043d\u0438\u0435',
+    'legal.terms.prohibit': '\u0417\u0430\u043f\u0440\u0435\u0449\u0435\u043d\u043e: \u0440\u0430\u0441\u043f\u0440\u043e\u0441\u0442\u0440\u0430\u043d\u0435\u043d\u0438\u0435, \u043e\u0431\u0440\u0430\u0442\u043d\u0430\u044f \u0440\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430, \u043a\u043e\u043c\u043c\u0435\u0440\u0447\u0435\u0441\u043a\u043e\u0435 \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u043d\u0438\u0435',
+    'legal.terms.remind': '\u041d\u0430\u043f\u043e\u043c\u0438\u043d\u0430\u043d\u0438\u0435: \u0441\u043e\u0431\u043b\u044e\u0434\u0430\u0439\u0442\u0435 EULA \u0438\u0433\u0440\u044b; \u0442\u043e\u043b\u044c\u043a\u043e \u043e\u0434\u0438\u043d\u043e\u0447\u043d\u044b\u0439 \u0440\u0435\u0436\u0438\u043c',
+    'legal.policy.title': '\u041f\u043e\u043b\u043d\u044b\u0435 \u043f\u043e\u043b\u0438\u0442\u0438\u043a\u0438',
+    'legal.policy.terms': '\u0423\u0441\u043b\u043e\u0432\u0438\u044f \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u043d\u0438\u044f',
+    'legal.policy.privacy': '\u041f\u043e\u043b\u0438\u0442\u0438\u043a\u0430 \u043a\u043e\u043d\u0444\u0438\u0434\u0435\u043d\u0446\u0438\u0430\u043b\u044c\u043d\u043e\u0441\u0442\u0438',
+    'legal.policy.disclaimer': '\u0412\u0430\u0436\u043d\u043e\u0435 \u0443\u0432\u0435\u0434\u043e\u043c\u043b\u0435\u043d\u0438\u0435',
+    'legal.copyright.title': '\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044f \u0430\u0432\u0442\u043e\u0440\u0441\u043a\u0438\u0445 \u043f\u0440\u0430\u0432',
+    'legal.copyright.reg': '\u0417\u0430\u044f\u0432\u043a\u0430 \u043d\u0430 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044e \u043f\u043e\u0434\u0430\u043d\u0430',
+    'legal.copyright.owner': '\u041a\u043e\u043c\u0430\u043d\u0434\u0430 \u0440\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u0447\u0438\u043a\u043e\u0432 ModFans',
+    'legal.copyright.rights': '\u0417\u0430\u043a\u0440\u044b\u0442\u044b\u0439 \u043a\u043e\u0434. \u0412\u0441\u0435 \u043f\u0440\u0430\u0432\u0430 \u0437\u0430\u0449\u0438\u0449\u0435\u043d\u044b.',
+    'footer.copyright': '\u00a9 2026 \u041a\u043e\u043c\u0430\u043d\u0434\u0430 \u0440\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u0447\u0438\u043a\u043e\u0432 ModFans. \u0412\u0441\u0435 \u043f\u0440\u0430\u0432\u0430 \u0437\u0430\u0449\u0438\u0449\u0435\u043d\u044b.',
+    'footer.privacy': '\u041f\u043e\u043b\u0438\u0442\u0438\u043a\u0430 \u043a\u043e\u043d\u0444\u0438\u0434\u0435\u043d\u0446\u0438\u0430\u043b\u044c\u043d\u043e\u0441\u0442\u0438',
+    'footer.terms': '\u0423\u0441\u043b\u043e\u0432\u0438\u044f \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u043d\u0438\u044f',
+    'disclaimer.title': '\u0412\u0430\u0436\u043d\u043e\u0435 \u0443\u0432\u0435\u0434\u043e\u043c\u043b\u0435\u043d\u0438\u0435',
+    'disclaimer.item1.title': '\u041f\u0440\u0435\u0434\u0432\u0430\u0440\u0438\u0442\u0435\u043b\u044c\u043d\u043e\u0435 \u0443\u0441\u043b\u043e\u0432\u0438\u0435',
+    'disclaimer.item1.body': '\u0420\u0435\u0434\u0430\u043a\u0442\u043e\u0440 \u043f\u0440\u0435\u0434\u043d\u0430\u0437\u043d\u0430\u0447\u0435\u043d \u0442\u043e\u043b\u044c\u043a\u043e \u0434\u043b\u044f \u043b\u0435\u0433\u0430\u043b\u044c\u043d\u043e \u043f\u043e\u043b\u0443\u0447\u0435\u043d\u043d\u044b\u0445 \u0440\u0435\u0441\u0443\u0440\u0441\u043e\u0432 \u0432 \u043e\u0434\u0438\u043d\u043e\u0447\u043d\u043e\u043c/\u043e\u0444\u043b\u0430\u0439\u043d \u0440\u0435\u0436\u0438\u043c\u0435.',
+    'disclaimer.item2.title': '\u041d\u0430\u043f\u043e\u043c\u0438\u043d\u0430\u043d\u0438\u0435 \u043e EULA',
+    'disclaimer.item2.body': '\u0412\u044b \u043d\u0435\u0441\u0451\u0442\u0435 \u043e\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u0435\u043d\u043d\u043e\u0441\u0442\u044c \u0437\u0430 \u0441\u043e\u0431\u043b\u044e\u0434\u0435\u043d\u0438\u0435 EULA \u043a\u0430\u0436\u0434\u043e\u0439 \u0438\u0433\u0440\u044b.',
+    'disclaimer.item3.title': '\u0423\u0432\u0435\u0434\u043e\u043c\u043b\u0435\u043d\u0438\u0435 \u043e\u0431 \u0430\u0432\u0442\u043e\u0440\u0441\u043a\u0438\u0445 \u043f\u0440\u0430\u0432\u0430\u0445',
+    'disclaimer.item3.body': '\u0414\u0430\u043d\u043d\u043e\u0435 \u041f\u041e \u043f\u0440\u0438\u043d\u0430\u0434\u043b\u0435\u0436\u0438\u0442 \u0438\u0441\u043a\u043b\u044e\u0447\u0438\u0442\u0435\u043b\u044c\u043d\u043e \u043a\u043e\u043c\u0430\u043d\u0434\u0435 ModFans. \u041f\u043e\u043b\u043d\u044b\u0435 \u0443\u0441\u043b\u043e\u0432\u0438\u044f \u043d\u0430 ',
+    'disclaimer.confirm': '\u041f\u043e\u043d\u044f\u0442\u043d\u043e',
+    'winrar.title': '\u0421\u043a\u0430\u0447\u0430\u0442\u044c WinRAR',
+    'winrar.desc': 'WinRAR \u043d\u0435\u043e\u0431\u0445\u043e\u0434\u0438\u043c \u0434\u043b\u044f \u0440\u0435\u0434\u0430\u043a\u0442\u043e\u0440\u0430 SnowRunner.',
+    'winrar.hint': '\u041f\u043e\u0441\u043b\u0435 \u043d\u0430\u0436\u0430\u0442\u0438\u044f \u0421\u043a\u0430\u0447\u0430\u0442\u044c \u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0430 \u043d\u0430\u0447\u043d\u0451\u0442\u0441\u044f \u0430\u0432\u0442\u043e\u043c\u0430\u0442\u0438\u0447\u0435\u0441\u043a\u0438.',
+    'winrar.cancel': '\u041e\u0442\u043c\u0435\u043d\u0430',
+    'winrar.confirm': '\u0421\u043a\u0430\u0447\u0430\u0442\u044c'
+  },
+  fr: {
+    'nav.tab.intro': 'Introduction',
+    'nav.tab.benefit': 'Avantages',
+    'nav.tab.changelog': 'Mises \u00e0 jour',
+    'nav.download': 'T\u00e9l\u00e9charger',
+    'hero.subtitle': '\u00c9diteur professionnel de param\u00e8tres de v\u00e9hicules de jeu',
+    'hero.cta': 'T\u00e9l\u00e9charger pour Windows',
+    'section.cache': 'Cache Intelligent',
+    'section.cache.sub': 'D\u00e9marrage instantan\u00e9 \u2014 analyse et mise en cache intelligentes',
+    'section.games': 'Multi-Jeux & Multi-Plateformes',
+    'section.games.sub': 'Un seul outil \u2014 SnowRunner, BeamNG.Drive et plus',
+    'section.backup': 'Syst\u00e8me de Sauvegarde S\u00e9curis\u00e9',
+    'section.backup.sub': 'Sauvegarde automatique avant chaque modification',
+    'section.benefit': 'Pourquoi choisir Premium?',
+    'section.benefit.sub': 'Lib\u00e9rez toute la puissance de GAM Vehicle Editor',
+    'section.changelog': 'Journal des modifications',
+    'section.changelog.sub': 'Nouveaut\u00e9s de la derni\u00e8re version',
+    'faq.title': 'FAQ',
+    'faq.sub': 'R\u00e9ponses aux questions fr\u00e9quentes',
+    'faq.q1': 'Dois-je acheter le jeu pour utiliser cet \u00e9diteur?',
+    'faq.a1': 'Oui. Cet \u00e9diteur est uniquement destin\u00e9 \u00e0 modifier des ressources l\u00e9galement obtenues.',
+    'faq.q2': 'Les fichiers modifi\u00e9s affectent-ils le multijoueur?',
+    'faq.a2': 'Aucun impact en mode solo. En multijoueur, certains serveurs peuvent d\u00e9tecter des v\u00e9hicules modifi\u00e9s.',
+    'faq.q3': 'Mes modifications seront-elles perdues apr\u00e8s une mise \u00e0 jour?',
+    'faq.a3': 'Les grandes mises \u00e0 jour peuvent \u00e9craser les fichiers. Nous recommandons de r\u00e9exporter apr\u00e8s chaque mise \u00e0 jour.',
+    'faq.q4': 'La limite d\u2019exportation peut-elle \u00eatre supprim\u00e9e?',
+    'faq.a4': 'Un abonnement premium d\u00e9bloque des exportations illimit\u00e9es.',
+    'faq.q5': 'D\u2019autres jeux sont-ils pris en charge?',
+    'faq.a5': 'Actuellement SnowRunner et BeamNG.Drive. D\u2019autres seront ajout\u00e9s.',
+    'faq.q6': 'R\u00e9pertoire d\u2019installation introuvable apr\u00e8s le changement?',
+    'faq.a6': 'Ajoutez d\u2019abord le jeu dans l\u2019application principale GAM.',
+    'faq.q7': 'L\u2019\u00e9diteur ne d\u00e9tecte pas les mods install\u00e9s?',
+    'faq.a7': 'Pour BeamNG.Drive, configurez le chemin de d\u00e9ploiement des mods.',
+    'faq.q8': 'Aucune modification n\u2019appara\u00eet dans le jeu?',
+    'faq.a8': 'Enregistrez d\u2019abord les param\u00e8tres, puis cliquez sur Exporter vers le jeu.',
+    'faq.q9': 'Quelle est la diff\u00e9rence entre GAM et l\u2019\u00e9dition directe?',
+    'faq.a9': 'GAM offre une interface visuelle, des sauvegardes automatiques et une restauration en un clic.',
+    'faq.q10': 'Comment utiliser l\u2019\u00e9diteur de v\u00e9hicules?',
+    'faq.a10': 'Ajoutez le jeu dans GAM, cliquez sur le bouton \u00c9diteur dans le menu.',
+    'faq.q11': 'Quel outil recommandez-vous pour BeamNG.Drive?',
+    'faq.a11': 'GAM Vehicle Editor prend en charge l\u2019\u00e9dition visuelle des param\u00e8tres de v\u00e9hicules BeamNG.Drive.',
+    'sysreq.title': 'Configuration requise',
+    'sysreq.sub': 'Mat\u00e9riel recommand\u00e9 pour GAM Vehicle Editor',
+    'sysreq.col.item': 'Composant',
+    'sysreq.col.min': 'Minimum',
+    'sysreq.col.rec': 'Recommand\u00e9',
+    'sysreq.cpu.min': '4 c\u0153urs (apr\u00e8s 2016)',
+    'sysreq.cpu.rec': '8 c\u0153urs ou plus',
+    'sysreq.ram.label': 'RAM',
+    'sysreq.ram.min': '4 Go disponibles',
+    'sysreq.ram.rec': '8 Go disponibles',
+    'sysreq.disk.label': 'Espace disque',
+    'sysreq.disk.min': '2 Go libres',
+    'sysreq.disk.rec': '5 Go libres',
+    'sysreq.disktype.label': 'Type de disque',
+    'sysreq.disktype.min': 'HDD (plus lent)',
+    'sysreq.disktype.rec': 'SSD fortement recommand\u00e9 (3 \u00e0 10x plus rapide)',
+    'sysreq.os.label': 'Syst\u00e8me d\u2019exploitation',
+    'sysreq.dep.label': 'D\u00e9pendances',
+    'sysreq.dep.val': 'WinRAR (requis pour SnowRunner)',
+    'legal.title': 'L\u00e9gal & Conformit\u00e9',
+    'legal.terms.title': 'R\u00e9sum\u00e9 des conditions d\u2019utilisation',
+    'legal.terms.allow': 'Autoris\u00e9: usage personnel, \u00e9tude, recherche',
+    'legal.terms.prohibit': 'Interdit: redistribution, ing\u00e9nierie inverse, usage commercial',
+    'legal.terms.remind': 'Rappel: respectez le CLUF; mode solo uniquement',
+    'legal.policy.title': 'Politiques compl\u00e8tes',
+    'legal.policy.terms': 'Conditions d\u2019utilisation',
+    'legal.policy.privacy': 'Politique de confidentialit\u00e9',
+    'legal.policy.disclaimer': 'Notice importante',
+    'legal.copyright.title': 'Enregistrement du droit d\u2019auteur',
+    'legal.copyright.reg': 'Demande d\u2019enregistrement soumise',
+    'legal.copyright.owner': '\u00c9quipe de d\u00e9veloppement ModFans',
+    'legal.copyright.rights': 'Code source ferm\u00e9. Tous droits r\u00e9serv\u00e9s.',
+    'footer.copyright': '\u00a9 2026 \u00c9quipe de d\u00e9veloppement ModFans. Tous droits r\u00e9serv\u00e9s.',
+    'footer.privacy': 'Politique de confidentialit\u00e9',
+    'footer.terms': 'Conditions d\u2019utilisation',
+    'disclaimer.title': 'Notice importante',
+    'disclaimer.item1.title': 'Condition pr\u00e9alable',
+    'disclaimer.item1.body': 'Cet \u00e9diteur est uniquement destin\u00e9 \u00e0 modifier des ressources l\u00e9galement obtenues en mode solo.',
+    'disclaimer.item2.title': 'Rappel CLUF',
+    'disclaimer.item2.body': 'Vous \u00eates seul responsable du respect du CLUF de chaque jeu.',
+    'disclaimer.item3.title': 'Mention de droits d\u2019auteur',
+    'disclaimer.item3.body': 'Ce logiciel appartient exclusivement \u00e0 l\u2019\u00e9quipe ModFans. Conditions compl\u00e8tes sur ',
+    'disclaimer.confirm': 'Compris',
+    'winrar.title': 'T\u00e9l\u00e9charger WinRAR',
+    'winrar.desc': 'WinRAR est requis par l\u2019\u00e9diteur SnowRunner.',
+    'winrar.hint': 'Apr\u00e8s avoir cliqu\u00e9 sur T\u00e9l\u00e9charger, le t\u00e9l\u00e9chargement d\u00e9marrera automatiquement.',
+    'winrar.cancel': 'Annuler',
+    'winrar.confirm': 'T\u00e9l\u00e9charger'
+  },
+  es: {
+    'nav.tab.intro': 'Introducci\u00f3n',
+    'nav.tab.benefit': 'Beneficios',
+    'nav.tab.changelog': 'Cambios',
+    'nav.download': 'Descargar',
+    'hero.subtitle': 'Editor profesional de par\u00e1metros de veh\u00edculos de juego',
+    'hero.cta': 'Descargar para Windows',
+    'section.cache': 'Cach\u00e9 Inteligente',
+    'section.cache.sub': 'Inicio instant\u00e1neo \u2014 an\u00e1lisis y cach\u00e9 de archivos inteligentes',
+    'section.games': 'Multi-Juego y Multi-Plataforma',
+    'section.games.sub': 'Una herramienta para todo \u2014 SnowRunner, BeamNG.Drive y m\u00e1s',
+    'section.backup': 'Sistema de Copia de Seguridad Segura',
+    'section.backup.sub': 'Copia de seguridad autom\u00e1tica antes de cada edici\u00f3n',
+    'section.benefit': '\u00bfPor qu\u00e9 elegir Premium?',
+    'section.benefit.sub': 'Desbloquea todo el potencial de GAM Vehicle Editor',
+    'section.changelog': 'Registro de cambios',
+    'section.changelog.sub': 'Novedades de la \u00faltima versi\u00f3n',
+    'faq.title': 'Preguntas frecuentes',
+    'faq.sub': 'Respuestas a preguntas comunes',
+    'faq.q1': '\u00bfNecesito comprar el juego para usar este editor?',
+    'faq.a1': 'S\u00ed. Este editor solo es para modificar recursos obtenidos legalmente.',
+    'faq.q2': '\u00bfLos archivos modificados afectan al multijugador?',
+    'faq.a2': 'Sin impacto en modo individual. En multijugador, algunos servidores pueden detectar veh\u00edculos modificados.',
+    'faq.q3': '\u00bfSe perder\u00e1n mis modificaciones tras una actualizaci\u00f3n?',
+    'faq.a3': 'Las grandes actualizaciones pueden sobrescribir archivos. Recomendamos reexportar despu\u00e9s de cada actualizaci\u00f3n.',
+    'faq.q4': '\u00bfSe puede eliminar el l\u00edmite de exportaci\u00f3n?',
+    'faq.a4': 'Una membres\u00eda premium desbloquea exportaciones ilimitadas.',
+    'faq.q5': '\u00bfSe admiten otros juegos?',
+    'faq.a5': 'Actualmente SnowRunner y BeamNG.Drive. Se a\u00f1adir\u00e1n m\u00e1s.',
+    'faq.q6': 'Directorio de instalaci\u00f3n no encontrado al cambiar de juego?',
+    'faq.a6': 'Primero a\u00f1ade el juego en la aplicaci\u00f3n principal de GAM.',
+    'faq.q7': '\u00bfEl editor no detecta los mods instalados?',
+    'faq.a7': 'Para BeamNG.Drive, configura la ruta de despliegue de mods.',
+    'faq.q8': '\u00bfNo aparecen cambios en el juego?',
+    'faq.a8': 'Guarda los par\u00e1metros primero, luego haz clic en Exportar al juego.',
+    'faq.q9': '\u00bfEn qu\u00e9 se diferencia GAM de editar archivos directamente?',
+    'faq.a9': 'GAM ofrece una interfaz visual, copias de seguridad autom\u00e1ticas y restauraci\u00f3n con un clic.',
+    'faq.q10': '\u00bfC\u00f3mo uso el editor de veh\u00edculos?',
+    'faq.a10': 'A\u00f1ade el juego en GAM, haz clic en el bot\u00f3n Editor del men\u00fa.',
+    'faq.q11': '\u00bfQu\u00e9 herramienta recomiendas para BeamNG.Drive?',
+    'faq.a11': 'GAM Vehicle Editor admite la edici\u00f3n visual de par\u00e1metros de veh\u00edculos de BeamNG.Drive.',
+    'sysreq.title': 'Requisitos del sistema',
+    'sysreq.sub': 'Hardware recomendado para GAM Vehicle Editor',
+    'sysreq.col.item': 'Componente',
+    'sysreq.col.min': 'M\u00ednimo',
+    'sysreq.col.rec': 'Recomendado',
+    'sysreq.cpu.min': '4 n\u00facleos (post-2016)',
+    'sysreq.cpu.rec': '8 n\u00facleos o m\u00e1s',
+    'sysreq.ram.label': 'RAM',
+    'sysreq.ram.min': '4 GB disponibles',
+    'sysreq.ram.rec': '8 GB disponibles',
+    'sysreq.disk.label': 'Espacio en disco',
+    'sysreq.disk.min': '2 GB libres',
+    'sysreq.disk.rec': '5 GB libres',
+    'sysreq.disktype.label': 'Tipo de disco',
+    'sysreq.disktype.min': 'HDD (m\u00e1s lento)',
+    'sysreq.disktype.rec': 'SSD muy recomendado (3\u201310x m\u00e1s r\u00e1pido)',
+    'sysreq.os.label': 'Sistema operativo',
+    'sysreq.dep.label': 'Dependencias',
+    'sysreq.dep.val': 'WinRAR (necesario para SnowRunner)',
+    'legal.title': 'Legal y Cumplimiento',
+    'legal.terms.title': 'Resumen de t\u00e9rminos de uso',
+    'legal.terms.allow': 'Permitido: uso personal, estudio, investigaci\u00f3n',
+    'legal.terms.prohibit': 'Prohibido: redistribuci\u00f3n, ingenier\u00eda inversa, uso comercial',
+    'legal.terms.remind': 'Recordatorio: cumple con el CLUF; solo modo individual',
+    'legal.policy.title': 'Pol\u00edticas completas',
+    'legal.policy.terms': 'T\u00e9rminos de servicio',
+    'legal.policy.privacy': 'Pol\u00edtica de privacidad',
+    'legal.policy.disclaimer': 'Aviso importante',
+    'legal.copyright.title': 'Registro de derechos de autor',
+    'legal.copyright.reg': 'Registro de derechos de autor solicitado',
+    'legal.copyright.owner': 'Equipo de desarrollo ModFans',
+    'legal.copyright.rights': 'C\u00f3digo cerrado. Todos los derechos reservados.',
+    'footer.copyright': '\u00a9 2026 Equipo de desarrollo ModFans. Todos los derechos reservados.',
+    'footer.privacy': 'Pol\u00edtica de privacidad',
+    'footer.terms': 'T\u00e9rminos de servicio',
+    'disclaimer.title': 'Aviso importante',
+    'disclaimer.item1.title': 'Requisito previo',
+    'disclaimer.item1.body': 'Este editor solo es para modificar recursos legalmente obtenidos en modo individual/sin conexi\u00f3n.',
+    'disclaimer.item2.title': 'Recordatorio CLUF',
+    'disclaimer.item2.body': 'Eres el \u00fanico responsable de cumplir con el CLUF de cada juego.',
+    'disclaimer.item3.title': 'Aviso de derechos de autor',
+    'disclaimer.item3.body': 'Este software pertenece exclusivamente al equipo ModFans. T\u00e9rminos completos en ',
+    'disclaimer.confirm': 'Entendido',
+    'winrar.title': 'Descargar WinRAR',
+    'winrar.desc': 'WinRAR es necesario para el editor de SnowRunner.',
+    'winrar.hint': 'Despu\u00e9s de hacer clic en Descargar, la descarga comenzar\u00e1 autom\u00e1ticamente.',
+    'winrar.cancel': 'Cancelar',
+    'winrar.confirm': 'Descargar'
+  }
+};
+
+function switchLang(code) {
+  var dict = TRANSLATIONS[code] || TRANSLATIONS['en'];
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n');
+    if (dict[key] !== undefined) el.textContent = dict[key];
+  });
+  var sel = document.getElementById('lang-select');
+  if (sel) sel.value = code;
+  localStorage.setItem('gam_lang', code);
+}
+
+(function() {
+  var saved = localStorage.getItem('gam_lang');
+  var browser = (navigator.language || 'en').toLowerCase();
+  var lang = saved || (
+    browser.startsWith('zh') ? 'zh' :
+    browser.startsWith('de') ? 'de' :
+    browser.startsWith('ru') ? 'ru' :
+    browser.startsWith('fr') ? 'fr' :
+    browser.startsWith('es') ? 'es' : 'en'
+  );
+  switchLang(lang);
+})();
+</script>
+
+</html>
