@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -97,24 +97,17 @@
             gap: 0;
         }
         
-        /* 滑动白色背景块 */
+        /* 滑动白色背景块 — 位置/宽度由 JS 动态设置 */
         .nav-tabs-slider {
             position: absolute;
             top: 4px;
             bottom: 4px;
-            width: calc(33.333% - 3px);
+            left: 4px;
+            width: 0;
             background: #ffffff;
             border-radius: 7px;
-            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            transform: translateX(0);
-        }
-        
-        .nav-tabs.active-benefit .nav-tabs-slider {
-            transform: translateX(calc(100% + 0px));
-        }
-        
-        .nav-tabs.active-changelog .nav-tabs-slider {
-            transform: translateX(calc(200% + 0px));
+            transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                        width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .nav-tab {
@@ -130,6 +123,7 @@
             border: none;
             background: transparent;
             user-select: none;
+            white-space: nowrap;
         }
         
         .nav-tab.active {
@@ -190,6 +184,25 @@
         @keyframes slideDownPanel {
             from { opacity: 0; transform: translateY(-10px); }
             to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 弹窗滚动区域自定义滚动条 */
+        #terms-modal ::-webkit-scrollbar,
+        #privacy-modal ::-webkit-scrollbar {
+            width: 6px;
+        }
+        #terms-modal ::-webkit-scrollbar-track,
+        #privacy-modal ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #terms-modal ::-webkit-scrollbar-thumb,
+        #privacy-modal ::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+        }
+        #terms-modal ::-webkit-scrollbar-thumb:hover,
+        #privacy-modal ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.4);
         }
 
         /* 面板顶部标题行（在卡片外部） */
@@ -871,7 +884,7 @@
         
         .comparison-table th:first-child {
             text-align: left;
-            width: 50%;                /* ★ 调整项：功能列宽度 */
+            width: 40%;                /* ★ 调整项：功能列宽度 */
         }
         
         .comparison-table tbody tr {
@@ -887,12 +900,19 @@
             text-align: left;
         }
 
-        /* 非会员列宽度 */
+        /* 免费版列宽度 */
         .comparison-table th:nth-child(2),
         .comparison-table td:nth-child(2) {
-            width: 25%;
+            width: 20%;
             padding-left: 0;
-            transform: translateX(-100px);  /* ★ 调整项：非会员列左移量 */
+        }
+
+        /* 订阅版/终身许可列宽度 */
+        .comparison-table th:nth-child(3),
+        .comparison-table td:nth-child(3),
+        .comparison-table th:nth-child(4),
+        .comparison-table td:nth-child(4) {
+            width: 20%;
         }
         
         .check-green {
@@ -914,7 +934,7 @@
         
         .action-buttons {
             display: grid;
-            grid-template-columns: 50% 25% 25%;  /* ★ 调整项：与表格列宽严格对齐 */
+            grid-template-columns: 40% 20% 20% 20%;  /* ★ 调整项：与表格列宽严格对齐 */
             gap: 0;
             margin-top: 1.5rem;
         }
@@ -930,7 +950,6 @@
             font-size: 0.9rem;         /* ★ 调整项：开始使用字号 */
             transition: all 0.3s ease;
             justify-self: center;
-            transform: translateX(-100px);  /* ★ 调整项：与非会员列对齐偏移量 */
         }
         
         .btn-primary {
@@ -993,19 +1012,25 @@
         
         summary {
             font-weight: 600;
-            font-size: 1rem;
+            font-size: 0.9rem;   /* 与中文字号一致 */
+            color: #1a1a1a;      /* 黑色文字 */
             list-style: none;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 60px;        /* ★ 调整项：色块未展开高度 */
+            min-height: 60px;    /* ★ 调整项：色块最小高度，文字过长时自动撑高 */
+            padding: 1rem 0;     /* 上下内边距，替代固定高度 */
         }
         
         summary::-webkit-details-marker {
             display: none;
         }
         
-        summary span {
+        summary span[data-i18n] {
+            color: inherit;      /* 继承 summary 的黑色 */
+        }
+        
+        summary span:not([data-i18n]) {
             color: #22c55e;
             font-size: 1.5rem;
             font-weight: 300;
@@ -1116,7 +1141,7 @@
                 <img src="https://modfans.cc/gam/editor/page/editor-logo.png" alt="GAM Editor">
                 <span>GAM Vehicle Editor</span>
             </div>
-            <button class="download-btn" onclick="openDownloadPanel()" data-i18n="nav.download"> Download</button>
+            <button class="download-btn" disabled style="background:#666;cursor:not-allowed;" data-i18n="nav.download">Coming Soon</button>
         </div>
     </nav>
 
@@ -1150,10 +1175,10 @@
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                     </a>
                 </p>
-                <a href="https://modfans.cc/gam/downloads/GAM.zip" download class="download-panel-btn">
+                <button class="download-panel-btn" disabled style="background:#666;cursor:not-allowed;opacity:0.7;">
                     <img src="https://modfans.cc/gam/editor/page/logos_windows-filled.png" alt="" style="width:20px;height:20px;position:relative;top:1px;">
-                    <span data-i18n="download.btn">Windows 10/11&nbsp;&nbsp;Download Now</span>
-                </a>
+                    <span data-i18n="download.btn">Coming Soon</span>
+                </button>
                 <div class="download-panel-unsupported">
                     <span data-i18n="download.unsupported">Not supported:</span>
                     <span>
@@ -1184,10 +1209,10 @@
         <div class="container">
             <div class="hero-content">
                 <div class="hero-text">
-                    <h1>GAM Vehicle Editor<br><span style="color: #ffffff; font-size: 2rem; font-weight: 400;" data-i18n="hero.subtitle">Professional Game Vehicle Parameter Editor</span></h1>  <!-- ★ 调整项B：副标题字号/字重 -->
+                    <h1>GAM Vehicle Editor<br><span style="color: #ffffff; font-size: 1.6rem; font-weight: 400; white-space: nowrap;" data-i18n="hero.subtitle">Professional Game Vehicle Parameter Editor</span></h1>  <!-- ★ 调整项B：副标题字号/字重 -->
                     <p style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">GAM Vehicle Editor 是一款专为游戏玩家设计的车辆属性可视化编辑工具，支持雪地奔驰（SnowRunner）、BeamNG.Drive 等游戏，无需手动修改代码即可调整悬架、发动机、变速箱等数十种参数，修改完成后一键导出至游戏目录，内置自动备份保护原始文件。</p>
                     <!-- ★ 调整项⑦：图标大小改 width/height；上下位置改 top（正值下移，负值上移） -->
-                    <button class="cta-button" onclick="openDownloadPanel()"><img src="https://modfans.cc/gam/editor/page/logos_windows-filled.png" alt="" style="width:22px;height:22px;position:relative;top:2.2px;"><span data-i18n="hero.cta">Download for Windows</span></button>
+                    <button class="cta-button" disabled style="background:#666;cursor:not-allowed;"><img src="https://modfans.cc/gam/editor/page/logos_windows-filled.png" alt="" style="width:22px;height:22px;position:relative;top:2.2px;"><span data-i18n="hero.cta">Coming Soon</span></button>
                     <button class="cta-button cta-button-outline" onclick="openVideoModal()" style="display:none;"><svg style="width:20px;height:20px;flex-shrink:0;margin-right:6px;vertical-align:middle;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg><span data-i18n="hero.video">Watch Demo</span></button>
                 </div>
                 <!-- Hero 右侧动图 -->
@@ -1209,15 +1234,15 @@
                 <!-- 轮播 Slide 1：可视化编辑（绿色） -->
                 <div class="visual-slide active" id="visual-slide-0">
                     <div class="visual-features">
-                        <h2>可视化编辑</h2>
+                        <h2 data-i18n="visual.slide1.title">Visual Editing</h2>
                         <ul>
                             <li>
                                 <span class="checkmark">✓</span>
-                                <span>所有载具属性标签化展示，无需手动编辑代码</span>
+                                <span data-i18n="visual.slide1.feat1">All vehicle parameters displayed with labeled UI — no code editing required</span>
                             </li>
                             <li>
                                 <span class="checkmark">✓</span>
-                                <span>支持发动机、轮胎、悬挂、变速箱等数十种参数</span>
+                                <span data-i18n="visual.slide1.feat2">Supports engine, tires, suspension, gearbox and dozens of other parameters</span>
                             </li>
                         </ul>
                     </div>
@@ -1230,15 +1255,15 @@
                 <!-- ★ 调整项：第二页图片替换 slide2-screenshot.png；文字在下方修改 -->
                 <div class="visual-slide" id="visual-slide-1">
                     <div class="visual-features">
-                        <h2>一键导出</h2>
+                        <h2 data-i18n="visual.slide2.title">One-Click Export</h2>
                         <ul>
                             <li>
                                 <span class="checkmark">✓</span>
-                                <span>修改完成后一键导出至游戏目录，即改即用</span>
+                                <span data-i18n="visual.slide2.feat1">Export to game directory with one click — changes take effect immediately</span>
                             </li>
                             <li>
                                 <span class="checkmark">✓</span>
-                                <span>导出前自动校验参数合法性，避免游戏崩溃</span>
+                                <span data-i18n="visual.slide2.feat2">Auto-validates parameters before export to prevent game crashes</span>
                             </li>
                         </ul>
                     </div>
@@ -1432,28 +1457,30 @@
                     <tr>
                         <th style="text-align: left;" data-i18n="benefit.col.feature">Feature</th>
                         <th data-i18n="benefit.col.free">Free</th>
-                        <th data-i18n="benefit.col.pro">Pro</th>
+                        <th data-i18n="benefit.col.sub">Subscription</th>
+                        <th data-i18n="benefit.col.perm">Lifetime</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td data-i18n="benefit.local_cache">Local Cache</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
-                    <tr><td data-i18n="benefit.reset">Restore Original</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
-                    <tr><td data-i18n="benefit.auto_backup">Auto Backup</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
-                    <tr><td data-i18n="benefit.visual_edit">Visual UI Editor</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
-                    <tr><td data-i18n="benefit.basic_params">Basic Parameter Edit</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
-                    <tr><td data-i18n="benefit.dlc">DLC Vehicle Edit</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
-                    <tr><td data-i18n="benefit.mod">MOD Vehicle Edit</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
-                    <tr><td data-i18n="benefit.reset_btn">Reset Function</td><td><span class="cross-red">✗</span></td><td><span class="check-green">✓</span></td></tr>
-                    <tr><td data-i18n="benefit.save">Save Function</td><td><span class="cross-red">✗</span></td><td><span class="check-green">✓</span></td></tr>
-                    <tr><td data-i18n="benefit.snapshot">Snapshot Function</td><td><span class="cross-red">✗</span></td><td><span class="check-green">✓</span></td></tr>
-                    <tr><td data-i18n="benefit.export">Export to Game</td><td data-i18n="benefit.export.free">5 times/day</td><td data-i18n="benefit.export.pro">Unlimited</td></tr>
-                    <tr><td data-i18n="benefit.batch">Batch Export</td><td><span class="limit-badge" data-i18n="benefit.batch.free">Limited Free</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.local_cache">Local Cache</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.reset">Restore Original</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.auto_backup">Auto Backup</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.visual_edit">Visual UI Editor</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.basic_params">Basic Parameter Edit</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.dlc">DLC Vehicle Edit</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.mod">MOD Vehicle Edit</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.reset_btn">Reset Function</td><td><span class="cross-red">✗</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.save">Save Function</td><td><span class="cross-red">✗</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.snapshot">Snapshot Function</td><td><span class="cross-red">✗</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.export">Export to Game</td><td data-i18n="benefit.export.free">5 times/day</td><td data-i18n="benefit.export.pro">Unlimited</td><td data-i18n="benefit.export.pro">Unlimited</td></tr>
+                    <tr><td data-i18n="benefit.batch">Batch Export</td><td><span class="limit-badge" data-i18n="benefit.batch.free">Limited Free</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
                 </tbody>
             </table>
             <div class="action-buttons">
                 <div></div>
-                <button class="btn-outline" onclick="openDownloadPanel()" data-i18n="benefit.start">Get Started</button>
-                <a href="https://www.modfans.cc/user?page=vip" target="_blank" class="btn-primary" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center;" data-i18n="benefit.upgrade">Upgrade to Pro</a>
+                <button class="btn-outline" disabled style="background:#444;color:#888;border-color:#555;cursor:not-allowed;" data-i18n="benefit.start">Get Started</button>
+                <button class="btn-primary" disabled style="background:#555;color:#888;cursor:not-allowed;" data-i18n="benefit.upgrade.sub">Subscribe</button>
+                <button class="btn-primary" disabled style="background:#555;color:#888;cursor:not-allowed;" data-i18n="benefit.upgrade.perm">Buy Lifetime</button>
             </div>
         </div>
     </section>
@@ -1667,7 +1694,7 @@
                 <!-- 卡片1：使用条款 -->
                 <div style="background: #445149; border-radius: 12px; padding: 2rem; position: relative; overflow: hidden;">
                     <img src="https://modfans.cc/gam/editor/page/law-1.png" alt="" style="position:absolute; top:1.2rem; right:1.2rem; width:52px; height:52px; object-fit:contain;" loading="lazy">
-                    <h3 style="font-size: 1.1rem; color: #fff; margin-bottom: 1.5rem; margin-top: 0.5rem;" data-i18n="legal.terms.title">Terms of Use Summary</h3>
+                    <h3 style="font-size: 1.1rem; color: #fff; margin-bottom: 1.5rem; margin-top: 0.5rem; padding-right: 3.5rem;" data-i18n="legal.terms.title">Terms of Use Summary</h3>
                     <ul style="list-style: none; padding: 0; margin: 0; color: rgba(255,255,255,0.75); font-size: 0.9rem; display: flex; flex-direction: column; gap: 0.75rem;">
                         <li style="display:flex; align-items:flex-start; gap:0.5rem;">
                             <!-- 允许：✓ 勾选图标 -->
@@ -1690,20 +1717,20 @@
                 <!-- 卡片2：完整政策 -->
                 <div style="background: #2f4864; border-radius: 12px; padding: 2rem; position: relative; overflow: hidden;">
                     <img src="https://modfans.cc/gam/editor/page/law-2.png" alt="" style="position:absolute; top:1.2rem; right:1.2rem; width:52px; height:52px; object-fit:contain;" loading="lazy">
-                    <h3 style="font-size: 1.1rem; color: #fff; margin-bottom: 1.5rem; margin-top: 0.5rem;" data-i18n="legal.policy.title">Full Policies</h3>
+                    <h3 style="font-size: 1.1rem; color: #fff; margin-bottom: 1.5rem; margin-top: 0.5rem; padding-right: 3.5rem;" data-i18n="legal.policy.title">Full Policies</h3>
                     <!-- First row: two buttons -->
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
-                        <a href="https://gam-editor.com/terms.html" target="_blank" style="background: #fff; border: none; padding: 0.75rem; border-radius: 6px; color: #1a1a1a; cursor: pointer; text-align: center; font-size: 0.9rem; font-weight: 500; text-decoration: none; display: block; transition: background 0.2s, color 0.2s;" onmouseover="this.style.background='#22c55e';this.style.color='#000'" onmouseout="this.style.background='#fff';this.style.color='#1a1a1a'" data-i18n="legal.policy.terms">Terms of Service</a>
-                        <a href="https://gam-editor.com/privacy.html" target="_blank" style="background: #fff; border: none; padding: 0.75rem; border-radius: 6px; color: #1a1a1a; cursor: pointer; text-align: center; font-size: 0.9rem; font-weight: 500; text-decoration: none; display: block; transition: background 0.2s, color 0.2s;" onmouseover="this.style.background='#22c55e';this.style.color='#000'" onmouseout="this.style.background='#fff';this.style.color='#1a1a1a'" data-i18n="legal.policy.privacy">Privacy Policy</a>
+                        <button onclick="openTermsModal()" style="width:100%; background: #fff; border: none; padding: 0.75rem; border-radius: 6px; color: #1a1a1a; cursor: pointer; text-align: center; font-size: 0.9rem; font-weight: 500; transition: background 0.2s, color 0.2s; white-space: normal; line-height: 1.3;" onmouseover="this.style.background='#22c55e';this.style.color='#000'" onmouseout="this.style.background='#fff';this.style.color='#1a1a1a'" data-i18n="legal.policy.terms">Terms of Service</button>
+                        <button onclick="openPrivacyModal()" style="width:100%; background: #fff; border: none; padding: 0.75rem; border-radius: 6px; color: #1a1a1a; cursor: pointer; text-align: center; font-size: 0.9rem; font-weight: 500; transition: background 0.2s, color 0.2s; white-space: normal; line-height: 1.3;" onmouseover="this.style.background='#22c55e';this.style.color='#000'" onmouseout="this.style.background='#fff';this.style.color='#1a1a1a'" data-i18n="legal.policy.privacy">Privacy Policy</button>
                     </div>
                     <!-- Second row: disclaimer button -->
-                    <button onclick="openDisclaimer()" style="width: 100%; background: #fff; border: none; padding: 0.75rem; border-radius: 6px; color: #1a1a1a; cursor: pointer; text-align: center; font-size: 0.9rem; font-weight: 500; transition: background 0.2s, color 0.2s;" onmouseover="this.style.background='#22c55e';this.style.color='#000'" onmouseout="this.style.background='#fff';this.style.color='#1a1a1a'" data-i18n="legal.policy.disclaimer">Important Notice</button>
+                    <button onclick="openDisclaimer()" style="width: 100%; background: #fff; border: none; padding: 0.75rem; border-radius: 6px; color: #1a1a1a; cursor: pointer; text-align: center; font-size: 0.9rem; font-weight: 500; transition: background 0.2s, color 0.2s; white-space: normal; line-height: 1.3;" onmouseover="this.style.background='#22c55e';this.style.color='#000'" onmouseout="this.style.background='#fff';this.style.color='#1a1a1a'" data-i18n="legal.policy.disclaimer">Important Notice</button>
                 </div>
 
                 <!-- 卡片3：著作权登记 -->
                 <div style="background: #32322e; border-radius: 12px; padding: 2rem; position: relative; overflow: hidden;">
                     <img src="https://modfans.cc/gam/editor/page/law-3.png" alt="" style="position:absolute; top:1.2rem; right:1.2rem; width:52px; height:52px; object-fit:contain;" loading="lazy">
-                    <h3 style="font-size: 1.1rem; color: #fff; margin-bottom: 1.5rem; margin-top: 0.5rem;" data-i18n="legal.copyright.title">Copyright Registration</h3>
+                    <h3 style="font-size: 1.1rem; color: #fff; margin-bottom: 1.5rem; margin-top: 0.5rem; padding-right: 3.5rem;" data-i18n="legal.copyright.title">Copyright Registration</h3>
                     <ul style="list-style: none; padding: 0; margin: 0; color: rgba(255,255,255,0.75); font-size: 0.9rem; display: flex; flex-direction: column; gap: 0.75rem;">
                         <li style="display:flex; align-items:flex-start; gap:0.5rem;">
                             <!-- 登记号：# 编号图标 -->
@@ -1733,14 +1760,13 @@
             <div class="footer-content">
                 <div>
                     <div class="footer-logos">
-                        <img src="https://modfans.cc/gam/editor/page/modfans-logo.png" alt="ModFans">
-                        <img src="https://modfans.cc/gam/editor/page/gam-logo.png" alt="GAM" style="border-radius: 0;">
                         <img src="https://modfans.cc/gam/editor/page/editor-logo.png" alt="Editor">
                     </div>
                     <div class="footer-text">
                         <p data-i18n="footer.copyright">&copy; 2026 ModFans Development Team. All rights reserved.</p>
-                        <p><a href="https://gam-editor.com/privacy.html" target="_blank" data-i18n="footer.privacy">Privacy Policy</a> &nbsp;&middot;&nbsp; <a href="https://gam-editor.com/terms.html" target="_blank" data-i18n="footer.terms">Terms of Service</a></p>
-                        <p style="font-size:0.78rem; color:rgba(255,255,255,0.3); margin-top:0.25rem;"><a href="https://www.flaticon.com" title="sedan animated icons" target="_blank" style="color:rgba(255,255,255,0.3); text-decoration:none;">Sedan animated icons created by Freepik - Flaticon</a></p>
+                        <p><a href="javascript:void(0)" onclick="openPrivacyModal()" data-i18n="footer.privacy">Privacy Policy</a> &nbsp;&middot;&nbsp; <a href="javascript:void(0)" onclick="openTermsModal()" data-i18n="footer.terms">Terms of Service</a></p>
+                        <p style="margin-top:0.4rem;"><a href="mailto:support@gam-editor.com" style="color:#a3a3a3;">support@gam-editor.com</a></p>
+                        <p style="margin-top:0.5rem; font-size:0.75rem; color:#666;">Sedan animated icons created by <a href="https://www.flaticon.com/authors/freepik" target="_blank" style="color:#666;">Freepik</a> - <a href="https://www.flaticon.com" target="_blank" style="color:#666;">Flaticon</a></p>
                     </div>
                 </div>
                 <div>
@@ -1762,7 +1788,7 @@
     }
     function doDownloadWinRAR() {
         closeWinRARModal();
-        window.location.href = 'https://winrar.org.cn/download.html';
+        window.open('https://www.win-rar.com/start.html?&L=0', '_blank');
     }
 
     /* ===== 下载面板开关 ===== */
@@ -1784,6 +1810,22 @@
     }
     function closeDisclaimer() {
         document.getElementById('disclaimer-modal').style.display = 'none';
+        document.body.style.overflow = '';
+    }
+    function openTermsModal() {
+        document.getElementById('terms-modal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+    function closeTermsModal() {
+        document.getElementById('terms-modal').style.display = 'none';
+        document.body.style.overflow = '';
+    }
+    function openPrivacyModal() {
+        document.getElementById('privacy-modal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+    function closePrivacyModal() {
+        document.getElementById('privacy-modal').style.display = 'none';
         document.body.style.overflow = '';
     }
 
@@ -2038,6 +2080,14 @@
         window._loadChangelog = loadChangelog;
     })();
 
+    function updateSlider() {
+        var activeTab = document.querySelector('.nav-tab.active');
+        var slider = document.querySelector('.nav-tabs-slider');
+        if (!activeTab || !slider) return;
+        slider.style.left = activeTab.offsetLeft + 'px';
+        slider.style.width = activeTab.offsetWidth + 'px';
+    }
+
     function switchTab(tab) {
         var introContent = document.getElementById('intro-content');
         var benefitContent = document.getElementById('benefit-content');
@@ -2068,6 +2118,7 @@
             tabChangelog.classList.add('active');
             navTabs.classList.add('active-changelog');
         }
+        updateSlider();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -2384,6 +2435,42 @@
     </div>
 </div>
 
+<!-- Terms of Service Modal -->
+<div id="terms-modal" style="display:none; position:fixed; inset:0; z-index:2000; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1.5rem;" onclick="if(event.target===this)closeTermsModal()">
+    <div style="background:#1a1a2e; border-radius:16px; max-width:700px; width:100%; position:relative; animation:slideDownPanel 0.3s ease; display:flex; flex-direction:column; max-height:85vh;">
+        <!-- Sticky header -->
+        <div style="padding:2rem 2.5rem 1rem; flex-shrink:0; border-bottom:1px solid rgba(255,255,255,0.08);">
+            <button onclick="closeTermsModal()" style="position:absolute; top:1.2rem; right:1.4rem; background:none; border:none; color:rgba(255,255,255,0.5); font-size:1.8rem; cursor:pointer; line-height:1; padding:0;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">&times;</button>
+            <h3 style="color:#fff; font-size:1.25rem; font-weight:700; margin:0;" data-i18n="legal.policy.terms">Terms of Service</h3>
+            <p style="color:rgba(255,255,255,0.4); font-size:0.8rem; margin:0.3rem 0 0;" data-i18n="modal.lastUpdated">Last updated: April 2026</p>
+        </div>
+        <!-- Scrollable content -->
+        <div id="terms-modal-body" style="overflow-y:auto; padding:1.5rem 2.5rem 2rem; color:rgba(255,255,255,0.82); font-size:0.875rem; line-height:1.8;"></div>
+        <!-- Sticky footer -->
+        <div style="padding:1rem 2.5rem 1.5rem; flex-shrink:0; border-top:1px solid rgba(255,255,255,0.08); text-align:right;">
+            <button onclick="closeTermsModal()" style="background:#22c55e; color:#000; border:none; padding:0.6rem 2rem; border-radius:6px; font-weight:700; font-size:0.9rem; cursor:pointer;" data-i18n="modal.close">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Privacy Policy Modal -->
+<div id="privacy-modal" style="display:none; position:fixed; inset:0; z-index:2000; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1.5rem;" onclick="if(event.target===this)closePrivacyModal()">
+    <div style="background:#1a2e1a; border-radius:16px; max-width:700px; width:100%; position:relative; animation:slideDownPanel 0.3s ease; display:flex; flex-direction:column; max-height:85vh;">
+        <!-- Sticky header -->
+        <div style="padding:2rem 2.5rem 1rem; flex-shrink:0; border-bottom:1px solid rgba(255,255,255,0.08);">
+            <button onclick="closePrivacyModal()" style="position:absolute; top:1.2rem; right:1.4rem; background:none; border:none; color:rgba(255,255,255,0.5); font-size:1.8rem; cursor:pointer; line-height:1; padding:0;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">&times;</button>
+            <h3 style="color:#fff; font-size:1.25rem; font-weight:700; margin:0;" data-i18n="legal.policy.privacy">Privacy Policy</h3>
+            <p style="color:rgba(255,255,255,0.4); font-size:0.8rem; margin:0.3rem 0 0;" data-i18n="modal.lastUpdated">Last updated: April 2026</p>
+        </div>
+        <!-- Scrollable content -->
+        <div id="privacy-modal-body" style="overflow-y:auto; padding:1.5rem 2.5rem 2rem; color:rgba(255,255,255,0.82); font-size:0.875rem; line-height:1.8;"></div>
+        <!-- Sticky footer -->
+        <div style="padding:1rem 2.5rem 1.5rem; flex-shrink:0; border-top:1px solid rgba(255,255,255,0.08); text-align:right;">
+            <button onclick="closePrivacyModal()" style="background:#22c55e; color:#000; border:none; padding:0.6rem 2rem; border-radius:6px; font-weight:700; font-size:0.9rem; cursor:pointer;" data-i18n="modal.close">Close</button>
+        </div>
+    </div>
+</div>
+
 <!-- WinRAR Download Confirmation Modal -->
 <div id="winrar-modal" style="display:none; position:fixed; inset:0; z-index:2000; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1.5rem;" onclick="if(event.target===this)closeWinRARModal()">
     <div style="background:#1e2a1e; border-radius:16px; max-width:420px; width:100%; padding:2rem 2rem 1.75rem; position:relative; animation:slideDownPanel 0.3s ease;">
@@ -2436,6 +2523,8 @@
 
 </body>
 
+<script src="modal-content.js"></script>
+
 <script>
 /* ============================================================
    i18n - GAM Vehicle Editor Overseas
@@ -2446,9 +2535,10 @@ var TRANSLATIONS = {
     'nav.tab.intro': 'Introduction',
     'nav.tab.benefit': 'Benefits',
     'nav.tab.changelog': 'Changelog',
-    'nav.download': 'Download',
+    'nav.download': 'Coming Soon',
     'hero.subtitle': 'Professional Game Vehicle Parameter Editor',
-    'hero.cta': 'Download for Windows',
+    'hero.cta': 'Coming Soon',
+    'download.btn': 'Coming Soon',
     'section.cache': 'Smart Caching',
     'section.cache.sub': 'Instant load - intelligent file analysis and caching for lightning-fast startup',
     'section.games': 'Multi-Game & Multi-Platform',
@@ -2526,19 +2616,73 @@ var TRANSLATIONS = {
     'disclaimer.item3.title': 'Copyright Notice',
     'disclaimer.item3.body': 'This software is exclusively owned by the ModFans Development Team. Unauthorized redistribution, resale, or removal of copyright notices is prohibited. Full terms at ',
     'disclaimer.confirm': 'Got it',
+        'modal.lastUpdated': 'Last updated: April 2026',
+        'modal.close': 'Close',
     'winrar.title': 'Download WinRAR',
     'winrar.desc': 'WinRAR is required by the SnowRunner editor to read and load game files.',
-    'winrar.hint': 'After clicking Download, winrar-x64.exe will start downloading automatically. Please install it to C:\\Program Files.',
+    'winrar.hint': 'After clicking "Go to Download", you will be redirected to the official WinRAR website. Please install it to C:\\Program Files after downloading.',
     'winrar.cancel': 'Cancel',
-    'winrar.confirm': 'Download'
+    'winrar.confirm': 'Go to Download',
+        'visual.slide1.title': 'Visual Editing',
+        'visual.slide1.feat1': 'All vehicle parameters displayed with labeled UI \u2014 no code editing required',
+        'visual.slide1.feat2': 'Supports engine, tires, suspension, gearbox and dozens of other parameters',
+        'visual.slide2.title': 'One-Click Export',
+        'visual.slide2.feat1': 'Export to game directory with one click \u2014 changes take effect immediately',
+        'visual.slide2.feat2': 'Auto-validates parameters before export to prevent game crashes',
+    'cache.item0.l1': 'Auto-cached after first load,',
+    'cache.item0.l2': 'instant startup from then on',
+    'cache.item1.l1': 'Smart detection after export,',
+    'cache.item1.l2': 'avoids redundant re-reads',
+    'cache.item2.l1': 'Auto re-reads on game update,',
+    'cache.item2.l2': 'always stays up to date',
+    'cache.slow': 'First open',
+    'cache.fast': 'Subsequent opens',
+    'games.card1.title': 'Multi-Game Support',
+    'games.card1.desc': 'Supports SnowRunner, BeamNG.Drive, with more games coming soon',
+    'games.card2.title': 'Multi-Platform Support',
+    'games.card2.desc': 'Supports games on Steam, Epic and more',
+    'games.card3.title': 'Unified UI Framework',
+    'games.card3.desc': 'Independent config per game, consistent UI design',
+    'backup.item0.title': 'Auto-backup on first run',
+    'backup.item0.desc': 'A full backup of your game files is created on first launch, keeping originals safe.',
+    'backup.item1.title': 'Multiple named snapshots',
+    'backup.item1.desc': 'Create multiple backup versions for different mod setups, switch between them anytime.',
+    'backup.item2.title': 'Restore any version instantly',
+    'backup.item2.desc': 'Not happy with a change? Restore to any previous backup point in one click, zero risk.',
+    'benefit.col.feature': 'Feature',
+    'benefit.col.free': 'Free',
+    'benefit.col.sub': 'Subscription',
+    'benefit.col.perm': 'Lifetime',
+    'benefit.local_cache': 'Local Cache',
+    'benefit.reset': 'Restore Original',
+    'benefit.auto_backup': 'Auto Backup',
+    'benefit.visual_edit': 'Visual UI Editor',
+    'benefit.basic_params': 'Basic Parameter Edit',
+    'benefit.dlc': 'DLC Vehicle Edit',
+    'benefit.mod': 'MOD Vehicle Edit',
+    'benefit.reset_btn': 'Reset Function',
+    'benefit.save': 'Save Function',
+    'benefit.snapshot': 'Snapshot Function',
+    'benefit.export': 'Export to Game',
+    'benefit.export.free': '5 times/day',
+    'benefit.export.pro': 'Unlimited',
+    'benefit.batch': 'Batch Export',
+    'benefit.batch.free': 'Limited Free',
+    'benefit.start': 'Get Started',
+        'benefit.upgrade.sub': 'Subscribe',
+        'benefit.upgrade.perm': 'Buy Lifetime',
+    'changelog.title': 'Changelog',
+    'changelog.sub': 'GAM Vehicle Editor Version History',
+    'changelog.loading': 'Loading latest version info…'
   },
   zh: {
     'nav.tab.intro': '介绍',
     'nav.tab.benefit': '权益',
     'nav.tab.changelog': '更新',
-    'nav.download': '下载',
-    'hero.subtitle': '专业的游戏载具属性编辑器',
-    'hero.cta': '立即下载',
+    'nav.download': '\u5373\u5c06\u53d1\u5e03',
+    'hero.subtitle': '\u4e13\u4e1a\u7684\u6e38\u620f\u8f7d\u5177\u5c5e\u6027\u7f16\u8f91\u5668',
+    'hero.cta': '\u5373\u5c06\u53d1\u5e03',
+    'download.btn': '\u5373\u5c06\u53d1\u5e03',
     'section.cache': '智能缓存机制',
     'section.cache.sub': '极速启动 — 智能文件分析与缓存，瞬间加载',
     'section.games': '多游戏 · 多平台',
@@ -2616,19 +2760,73 @@ var TRANSLATIONS = {
     'disclaimer.item3.title': '著作权声明',
     'disclaimer.item3.body': '本软件著作权归 ModFans 开发团队独家所有；未经授权，不得转载、分发、出售本工具，或删除版权信息。完整条款详见 ',
     'disclaimer.confirm': '我已了解',
+        'modal.lastUpdated': '最后更新：2026年4月',
+        'modal.close': '关闭',
     'winrar.title': '下载 WinRAR',
     'winrar.desc': 'SnowRunner 编辑器必须依赖 WinRAR 才能读取和加载文件。',
-    'winrar.hint': '点击「确定下载」后将自动开始下载 winrar-x64.exe。下载完成后请自行安装至 C:\\Program Files。',
+    'winrar.hint': '点击「前往下载」后将自动跳转至 WinRAR 官方网站。下载完成后请自行安装至 C:\\Program Files',
     'winrar.cancel': '取消',
-    'winrar.confirm': '确定下载'
+    'winrar.confirm': '前往下载',
+        'visual.slide1.title': '可视化编辑',
+        'visual.slide1.feat1': '所有载具属性标签化展示，无需手动编辑代码',
+        'visual.slide1.feat2': '支持发动机、轮胎、悬挂、变速箱等数十种参数',
+        'visual.slide2.title': '一键导出',
+        'visual.slide2.feat1': '修改完成后一键导出至游戏目录，即改即用',
+        'visual.slide2.feat2': '导出前自动校验参数合法性，避免游戏崩溃',
+    'cache.item0.l1': '首次加载后自动缓存，',
+    'cache.item0.l2': '后续启动即刻完成',
+    'cache.item1.l1': '导出后智能检测变更，',
+    'cache.item1.l2': '避免重复读取',
+    'cache.item2.l1': '游戏更新后自动重读，',
+    'cache.item2.l2': '始终保持最新状态',
+    'cache.slow': '第一次打开',
+    'cache.fast': '后续打开',
+    'games.card1.title': '多游戏支持',
+    'games.card1.desc': '支持雪地奔驰、BeamNG.Drive，更多游戏陆续接入',
+    'games.card2.title': '多平台支持',
+    'games.card2.desc': '支持 Steam、Epic 等主流平台的游戏',
+    'games.card3.title': '统一 UI 框架',
+    'games.card3.desc': '每款游戏独立配置，UI 风格一致',
+    'backup.item0.title': '首次运行自动备份',
+    'backup.item0.desc': '编辑器首次启动时会对游戏文件进行完整备份，保护原始文件安全。',
+    'backup.item1.title': '多个命名快照',
+    'backup.item1.desc': '为不同的模组方案创建多个备份版本，随时切换。',
+    'backup.item2.title': '一键还原任意版本',
+    'backup.item2.desc': '不满意某次修改？一键回滚到任意备份点，零风险。',
+    'benefit.col.feature': '\u529f\u80fd',
+    'benefit.col.free': '\u514d\u8d39\u7248',
+    'benefit.col.sub': '\u8ba2\u9605\u7248',
+    'benefit.col.perm': '\u7ec8\u8eab\u8bb8\u53ef',
+    'benefit.local_cache': '本地缓存',
+    'benefit.reset': '还原文件',
+    'benefit.auto_backup': '自动备份',
+    'benefit.visual_edit': '可视化编辑器',
+    'benefit.basic_params': '基础参数编辑',
+    'benefit.dlc': 'DLC 载具编辑',
+    'benefit.mod': 'MOD 载具编辑',
+    'benefit.reset_btn': '重置功能',
+    'benefit.save': '存档功能',
+    'benefit.snapshot': '快照功能',
+    'benefit.export': '导出至游戏',
+    'benefit.export.free': '5 次/天',
+    'benefit.export.pro': '无限次',
+    'benefit.batch': '批量导出',
+    'benefit.batch.free': '免费限量',
+    'benefit.start': '\u5f00\u59cb\u4f7f\u7528',
+        'benefit.upgrade.sub': '\u8ba2\u9605',
+        'benefit.upgrade.perm': '\u8d2d\u4e70\u7ec8\u8eab\u7248',
+    'changelog.title': '更新日志',
+    'changelog.sub': 'GAM Vehicle Editor 版本历史',
+    'changelog.loading': '正在加载最新版本信息…'
   },
   de: {
     'nav.tab.intro': 'Einf\u00fchrung',
     'nav.tab.benefit': 'Vorteile',
     'nav.tab.changelog': '\u00c4nderungen',
-    'nav.download': 'Herunterladen',
+    'nav.download': 'Demn\u00e4chst',
     'hero.subtitle': 'Professioneller Fahrzeugparameter-Editor f\u00fcr Spiele',
-    'hero.cta': 'F\u00fcr Windows herunterladen',
+    'hero.cta': 'Demn\u00e4chst verf\u00fcgbar',
+    'download.btn': 'Demn\u00e4chst verf\u00fcgbar',
     'section.cache': 'Intelligentes Caching',
     'section.cache.sub': 'Sofortstart \u2014 intelligente Dateianalyse und Caching',
     'section.games': 'Multi-Spiel & Multi-Plattform',
@@ -2689,7 +2887,7 @@ var TRANSLATIONS = {
     'legal.terms.remind': 'Hinweis: EULA des Spiels beachten; nur Einzelspieler',
     'legal.policy.title': 'Vollst\u00e4ndige Richtlinien',
     'legal.policy.terms': 'Nutzungsbedingungen',
-    'legal.policy.privacy': 'Datenschutzrichtlinie',
+    'legal.policy.privacy': 'Datenschutz',
     'legal.policy.disclaimer': 'Wichtiger Hinweis',
     'legal.copyright.title': 'Urheberrechtsregistrierung',
     'legal.copyright.reg': 'Urheberrechtsregistrierung beantragt',
@@ -2706,19 +2904,73 @@ var TRANSLATIONS = {
     'disclaimer.item3.title': 'Urheberrechtshinweis',
     'disclaimer.item3.body': 'Diese Software geh\u00f6rt ausschlie\u00dflich dem ModFans Entwicklungsteam. Vollst\u00e4ndige Bedingungen unter ',
     'disclaimer.confirm': 'Verstanden',
+        'modal.lastUpdated': 'Zuletzt aktualisiert: April 2026',
+        'modal.close': 'Schließen',
     'winrar.title': 'WinRAR herunterladen',
     'winrar.desc': 'WinRAR ist f\u00fcr den SnowRunner-Editor erforderlich.',
-    'winrar.hint': 'Nach dem Klicken auf Herunterladen startet der Download automatisch.',
+    'winrar.hint': 'Nach dem Klicken auf "Download starten" werden Sie zur offiziellen WinRAR-Website weitergeleitet. Bitte installieren Sie WinRAR nach dem Download unter C:\\Program Files.',
     'winrar.cancel': 'Abbrechen',
-    'winrar.confirm': 'Herunterladen'
+    'winrar.confirm': 'Download starten',
+        'visual.slide1.title': 'Visuelles Bearbeiten',
+        'visual.slide1.feat1': 'Alle Fahrzeugparameter mit beschrifteter Oberfl\u00e4che \u2014 kein Code-Editing erforderlich',
+        'visual.slide1.feat2': 'Unterst\u00fctzt Motor, Reifen, Federung, Getriebe und Dutzende anderer Parameter',
+        'visual.slide2.title': 'Ein-Klick-Export',
+        'visual.slide2.feat1': 'Mit einem Klick ins Spielverzeichnis exportieren \u2014 sofort wirksam',
+        'visual.slide2.feat2': 'Automatische Parametervalidierung vor dem Export verhindert Spielabstürze',
+    'cache.item0.l1': 'Nach erstem Laden automatisch gecacht,',
+    'cache.item0.l2': 'danach sofortiger Start',
+    'cache.item1.l1': 'Intelligente Erkennung nach Export,',
+    'cache.item1.l2': 'vermeidet redundante Re-Reads',
+    'cache.item2.l1': 'Automatisches Re-Read bei Spielupdate,',
+    'cache.item2.l2': 'immer auf dem neuesten Stand',
+    'cache.slow': 'Erstes Öffnen',
+    'cache.fast': 'Folgeöffnungen',
+    'games.card1.title': 'Multi-Spiel-Unterstützung',
+    'games.card1.desc': 'Unterstützt SnowRunner, BeamNG.Drive und weitere Spiele folgen',
+    'games.card2.title': 'Multi-Plattform-Unterstützung',
+    'games.card2.desc': 'Unterstützt Spiele auf Steam, Epic und mehr',
+    'games.card3.title': 'Einheitliches UI-Framework',
+    'games.card3.desc': 'Individuelle Konfiguration pro Spiel, einheitliches Design',
+    'backup.item0.title': 'Automatisches Backup beim ersten Start',
+    'backup.item0.desc': 'Beim ersten Start wird ein vollständiges Backup erstellt, um Originaldateien zu schützen.',
+    'backup.item1.title': 'Mehrere benannte Snapshots',
+    'backup.item1.desc': 'Erstellen Sie mehrere Backup-Versionen für verschiedene Mod-Setups und wechseln Sie jederzeit.',
+    'backup.item2.title': 'Beliebige Version sofort wiederherstellen',
+    'backup.item2.desc': 'Mit einer Änderung nicht zufrieden? Stellen Sie mit einem Klick jeden früheren Backup-Punkt wieder her.',
+    'benefit.col.feature': 'Funktion',
+    'benefit.col.free': 'Kostenlos',
+    'benefit.col.sub': 'Abonnement',
+    'benefit.col.perm': 'Lebenslang',
+    'benefit.local_cache': 'Lokaler Cache',
+    'benefit.reset': 'Original wiederherstellen',
+    'benefit.auto_backup': 'Automatisches Backup',
+    'benefit.visual_edit': 'Visueller Editor',
+    'benefit.basic_params': 'Grundlegende Parameterbearbeitung',
+    'benefit.dlc': 'DLC-Fahrzeugbearbeitung',
+    'benefit.mod': 'MOD-Fahrzeugbearbeitung',
+    'benefit.reset_btn': 'Zurücksetzen-Funktion',
+    'benefit.save': 'Speichern-Funktion',
+    'benefit.snapshot': 'Snapshot-Funktion',
+    'benefit.export': 'Export ins Spiel',
+    'benefit.export.free': '5×/Tag',
+    'benefit.export.pro': 'Unbegrenzt',
+    'benefit.batch': 'Massenexport',
+    'benefit.batch.free': 'Begrenzt kostenlos',
+    'benefit.start': 'Jetzt starten',
+        'benefit.upgrade.sub': 'Abonnieren',
+        'benefit.upgrade.perm': 'Lebenslang kaufen',
+    'changelog.title': 'Änderungsprotokoll',
+    'changelog.sub': 'GAM Vehicle Editor Versionshistorie',
+    'changelog.loading': 'Lade neueste Versionsinformationen…'
   },
   ru: {
     'nav.tab.intro': '\u0412\u0432\u0435\u0434\u0435\u043d\u0438\u0435',
     'nav.tab.benefit': '\u041f\u0440\u0435\u0438\u043c\u0443\u0449\u0435\u0441\u0442\u0432\u0430',
     'nav.tab.changelog': '\u041e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u044f',
-    'nav.download': '\u0421\u043a\u0430\u0447\u0430\u0442\u044c',
+    'nav.download': '\u0421\u043a\u043e\u0440\u043e',
     'hero.subtitle': '\u041f\u0440\u043e\u0444\u0435\u0441\u0441\u0438\u043e\u043d\u0430\u043b\u044c\u043d\u044b\u0439 \u0440\u0435\u0434\u0430\u043a\u0442\u043e\u0440 \u043f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u043e\u0432 \u0442\u0440\u0430\u043d\u0441\u043f\u043e\u0440\u0442\u043d\u044b\u0445 \u0441\u0440\u0435\u0434\u0441\u0442\u0432',
-    'hero.cta': '\u0421\u043a\u0430\u0447\u0430\u0442\u044c \u0434\u043b\u044f Windows',
+    'hero.cta': '\u0421\u043a\u043e\u0440\u043e',
+    'download.btn': '\u0421\u043a\u043e\u0440\u043e',
     'section.cache': '\u0423\u043c\u043d\u043e\u0435 \u043a\u044d\u0448\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u0435',
     'section.cache.sub': '\u041c\u0433\u043d\u043e\u0432\u0435\u043d\u043d\u044b\u0439 \u0437\u0430\u043f\u0443\u0441\u043a',
     'section.games': '\u041c\u0443\u043b\u044c\u0442\u0438\u0438\u0433\u0440\u043e\u0432\u0430\u044f \u043f\u043e\u0434\u0434\u0435\u0440\u0436\u043a\u0430',
@@ -2795,20 +3047,74 @@ var TRANSLATIONS = {
     'disclaimer.item2.body': '\u0412\u044b \u043d\u0435\u0441\u0451\u0442\u0435 \u043e\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u0435\u043d\u043d\u043e\u0441\u0442\u044c \u0437\u0430 \u0441\u043e\u0431\u043b\u044e\u0434\u0435\u043d\u0438\u0435 EULA \u043a\u0430\u0436\u0434\u043e\u0439 \u0438\u0433\u0440\u044b.',
     'disclaimer.item3.title': '\u0423\u0432\u0435\u0434\u043e\u043c\u043b\u0435\u043d\u0438\u0435 \u043e\u0431 \u0430\u0432\u0442\u043e\u0440\u0441\u043a\u0438\u0445 \u043f\u0440\u0430\u0432\u0430\u0445',
     'disclaimer.item3.body': '\u0414\u0430\u043d\u043d\u043e\u0435 \u041f\u041e \u043f\u0440\u0438\u043d\u0430\u0434\u043b\u0435\u0436\u0438\u0442 \u0438\u0441\u043a\u043b\u044e\u0447\u0438\u0442\u0435\u043b\u044c\u043d\u043e \u043a\u043e\u043c\u0430\u043d\u0434\u0435 ModFans. \u041f\u043e\u043b\u043d\u044b\u0435 \u0443\u0441\u043b\u043e\u0432\u0438\u044f \u043d\u0430 ',
-    'disclaimer.confirm': '\u041f\u043e\u043d\u044f\u0442\u043d\u043e',
+    'disclaimer.confirm': 'Понятно',
+        'modal.lastUpdated': 'Последнее обновление: апрель 2026',
+        'modal.close': 'Закрыть',
     'winrar.title': '\u0421\u043a\u0430\u0447\u0430\u0442\u044c WinRAR',
     'winrar.desc': 'WinRAR \u043d\u0435\u043e\u0431\u0445\u043e\u0434\u0438\u043c \u0434\u043b\u044f \u0440\u0435\u0434\u0430\u043a\u0442\u043e\u0440\u0430 SnowRunner.',
-    'winrar.hint': '\u041f\u043e\u0441\u043b\u0435 \u043d\u0430\u0436\u0430\u0442\u0438\u044f \u0421\u043a\u0430\u0447\u0430\u0442\u044c \u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0430 \u043d\u0430\u0447\u043d\u0451\u0442\u0441\u044f \u0430\u0432\u0442\u043e\u043c\u0430\u0442\u0438\u0447\u0435\u0441\u043a\u0438.',
-    'winrar.cancel': '\u041e\u0442\u043c\u0435\u043d\u0430',
-    'winrar.confirm': '\u0421\u043a\u0430\u0447\u0430\u0442\u044c'
+    'winrar.hint': 'После нажатия «Перейти к загрузке» вы будете перенаправлены на официальный сайт WinRAR. После загрузки установите WinRAR в C:\\Program Files.',
+    'winrar.cancel': 'Отмена',
+    'winrar.confirm': 'Перейти к загрузке',
+    'visual.slide1.title': '\u0412\u0438\u0437\u0443\u0430\u043b\u044c\u043d\u043e\u0435 \u0440\u0435\u0434\u0430\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u0435',
+    'visual.slide1.feat1': '\u0412\u0441\u0435 \u043f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u044b \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044f \u043e\u0442\u043e\u0431\u0440\u0430\u0436\u0430\u044e\u0442\u0441\u044f \u0441 \u043f\u043e\u0434\u043f\u0438\u0441\u044f\u043c\u0438 \u2014 \u0431\u0435\u0437 \u0440\u0435\u0434\u0430\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u044f \u043a\u043e\u0434\u0430',
+    'visual.slide1.feat2': '\u041f\u043e\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0435\u0442 \u0434\u0432\u0438\u0433\u0430\u0442\u0435\u043b\u044c, \u0448\u0438\u043d\u044b, \u043f\u043e\u0434\u0432\u0435\u0441\u043a\u0443, \u043a\u043e\u0440\u043e\u0431\u043a\u0443 \u043f\u0435\u0440\u0435\u0434\u0430\u0447 \u0438 \u0434\u0435\u0441\u044f\u0442\u043a\u0438 \u043f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u043e\u0432',
+    'visual.slide2.title': '\u042d\u043a\u0441\u043f\u043e\u0440\u0442 \u043e\u0434\u043d\u0438\u043c \u043a\u043b\u0438\u043a\u043e\u043c',
+    'visual.slide2.feat1': '\u042d\u043a\u0441\u043f\u043e\u0440\u0442 \u0432 \u0434\u0438\u0440\u0435\u043a\u0442\u043e\u0440\u0438\u044e \u0438\u0433\u0440\u044b \u043e\u0434\u043d\u0438\u043c \u043a\u043b\u0438\u043a\u043e\u043c \u2014 \u0438\u0437\u043c\u0435\u043d\u0435\u043d\u0438\u044f \u0432\u0441\u0442\u0443\u043f\u0430\u044e\u0442 \u0432 \u0441\u0438\u043b\u0443 \u043d\u0435\u043c\u0435\u0434\u043b\u0435\u043d\u043d\u043e',
+    'visual.slide2.feat2': 'Автоматическая проверка параметров перед экспортом предотвращает сбои игры',
+    'cache.item0.l1': 'Автокэширование после первой загрузки,',
+    'cache.item0.l2': 'мгновенный старт в дальнейшем',
+    'cache.item1.l1': 'Умное обнаружение после экспорта,',
+    'cache.item1.l2': 'избегает лишних повторных чтений',
+    'cache.item2.l1': 'Автоперечитывание при обновлении игры,',
+    'cache.item2.l2': 'всегда актуальные данные',
+    'cache.slow': 'Первое открытие',
+    'cache.fast': 'Последующие открытия',
+    'games.card1.title': 'Поддержка нескольких игр',
+    'games.card1.desc': 'Поддерживает SnowRunner, BeamNG.Drive, ещё больше игр вскоре',
+    'games.card2.title': 'Многоплатформенность',
+    'games.card2.desc': 'Поддерживает игры на Steam, Epic и других платформах',
+    'games.card3.title': 'Единый UI-фреймворк',
+    'games.card3.desc': 'Индивидуальная настройка для каждой игры, единый стиль интерфейса',
+    'backup.item0.title': 'Авторezервная копия при первом запуске',
+    'backup.item0.desc': 'При первом запуске создаётся полная резервная копия игровых файлов.',
+    'backup.item1.title': 'Несколько именованных снимков',
+    'backup.item1.desc': 'Создавайте несколько версий резервных копий для разных наборов модов.',
+    'backup.item2.title': 'Мгновенное восстановление любой версии',
+    'backup.item2.desc': 'Не устраивает изменение? Восстановите любую точку одним кликом.',
+    'benefit.col.feature': '\u0424\u0443\u043d\u043a\u0446\u0438\u044f',
+    'benefit.col.free': '\u0411\u0435\u0441\u043f\u043b\u0430\u0442\u043d\u043e',
+    'benefit.col.sub': '\u041f\u043e\u0434\u043f\u0438\u0441\u043a\u0430',
+    'benefit.col.perm': '\u041d\u0430\u0432\u0441\u0435\u0433\u0434\u0430',
+    'benefit.local_cache': 'Локальный кэш',
+    'benefit.reset': 'Восстановить оригинал',
+    'benefit.auto_backup': 'Авторезервное копирование',
+    'benefit.visual_edit': 'Визуальный редактор',
+    'benefit.basic_params': 'Базовое редактирование параметров',
+    'benefit.dlc': 'Редактирование DLC-автомобилей',
+    'benefit.mod': 'Редактирование MOD-автомобилей',
+    'benefit.reset_btn': 'Функция сброса',
+    'benefit.save': 'Функция сохранения',
+    'benefit.snapshot': 'Функция снимка',
+    'benefit.export': 'Экспорт в игру',
+    'benefit.export.free': '5 раз/день',
+    'benefit.export.pro': 'Без ограничений',
+    'benefit.batch': 'Пакетный экспорт',
+    'benefit.batch.free': 'Бесплатно с ограничениями',
+    'benefit.start': '\u041d\u0430\u0447\u0430\u0442\u044c',
+        'benefit.upgrade.sub': '\u041f\u043e\u0434\u043f\u0438\u0441\u0430\u0442\u044c\u0441\u044f',
+        'benefit.upgrade.perm': '\u041a\u0443\u043f\u0438\u0442\u044c \u043d\u0430\u0432\u0441\u0435\u0433\u0434\u0430',
+    'changelog.title': 'История версий',
+    'changelog.sub': 'История версий GAM Vehicle Editor',
+    'changelog.loading': 'Загрузка информации о последней версии…'
   },
   fr: {
     'nav.tab.intro': 'Introduction',
     'nav.tab.benefit': 'Avantages',
     'nav.tab.changelog': 'Mises \u00e0 jour',
-    'nav.download': 'T\u00e9l\u00e9charger',
+    'nav.download': 'Bient\u00f4t',
     'hero.subtitle': '\u00c9diteur professionnel de param\u00e8tres de v\u00e9hicules de jeu',
-    'hero.cta': 'T\u00e9l\u00e9charger pour Windows',
+    'hero.cta': 'Bient\u00f4t disponible',
+    'download.btn': 'Bient\u00f4t disponible',
     'section.cache': 'Cache Intelligent',
     'section.cache.sub': 'D\u00e9marrage instantan\u00e9 \u2014 analyse et mise en cache intelligentes',
     'section.games': 'Multi-Jeux & Multi-Plateformes',
@@ -2821,11 +3127,11 @@ var TRANSLATIONS = {
     'section.changelog.sub': 'Nouveaut\u00e9s de la derni\u00e8re version',
     'faq.title': 'FAQ',
     'faq.sub': 'R\u00e9ponses aux questions fr\u00e9quentes',
-    'faq.q1': 'Dois-je acheter le jeu pour utiliser cet \u00e9diteur?',
+    'faq.q1': 'Faut-il acheter le jeu pour utiliser cet éditeur?',
     'faq.a1': 'Oui. Cet \u00e9diteur est uniquement destin\u00e9 \u00e0 modifier des ressources l\u00e9galement obtenues.',
     'faq.q2': 'Les fichiers modifi\u00e9s affectent-ils le multijoueur?',
     'faq.a2': 'Aucun impact en mode solo. En multijoueur, certains serveurs peuvent d\u00e9tecter des v\u00e9hicules modifi\u00e9s.',
-    'faq.q3': 'Mes modifications seront-elles perdues apr\u00e8s une mise \u00e0 jour?',
+    'faq.q3': 'Les modifications seront-elles perdues après une mise à jour?',
     'faq.a3': 'Les grandes mises \u00e0 jour peuvent \u00e9craser les fichiers. Nous recommandons de r\u00e9exporter apr\u00e8s chaque mise \u00e0 jour.',
     'faq.q4': 'La limite d\u2019exportation peut-elle \u00eatre supprim\u00e9e?',
     'faq.a4': 'Un abonnement premium d\u00e9bloque des exportations illimit\u00e9es.',
@@ -2886,19 +3192,73 @@ var TRANSLATIONS = {
     'disclaimer.item3.title': 'Mention de droits d\u2019auteur',
     'disclaimer.item3.body': 'Ce logiciel appartient exclusivement \u00e0 l\u2019\u00e9quipe ModFans. Conditions compl\u00e8tes sur ',
     'disclaimer.confirm': 'Compris',
+        'modal.lastUpdated': 'Dernière mise à jour : avril 2026',
+        'modal.close': 'Fermer',
     'winrar.title': 'T\u00e9l\u00e9charger WinRAR',
     'winrar.desc': 'WinRAR est requis par l\u2019\u00e9diteur SnowRunner.',
-    'winrar.hint': 'Apr\u00e8s avoir cliqu\u00e9 sur T\u00e9l\u00e9charger, le t\u00e9l\u00e9chargement d\u00e9marrera automatiquement.',
+    'winrar.hint': 'En cliquant sur \u00ab\u00a0Aller t\u00e9l\u00e9charger\u00a0\u00bb, vous serez redirig\u00e9 vers le site officiel de WinRAR. Apr\u00e8s le t\u00e9l\u00e9chargement, installez WinRAR dans C:\\Program Files.',
     'winrar.cancel': 'Annuler',
-    'winrar.confirm': 'T\u00e9l\u00e9charger'
+    'winrar.confirm': 'Aller t\u00e9l\u00e9charger',
+    'visual.slide1.title': '\u00c9dition Visuelle',
+    'visual.slide1.feat1': 'Tous les param\u00e8tres du v\u00e9hicule affich\u00e9s avec une interface \u00e9tiquet\u00e9e \u2014 sans \u00e9diter le code',
+    'visual.slide1.feat2': 'Supporte moteur, pneus, suspension, bo\u00eete de vitesses et des dizaines de param\u00e8tres',
+    'visual.slide2.title': 'Export en Un Clic',
+    'visual.slide2.feat1': 'Exporter dans le r\u00e9pertoire du jeu en un clic \u2014 les changements s\u2019appliquent imm\u00e9diatement',
+    'visual.slide2.feat2': 'Validation automatique des paramètres avant export pour éviter les plantages',
+    'cache.item0.l1': 'Mis en cache après le premier chargement,',
+    'cache.item0.l2': 'démarrage instantané ensuite',
+    'cache.item1.l1': 'Détection intelligente après export,',
+    'cache.item1.l2': 'évite les re-lectures redondantes',
+    'cache.item2.l1': 'Re-lecture automatique lors des mises à jour,',
+    'cache.item2.l2': 'toujours à jour',
+    'cache.slow': 'Première ouverture',
+    'cache.fast': 'Ouvertures suivantes',
+    'games.card1.title': 'Prise en charge multi-jeux',
+    'games.card1.desc': 'Supporte SnowRunner, BeamNG.Drive, d’autres jeux à venir',
+    'games.card2.title': 'Multi-plateformes',
+    'games.card2.desc': 'Compatible Steam, Epic et plus',
+    'games.card3.title': 'Interface unifiée',
+    'games.card3.desc': 'Configuration indépendante par jeu, design cohérent',
+    'backup.item0.title': 'Sauvegarde automatique au premier lancement',
+    'backup.item0.desc': 'Une sauvegarde complète est créée au premier lancement pour protéger les fichiers originaux.',
+    'backup.item1.title': 'Plusieurs instantanés nommés',
+    'backup.item1.desc': 'Créez plusieurs versions de sauvegarde pour différents mods et basculez à tout moment.',
+    'backup.item2.title': 'Restaurer n’importe quelle version instantanément',
+    'backup.item2.desc': 'Pas satisfait ? Restaurez n’importe quel point de sauvegarde en un clic, zéro risque.',
+    'benefit.col.feature': 'Fonction',
+    'benefit.col.free': 'Gratuit',
+    'benefit.col.sub': 'Abonnement',
+    'benefit.col.perm': 'À vie',
+    'benefit.local_cache': 'Cache local',
+    'benefit.reset': 'Restaurer l’original',
+    'benefit.auto_backup': 'Sauvegarde automatique',
+    'benefit.visual_edit': 'Éditeur visuel',
+    'benefit.basic_params': 'Édition de paramètres de base',
+    'benefit.dlc': 'Édition des véhicules DLC',
+    'benefit.mod': 'Édition des véhicules MOD',
+    'benefit.reset_btn': 'Fonction Réinitialiser',
+    'benefit.save': 'Fonction Sauvegarder',
+    'benefit.snapshot': 'Fonction Instantané',
+    'benefit.export': 'Exporter vers le jeu',
+    'benefit.export.free': '5 fois/jour',
+    'benefit.export.pro': 'Illimité',
+    'benefit.batch': 'Export en lot',
+    'benefit.batch.free': 'Gratuit limité',
+    'benefit.start': 'Commencer',
+        'benefit.upgrade.sub': "S'abonner",
+        'benefit.upgrade.perm': 'Acheter \u00e0 vie',
+    'changelog.title': 'Journal des modifications',
+    'changelog.sub': 'Historique des versions de GAM Vehicle Editor',
+    'changelog.loading': 'Chargement des informations de la dernière version…'
   },
   es: {
     'nav.tab.intro': 'Introducci\u00f3n',
     'nav.tab.benefit': 'Beneficios',
     'nav.tab.changelog': 'Cambios',
-    'nav.download': 'Descargar',
+    'nav.download': 'Pr\u00f3ximamente',
     'hero.subtitle': 'Editor profesional de par\u00e1metros de veh\u00edculos de juego',
-    'hero.cta': 'Descargar para Windows',
+    'hero.cta': 'Pr\u00f3ximamente',
+    'download.btn': 'Pr\u00f3ximamente',
     'section.cache': 'Cach\u00e9 Inteligente',
     'section.cache.sub': 'Inicio instant\u00e1neo \u2014 an\u00e1lisis y cach\u00e9 de archivos inteligentes',
     'section.games': 'Multi-Juego y Multi-Plataforma',
@@ -2976,11 +3336,64 @@ var TRANSLATIONS = {
     'disclaimer.item3.title': 'Aviso de derechos de autor',
     'disclaimer.item3.body': 'Este software pertenece exclusivamente al equipo ModFans. T\u00e9rminos completos en ',
     'disclaimer.confirm': 'Entendido',
+        'modal.lastUpdated': 'Última actualización: abril de 2026',
+        'modal.close': 'Cerrar',
     'winrar.title': 'Descargar WinRAR',
     'winrar.desc': 'WinRAR es necesario para el editor de SnowRunner.',
-    'winrar.hint': 'Despu\u00e9s de hacer clic en Descargar, la descarga comenzar\u00e1 autom\u00e1ticamente.',
+    'winrar.hint': 'Al hacer clic en \u00abIr a descargar\u00bb, ser\u00e1 redirigido al sitio web oficial de WinRAR. Una vez descargado, inst\u00e1lelo en C:\\Program Files.',
     'winrar.cancel': 'Cancelar',
-    'winrar.confirm': 'Descargar'
+    'winrar.confirm': 'Ir a descargar',
+        'visual.slide1.title': 'Edici\u00f3n Visual',
+        'visual.slide1.feat1': 'Todos los par\u00e1metros del veh\u00edculo mostrados con interfaz etiquetada \u2014 sin editar c\u00f3digo',
+        'visual.slide1.feat2': 'Soporta motor, neum\u00e1ticos, suspensi\u00f3n, caja de cambios y docenas de par\u00e1metros',
+        'visual.slide2.title': 'Exportaci\u00f3n con Un Clic',
+        'visual.slide2.feat1': 'Exportar al directorio del juego con un clic \u2014 los cambios surten efecto de inmediato',
+        'visual.slide2.feat2': 'Valida automáticamente los parámetros antes de exportar para evitar caídas',
+    'cache.item0.l1': 'Caché automáticamente tras la primera carga,',
+    'cache.item0.l2': 'inicio instantáneo en adelante',
+    'cache.item1.l1': 'Detección inteligente tras exportar,',
+    'cache.item1.l2': 'evita lecturas redundantes',
+    'cache.item2.l1': 'Re-lectura automática al actualizar el juego,',
+    'cache.item2.l2': 'siempre actualizado',
+    'cache.slow': 'Primera apertura',
+    'cache.fast': 'Aperturas siguientes',
+    'games.card1.title': 'Soporte multijuego',
+    'games.card1.desc': 'Compatible con SnowRunner, BeamNG.Drive y más juegos próximamente',
+    'games.card2.title': 'Soporte multiplataforma',
+    'games.card2.desc': 'Compatible con Steam, Epic y más',
+    'games.card3.title': 'Framework de UI unificado',
+    'games.card3.desc': 'Configuración independiente por juego, diseño coherente',
+    'backup.item0.title': 'Copia de seguridad automática al primer inicio',
+    'backup.item0.desc': 'Se crea una copia de seguridad completa en el primer inicio para proteger los archivos originales.',
+    'backup.item1.title': 'Múltiples instantáneas nombradas',
+    'backup.item1.desc': 'Crea varias versiones de copia de seguridad para diferentes configuraciones de mods y cambia entre ellas.',
+    'backup.item2.title': 'Restaurar cualquier versión al instante',
+    'backup.item2.desc': '¿No estás satisfecho? Restaura cualquier punto de copia de seguridad con un clic, sin riesgos.',
+    'benefit.col.feature': 'Funci\u00f3n',
+    'benefit.col.free': 'Gratis',
+    'benefit.col.sub': 'Suscripci\u00f3n',
+    'benefit.col.perm': 'Vitalicio',
+    'benefit.local_cache': 'Caché local',
+    'benefit.reset': 'Restaurar original',
+    'benefit.auto_backup': 'Copia de seguridad automática',
+    'benefit.visual_edit': 'Editor visual',
+    'benefit.basic_params': 'Edición básica de parámetros',
+    'benefit.dlc': 'Edición de vehículos DLC',
+    'benefit.mod': 'Edición de vehículos MOD',
+    'benefit.reset_btn': 'Función Restablecer',
+    'benefit.save': 'Función Guardar',
+    'benefit.snapshot': 'Función Instantánea',
+    'benefit.export': 'Exportar al juego',
+    'benefit.export.free': '5 veces/día',
+    'benefit.export.pro': 'Ilimitado',
+    'benefit.batch': 'Exportación en lote',
+    'benefit.batch.free': 'Gratis limitado',
+    'benefit.start': 'Empezar',
+    'benefit.upgrade.sub': 'Suscribirse',
+    'benefit.upgrade.perm': 'Comprar vitalicio',
+    'changelog.title': 'Registro de cambios',
+    'changelog.sub': 'Historial de versiones de GAM Vehicle Editor',
+    'changelog.loading': 'Cargando información de la última versión…'
   }
 };
 
@@ -2990,9 +3403,19 @@ function switchLang(code) {
     var key = el.getAttribute('data-i18n');
     if (dict[key] !== undefined) el.textContent = dict[key];
   });
+  // Update Terms & Privacy modal body
+  if (typeof MODAL_CONTENT !== 'undefined') {
+    var lang = MODAL_CONTENT.terms[code] ? code : 'en';
+    var tb = document.getElementById('terms-modal-body');
+    if (tb) tb.innerHTML = MODAL_CONTENT.terms[lang];
+    var pb = document.getElementById('privacy-modal-body');
+    if (pb) pb.innerHTML = MODAL_CONTENT.privacy[lang];
+  }
   var sel = document.getElementById('lang-select');
   if (sel) sel.value = code;
   localStorage.setItem('gam_lang', code);
+  // 语言切换后文字宽度可能变化，重新计算滑块位置
+  requestAnimationFrame(function() { updateSlider(); });
 }
 
 (function() {
@@ -3006,6 +3429,8 @@ function switchLang(code) {
     browser.startsWith('es') ? 'es' : 'en'
   );
   switchLang(lang);
+  // 初始化滑块位置（内容渲染后）
+  requestAnimationFrame(function() { updateSlider(); });
 })();
 </script>
 
