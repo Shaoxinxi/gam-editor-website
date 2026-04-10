@@ -1176,7 +1176,7 @@
                     </a>
                 </p>
                 <button class="download-panel-btn" disabled style="background:#666;cursor:not-allowed;opacity:0.7;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" style="position:relative;top:1px;fill:#fff;"><path d="M3 5.557L9.927 4.5v6.473H3V5.557zm0 12.886L9.927 19.5v-6.418H3v4.961zm7.73 1.229L21 21v-7.913h-10.27v6.585zm0-14.344v6.528H21V3L10.73 5.328z"/></svg>
+                    <img src="images/logos_windows-filled.png" alt="" style="width:20px;height:20px;position:relative;top:1px;">
                     <span data-i18n="download.btn">Coming Soon</span>
                 </button>
                 <div class="download-panel-unsupported">
@@ -1212,7 +1212,7 @@
                     <h1>GAM Vehicle Editor<br><span style="color: #ffffff; font-size: 1.6rem; font-weight: 400; white-space: nowrap;" data-i18n="hero.subtitle">Professional Game Vehicle Parameter Editor</span></h1>  <!-- ★ 调整项B：副标题字号/字重 -->
                     <p style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">GAM Vehicle Editor 是一款专为游戏玩家设计的车辆属性可视化编辑工具，支持雪地奔驰（SnowRunner）、BeamNG.Drive 等游戏，无需手动修改代码即可调整悬架、发动机、变速箱等数十种参数，修改完成后一键导出至游戏目录，内置自动备份保护原始文件。</p>
                     <!-- ★ 调整项⑦：图标大小改 width/height；上下位置改 top（正值下移，负值上移） -->
-                    <button class="cta-button" disabled style="background:#666;cursor:not-allowed;"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" style="position:relative;top:2.2px;fill:#fff;"><path d="M3 5.557L9.927 4.5v6.473H3V5.557zm0 12.886L9.927 19.5v-6.418H3v4.961zm7.73 1.229L21 21v-7.913h-10.27v6.585zm0-14.344v6.528H21V3L10.73 5.328z"/></svg><span data-i18n="hero.cta">Coming Soon</span></button>
+                    <button class="cta-button" disabled style="background:#666;cursor:not-allowed;"><img src="images/logos_windows-filled.png" alt="" style="width:22px;height:22px;position:relative;top:2.2px;"><span data-i18n="hero.cta">Coming Soon</span></button>
                     <button class="cta-button cta-button-outline" onclick="openVideoModal()" style="display:none;"><svg style="width:20px;height:20px;flex-shrink:0;margin-right:6px;vertical-align:middle;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg><span data-i18n="hero.video">Watch Demo</span></button>
                 </div>
                 <!-- Hero 右侧动图 -->
@@ -1276,14 +1276,14 @@
                 <!-- 左下角导航按钮 -->
                 <div class="visual-nav">
                     <button class="visual-nav-btn" onclick="visualPrev()">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+                        <img src="images/arrow-left-s-line.png" alt="上一页">
                     </button>
                     <div class="visual-dots">
                         <div class="visual-dot active" id="visual-dot-0" onclick="visualGoto(0)"></div>
                         <div class="visual-dot" id="visual-dot-1" onclick="visualGoto(1)"></div>
                     </div>
                     <button class="visual-nav-btn" onclick="visualNext()">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+                        <img src="images/arrow-right-s-line.png" alt="下一页">
                     </button>
                 </div>
 
@@ -1405,8 +1405,8 @@
                 <div class="backup-features">
                     <div class="backup-item" id="backup-item-0">
                         <div class="backup-icon">
-                            <svg class="icon-deselected" xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                            <svg class="icon-selected" xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            <img src="images/safety-1-deselected.png" alt="" class="icon-deselected" loading="lazy">
+                            <img src="images/safety-1.png" alt="" class="icon-selected" loading="lazy">
                         </div>
                         <div class="backup-text">
                             <h3 data-i18n="backup.item0.title">Auto-backup on first run</h3>
@@ -1415,8 +1415,8 @@
                     </div>
                     <div class="backup-item" id="backup-item-1">
                         <div class="backup-icon">
-                            <svg class="icon-deselected" xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                            <svg class="icon-selected" xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="1.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                            <img src="images/safety-2-deselected.png" alt="" class="icon-deselected" loading="lazy">
+                            <img src="images/safety-2.png" alt="" class="icon-selected" loading="lazy">
                         </div>
                         <div class="backup-text">
                             <h3 data-i18n="backup.item1.title">Multiple named snapshots</h3>
@@ -1425,8 +1425,8 @@
                     </div>
                     <div class="backup-item" id="backup-item-2">
                         <div class="backup-icon">
-                            <svg class="icon-deselected" xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-                            <svg class="icon-selected" xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="1.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                            <img src="images/safety-3-deselected.png" alt="" class="icon-deselected" loading="lazy">
+                            <img src="images/safety-3.png" alt="" class="icon-selected" loading="lazy">
                         </div>
                         <div class="backup-text">
                             <h3 data-i18n="backup.item2.title">Restore any version instantly</h3>
@@ -1693,7 +1693,7 @@
 
                 <!-- 卡片1：使用条款 -->
                 <div style="background: #445149; border-radius: 12px; padding: 2rem; position: relative; overflow: hidden;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.2" style="position:absolute;top:1.2rem;right:1.2rem;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+                    <img src="images/law-1.png" alt="" style="position:absolute; top:1.2rem; right:1.2rem; width:52px; height:52px; object-fit:contain;" loading="lazy">
                     <h3 style="font-size: 1.1rem; color: #fff; margin-bottom: 1.5rem; margin-top: 0.5rem; padding-right: 3.5rem;" data-i18n="legal.terms.title">Terms of Use Summary</h3>
                     <ul style="list-style: none; padding: 0; margin: 0; color: rgba(255,255,255,0.75); font-size: 0.9rem; display: flex; flex-direction: column; gap: 0.75rem;">
                         <li style="display:flex; align-items:flex-start; gap:0.5rem;">
