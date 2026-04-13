@@ -25,8 +25,8 @@
     .container { max-width: 960px; margin: 0 auto; padding: 80px 2rem 100px; text-align: center; }
     h1 { font-size: 2.4rem; font-weight: 700; margin-bottom: 12px; }
     .subtitle { color: var(--text-muted); font-size: 1.05rem; margin-bottom: 64px; }
-    .plans { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; text-align: left; }
-    @media (max-width: 640px) { .plans { grid-template-columns: 1fr; } }
+    .plans { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; text-align: left; }
+    @media (max-width: 900px) { .plans { grid-template-columns: 1fr; } }
     .plan {
       background: var(--bg-card); border: 1px solid var(--border);
       border-radius: 14px; padding: 36px 32px;
@@ -89,8 +89,10 @@
         <li>SnowRunner vehicle editor</li>
         <li>BeamNG.drive vehicle editor</li>
         <li>View all vehicle parameters</li>
-        <li>Export up to 5 vehicles per session</li>
+        <li>Export up to 3 vehicles per session</li>
         <li>Multi-language interface</li>
+        <li class="no">Reset to default</li>
+        <li class="no">Save &amp; snapshot</li>
         <li class="no">Unlimited exports</li>
         <li class="no">Batch operations</li>
         <li class="no">Priority support</li>
@@ -98,22 +100,37 @@
       <a href="/" class="btn outline">Download Free</a>
     </div>
 
-    <!-- Pro -->
-    <div class="plan featured">
-      <div class="badge">Most Popular</div>
-      <div class="plan-name">Pro</div>
-      <div class="plan-price">$19 <span>/ one-time</span></div>
-      <p class="plan-desc">Full access. Pay once, use forever.</p>
+    <!-- Subscription -->
+    <div class="plan">
+      <div class="plan-name">Subscription</div>
+      <div class="plan-price">$2.99 <span>/ month</span></div>
+      <p class="plan-desc">$19.99 / year &mdash; save 44% with annual billing.</p>
       <ul class="features">
         <li>Everything in Free</li>
         <li>Unlimited vehicle exports</li>
+        <li>Reset to default</li>
+        <li>Save &amp; snapshot</li>
         <li>Batch parameter editing</li>
-        <li>Advanced configuration management</li>
         <li>Priority email support</li>
-        <li>All future updates included</li>
-        <li>License for up to 2 computers</li>
+        <li class="no">Lifetime updates</li>
+        <li class="no">License for 2 computers</li>
       </ul>
-      <a href="/" class="btn">Get Pro – $19</a>
+      <a href="/" class="btn outline">Subscribe</a>
+    </div>
+
+    <!-- Lifetime -->
+    <div class="plan featured" style="grid-column: span 1;">
+      <div class="badge">Best Value</div>
+      <div class="plan-name">Lifetime</div>
+      <div class="plan-price">$39.99 <span>/ one-time</span></div>
+      <p class="plan-desc">Pay once, use forever. All future updates included.</p>
+      <ul class="features">
+        <li>Everything in Subscription</li>
+        <li>Lifetime updates</li>
+        <li>License for up to 2 computers</li>
+        <li>Highest priority support</li>
+      </ul>
+      <a href="/" class="btn">Get Lifetime &ndash; $39.99</a>
     </div>
   </div>
 
@@ -123,7 +140,7 @@
 
     <div class="faq-item">
       <div class="faq-q">Is this a one-time payment?</div>
-      <div class="faq-a">Yes. The Pro license is a one-time purchase with no recurring fees. You get all future updates for free.</div>
+      <div class="faq-a">Yes. The Lifetime license is a one-time purchase of $39.99 with no recurring fees. You get all future updates for free. Alternatively, subscribe for $2.99/month or $19.99/year.</div>
     </div>
 
     <div class="faq-item">
@@ -139,6 +156,11 @@
     <div class="faq-item">
       <div class="faq-q">What is your refund policy?</div>
       <div class="faq-a">We offer a 14-day money-back guarantee. If you're not satisfied, contact us at <a href="mailto:support@gam-editor.com">support@gam-editor.com</a> and we'll process your refund promptly.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Can I switch from subscription to lifetime?</div>
+      <div class="faq-a">Yes. At any time you can purchase the Lifetime license. Contact support and we'll credit your subscription payments toward the lifetime price.</div>
     </div>
 
     <div class="faq-item">
