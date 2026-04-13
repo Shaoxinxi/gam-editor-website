@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pricing – GAM Vehicle Editor</title>
+  <style>
+    :root {
+      --bg: #0d0f10; --bg-card: #151718; --bg-nav: #111314;
+      --accent: #27bd51; --accent-h: #1fa040; --text: #e8eaeb; --text-muted: #8a9099;
+      --border: #252829; --font: 'Inter','Segoe UI',system-ui,sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 16px; line-height: 1.7; }
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--bg-nav); border-bottom: 1px solid var(--border);
+      padding: 0 40px; height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo { font-size: 18px; font-weight: 700; color: var(--text); text-decoration: none; }
+    .nav-logo span { color: var(--accent); }
+    .nav-back { color: var(--text-muted); font-size: 14px; text-decoration: none; transition: color .2s; }
+    .nav-back:hover { color: var(--text); }
+    .container { max-width: 960px; margin: 0 auto; padding: 80px 2rem 100px; text-align: center; }
+    h1 { font-size: 2.4rem; font-weight: 700; margin-bottom: 12px; }
+    .subtitle { color: var(--text-muted); font-size: 1.05rem; margin-bottom: 64px; }
+    .plans { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; text-align: left; }
+    @media (max-width: 640px) { .plans { grid-template-columns: 1fr; } }
+    .plan {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 36px 32px;
+      display: flex; flex-direction: column;
+    }
+    .plan.featured { border-color: var(--accent); position: relative; }
+    .badge {
+      position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+      background: var(--accent); color: #fff; font-size: 12px; font-weight: 700;
+      padding: 3px 14px; border-radius: 20px; white-space: nowrap;
+    }
+    .plan-name { font-size: 1rem; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: .06em; }
+    .plan-price { font-size: 3rem; font-weight: 800; margin-bottom: 4px; }
+    .plan-price span { font-size: 1.1rem; font-weight: 500; color: var(--text-muted); }
+    .plan-desc { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 28px; }
+    .features { list-style: none; margin-bottom: 36px; flex: 1; }
+    .features li { padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 0.95rem; color: #c8cdd2; display: flex; align-items: center; gap: 10px; }
+    .features li:last-child { border-bottom: none; }
+    .features li::before { content: "✓"; color: var(--accent); font-weight: 700; flex-shrink: 0; }
+    .features li.no::before { content: "–"; color: var(--text-muted); }
+    .features li.no { color: var(--text-muted); }
+    .btn {
+      display: block; text-align: center;
+      background: var(--accent); color: #fff;
+      padding: 13px 24px; border-radius: 8px;
+      font-weight: 600; font-size: 1rem;
+      text-decoration: none; transition: background .2s;
+    }
+    .btn:hover { background: var(--accent-h); color: #fff; }
+    .btn.outline {
+      background: transparent; color: var(--accent);
+      border: 1.5px solid var(--accent);
+    }
+    .btn.outline:hover { background: rgba(39,189,81,.1); }
+    .faq { margin-top: 80px; text-align: left; }
+    .faq h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 32px; text-align: center; }
+    .faq-item { border-bottom: 1px solid var(--border); padding: 24px 0; }
+    .faq-q { font-weight: 600; margin-bottom: 10px; }
+    .faq-a { color: #c8cdd2; font-size: 0.95rem; }
+    footer { text-align: center; color: var(--text-muted); font-size: 13px; padding: 40px; border-top: 1px solid var(--border); margin-top: 80px; }
+  </style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-logo">GAM <span>Editor</span></a>
+  <a href="/" class="nav-back">← Back to Home</a>
+</nav>
+
+<div class="container">
+  <h1>Simple, Honest Pricing</h1>
+  <p class="subtitle">One tool, two options. No hidden fees, no subscription traps.</p>
+
+  <div class="plans">
+    <!-- Free -->
+    <div class="plan">
+      <div class="plan-name">Free</div>
+      <div class="plan-price">$0 <span>/ forever</span></div>
+      <p class="plan-desc">Get started with basic vehicle editing at no cost.</p>
+      <ul class="features">
+        <li>SnowRunner vehicle editor</li>
+        <li>BeamNG.drive vehicle editor</li>
+        <li>View all vehicle parameters</li>
+        <li>Export up to 5 vehicles per session</li>
+        <li>Multi-language interface</li>
+        <li class="no">Unlimited exports</li>
+        <li class="no">Batch operations</li>
+        <li class="no">Priority support</li>
+      </ul>
+      <a href="/" class="btn outline">Download Free</a>
+    </div>
+
+    <!-- Pro -->
+    <div class="plan featured">
+      <div class="badge">Most Popular</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-price">$19 <span>/ one-time</span></div>
+      <p class="plan-desc">Full access. Pay once, use forever.</p>
+      <ul class="features">
+        <li>Everything in Free</li>
+        <li>Unlimited vehicle exports</li>
+        <li>Batch parameter editing</li>
+        <li>Advanced configuration management</li>
+        <li>Priority email support</li>
+        <li>All future updates included</li>
+        <li>License for up to 2 computers</li>
+      </ul>
+      <a href="/" class="btn">Get Pro – $19</a>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="faq">
+    <h2>Frequently Asked Questions</h2>
+
+    <div class="faq-item">
+      <div class="faq-q">Is this a one-time payment?</div>
+      <div class="faq-a">Yes. The Pro license is a one-time purchase with no recurring fees. You get all future updates for free.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Which games are supported?</div>
+      <div class="faq-a">Currently SnowRunner and BeamNG.drive are fully supported. More games will be added in future updates.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Can I use it on multiple computers?</div>
+      <div class="faq-a">The Pro license allows installation on up to 2 personal computers that you own.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">What is your refund policy?</div>
+      <div class="faq-a">We offer a 14-day money-back guarantee. If you're not satisfied, contact us at <a href="mailto:support@gam-editor.com">support@gam-editor.com</a> and we'll process your refund promptly.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Is my game data safe?</div>
+      <div class="faq-a">GAM Vehicle Editor runs entirely on your local machine and never uploads your game files. The Software automatically creates backups before making any changes.</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  © 2026 GAM Vehicle Editor. All rights reserved. &nbsp;·&nbsp;
+  <a href="/terms">Terms</a> &nbsp;·&nbsp;
+  <a href="/privacy">Privacy</a> &nbsp;·&nbsp;
+  <a href="/refund">Refund Policy</a>
+</footer>
+</body>
+</html>
