@@ -14,17 +14,45 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 16px; line-height: 1.7; }
-    nav {
-      position: sticky; top: 0; z-index: 100;
-      background: var(--bg-nav); border-bottom: 1px solid var(--border);
-      padding: 0 40px; height: 60px;
-      display: flex; align-items: center; justify-content: space-between;
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0;
+      background: rgba(13,13,13,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      z-index: 1000;
     }
-    .nav-logo { font-size: 18px; font-weight: 700; color: var(--text); text-decoration: none; }
-    .nav-logo span { color: var(--accent); }
-    .nav-back { color: var(--text-muted); font-size: 14px; text-decoration: none; transition: color .2s; }
-    .nav-back:hover { color: var(--text); }
-    .container { max-width: 800px; margin: 0 auto; padding: 60px 2rem 100px; }
+    .navbar-content {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 2rem; max-width: 1400px; margin: 0 auto;
+    }
+    .nav-left { display: flex; align-items: center; gap: 2rem; }
+    .nav-tabs {
+      position: relative; display: flex;
+      background: #3a3a3a; border-radius: 10px; padding: 4px; gap: 0;
+    }
+    .nav-tabs-slider {
+      position: absolute; top: 4px; bottom: 4px; left: 4px; width: 0;
+      background: #ffffff; border-radius: 7px;
+      transition: left 0.25s cubic-bezier(0.4,0,0.2,1), width 0.25s cubic-bezier(0.4,0,0.2,1);
+    }
+    .nav-tab {
+      position: relative; z-index: 1;
+      padding: 0.3rem 1rem; border-radius: 6px;
+      font-size: 0.85rem; font-weight: 600; cursor: pointer;
+      color: #aaaaaa; transition: color 0.25s ease;
+      border: none; background: transparent;
+      user-select: none; white-space: nowrap; text-decoration: none;
+    }
+    .nav-tab:hover { color: #ffffff; }
+    .nav-logo-wrap { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: inherit; }
+    .nav-logo-wrap img { width: 32px; height: 32px; border-radius: 50%; }
+    .nav-logo-wrap span { font-weight: 600; font-size: 1.1rem; }
+    .download-btn {
+      background: #666; color: #fff; border: none;
+      padding: 0.35rem 1.2rem; border-radius: 20px;
+      font-weight: 700; font-size: 0.9rem; cursor: not-allowed;
+    }
+    .container { max-width: 800px; margin: 0 auto; padding: 100px 2rem 100px; }
     h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
     .meta { color: var(--text-muted); font-size: 14px; margin-bottom: 48px; }
     h2 { font-size: 1.2rem; font-weight: 600; color: var(--accent); margin: 40px 0 12px; }
@@ -37,9 +65,22 @@
   </style>
 </head>
 <body>
-<nav>
-  <a href="/" class="nav-logo">GAM <span>Editor</span></a>
-  <a href="/" class="nav-back">← Back to Home</a>
+<nav class="navbar">
+  <div class="navbar-content">
+    <div class="nav-left">
+      <div class="nav-tabs">
+        <div class="nav-tabs-slider"></div>
+        <a class="nav-tab" href="/#intro">Introduction</a>
+        <a class="nav-tab" href="/#benefit">Benefits</a>
+        <a class="nav-tab" href="/#changelog">Changelog</a>
+      </div>
+    </div>
+    <a class="nav-logo-wrap" href="/">
+      <img src="/images/editor-logo.png" alt="GAM Editor">
+      <span>GAM Vehicle Editor</span>
+    </a>
+    <button class="download-btn" disabled>Coming Soon</button>
+  </div>
 </nav>
 
 <div class="container">
