@@ -366,6 +366,50 @@
             height: auto;
             display: block;
         }
+
+        /* 轮播 */
+        .carousel-container {
+            position: relative;
+            width: 100%;
+        }
+        .carousel-slides {
+            position: relative;
+            width: 100%;
+        }
+        .download-panel-screenshot .carousel-slide {
+            display: none;
+            width: 100%;
+            border-radius: 10px;
+        }
+        .download-panel-screenshot .carousel-slide.active {
+            display: block;
+            animation: carouselFade 0.5s ease;
+        }
+        @keyframes carouselFade {
+            from { opacity: 0.6; }
+            to   { opacity: 1; }
+        }
+        .carousel-dots {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+            z-index: 2;
+        }
+        .carousel-dots .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.4);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .carousel-dots .dot.active,
+        .carousel-dots .dot:hover {
+            background: #27bd51;
+        }
         
         section {
             padding: 6rem 2rem;
@@ -902,19 +946,16 @@
             text-align: left;
         }
 
-        /* 免费版列宽度 */
+        /* Patreon Free / Free / Subscription / Lifetime 列宽度 */
         .comparison-table th:nth-child(2),
-        .comparison-table td:nth-child(2) {
-            width: 20%;
-            padding-left: 0;
-        }
-
-        /* 订阅版/终身许可列宽度 */
+        .comparison-table td:nth-child(2),
         .comparison-table th:nth-child(3),
         .comparison-table td:nth-child(3),
         .comparison-table th:nth-child(4),
-        .comparison-table td:nth-child(4) {
-            width: 20%;
+        .comparison-table td:nth-child(4),
+        .comparison-table th:nth-child(5),
+        .comparison-table td:nth-child(5) {
+            width: 15%;
         }
         
         .check-green {
@@ -936,7 +977,7 @@
         
         .action-buttons {
             display: grid;
-            grid-template-columns: 40% 20% 20% 20%;  /* ★ 调整项：与表格列宽严格对齐 */
+            grid-template-columns: 40% 15% 15% 15% 15%;  /* 5列：Feature + 4级权益 */
             gap: 0;
             margin-top: 1.5rem;
         }
@@ -1143,7 +1184,7 @@
                 <img src="images/editor-logo.png" alt="GAM Editor">
                 <span>GAM Vehicle Editor</span>
             </div>
-            <button class="download-btn" disabled style="background:#666;cursor:not-allowed;" data-i18n="nav.download">Coming Soon</button>
+            <button class="download-btn" onclick="openDownloadPanel()" data-i18n="nav.download">Download</button>
         </div>
     </nav>
 
@@ -1157,29 +1198,28 @@
         <!-- 内容卡片 -->
         <div class="download-panel-card">
         <div class="download-panel-inner">
-            <!-- 左列：文字说明 -->
+            <!-- 左列：使用说明 -->
             <div>
-                <h2 data-i18n="download.headline">GAM Editor is integrated into <strong>GAM Mod Manager</strong></h2>
-                <p class="download-panel-subtitle" data-i18n="download.sub">If you have already installed GAM Mod Manager, no need to download again.</p>
-                <ul class="download-panel-steps">
-                    <li data-i18n="download.step1">Open GAM Mod Manager</li>
-                    <li data-i18n="download.step2">Update GAM Mod Manager when prompted</li>
-                    <li data-i18n="download.step3">Add a supported game, e.g. SnowRunner</li>
-                    <li data-i18n="download.step4">After adding, the Editor button will appear in the top menu bar</li>
-                    <li data-i18n="download.step5">Click the Editor button — it will auto-download required config files</li>
-                    <li data-i18n="download.step6">The editor will launch automatically after download</li>
-                </ul>
-                <p class="download-panel-cta-title" data-i18n="download.cta">If you haven't downloaded GAM Mod Manager yet, click the button below</p>
-                <p class="download-panel-link">
-                    <a href="https://www.modfans.cc/20301.html" target="_blank" class="download-panel-link-icon" data-i18n="download.learn">
-                        Learn about GAM Mod Manager
-                        <!-- 外链图标 -->
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                    </a>
+                <h2 data-i18n="download.headline">How to Use GAM Editor</h2>
+                <ol class="download-panel-steps">
+                    <li data-i18n="download.step1">Download GAMEditor.zip</li>
+                    <li data-i18n="download.step2">Extract GAMEditor.zip (recommend using WinRAR)</li>
+                    <li data-i18n="download.step3">Double-click GAMEditor.exe to open the editor</li>
+                    <li data-i18n="download.step4">If a SmartScreen warning appears, click "More info" &rarr; "Run anyway". If this option doesn't exist, disable this feature in Windows Defender</li>
+                    <li data-i18n="download.step5">In the "Add Game" popup, add your supported game. For BeamNG.Drive, add the MOD path in the subsequent dialog</li>
+                    <li data-i18n="download.step6">Done! You can now use GAM Editor normally</li>
+                </ol>
+                <p class="download-panel-note" style="margin-top:1.2rem;padding:0.75rem 1rem;background:rgba(255,193,7,0.08);border-left:3px solid #ffc107;border-radius:0 6px 6px 0;font-size:0.85rem;color:#ccc;">
+                    <span data-i18n="download.winrar_note">Important: SnowRunner requires WinRAR installed at C:\Program Files.</span>
+                    <a href="https://www.win-rar.com/download.html?&L=0" target="_blank" data-i18n="download.winrar_link" style="color:#ffc107;text-decoration:underline;margin-left:0.3rem;">Click here to download WinRAR</a>
                 </p>
-                <button class="download-panel-btn" disabled style="background:#666;cursor:not-allowed;opacity:0.7;">
+                <p class="download-panel-support" style="margin-top:0.75rem;font-size:1rem;color:#fff;">
+                    <span data-i18n="download.support">If you have any questions, visit my Patreon page. I'll do my best to help.</span><br>
+                    <a href="https://www.patreon.com/GAMEditor" target="_blank" style="color:#ccc;text-decoration:none;font-weight:400;"><span data-i18n="download.support_link">Go to Patreon</span> <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-left:3px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
+                </p>
+                <button class="download-panel-btn" onclick="doDownload()" style="margin-top:1.2rem;">
                     <img src="images/logos_windows-filled.png" alt="" style="width:20px;height:20px;position:relative;top:1px;">
-                    <span data-i18n="download.btn">Coming Soon</span>
+                    <span data-i18n="download.btn">Download Now</span>
                 </button>
                 <div class="download-panel-unsupported">
                     <span data-i18n="download.unsupported">Not supported:</span>
@@ -1195,9 +1235,22 @@
                     </span>
                 </div>
             </div>
-            <!-- 右列：截图 -->
+            <!-- 右列：轮播截图 -->
             <div class="download-panel-screenshot">
-                <img src="images/gam-screenshot.png" alt="GAM模组管理器" loading="lazy">
+                <div class="carousel-container">
+                    <div class="carousel-slides">
+                        <img src="images/add_game_1.png" alt="Add Game Step 1" class="carousel-slide active">
+                        <img src="images/add_game_2.png" alt="Add Game Step 2" class="carousel-slide">
+                        <img src="images/add_game_3.png" alt="Add Game Step 3" class="carousel-slide">
+                        <img src="images/add_game_4.png" alt="Add Game Step 4" class="carousel-slide">
+                    </div>
+                    <div class="carousel-dots">
+                        <span class="dot active" onclick="goToSlide(0)"></span>
+                        <span class="dot" onclick="goToSlide(1)"></span>
+                        <span class="dot" onclick="goToSlide(2)"></span>
+                        <span class="dot" onclick="goToSlide(3)"></span>
+                    </div>
+                </div>
             </div>
         </div>
         </div>
@@ -1214,7 +1267,7 @@
                     <h1>GAM Vehicle Editor<br><span style="color: #ffffff; font-size: 1.6rem; font-weight: 400; white-space: nowrap;" data-i18n="hero.subtitle">Professional Game Vehicle Parameter Editor</span></h1>  <!-- ★ 调整项B：副标题字号/字重 -->
                     <p style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">GAM Vehicle Editor 是一款专为游戏玩家设计的车辆属性可视化编辑工具，支持雪地奔驰（SnowRunner）、BeamNG.Drive 等游戏，无需手动修改代码即可调整悬架、发动机、变速箱等数十种参数，修改完成后一键导出至游戏目录，内置自动备份保护原始文件。</p>
                     <!-- ★ 调整项⑦：图标大小改 width/height；上下位置改 top（正值下移，负值上移） -->
-                    <button class="cta-button" disabled style="background:#666;cursor:not-allowed;"><img src="images/logos_windows-filled.png" alt="" style="width:22px;height:22px;position:relative;top:2.2px;"><span data-i18n="hero.cta">Coming Soon</span></button>
+                    <button class="cta-button" onclick="openDownloadPanel()"><img src="images/logos_windows-filled.png" alt="" style="width:22px;height:22px;position:relative;top:2.2px;"><span data-i18n="hero.cta">Download for Windows</span></button>
                     <button class="cta-button cta-button-outline" onclick="openVideoModal()" style="display:none;"><svg style="width:20px;height:20px;flex-shrink:0;margin-right:6px;vertical-align:middle;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg><span data-i18n="hero.video">Watch Demo</span></button>
                 </div>
                 <!-- Hero 右侧动图 -->
@@ -1453,35 +1506,37 @@
     
     <!-- 功能对比表 -->
     <section class="comparison-section">
-        <div class="container" style="max-width: 1000px;">
+        <div class="container" style="max-width: 1100px;">
             <table class="comparison-table">
                 <thead>
                     <tr>
                         <th style="text-align: left;" data-i18n="benefit.col.feature">Feature</th>
                         <th data-i18n="benefit.col.free">Free</th>
+                        <th data-i18n="benefit.col.patreon_free">Patreon Free</th>
                         <th data-i18n="benefit.col.sub">Subscription</th>
                         <th data-i18n="benefit.col.perm">Lifetime</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td data-i18n="benefit.local_cache">Local Cache</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
-                    <tr><td data-i18n="benefit.reset">Restore Original</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
-                    <tr><td data-i18n="benefit.auto_backup">Auto Backup</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
-                    <tr><td data-i18n="benefit.visual_edit">Visual UI Editor</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
-                    <tr><td data-i18n="benefit.basic_params">Basic Parameter Edit</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
-                    <tr><td data-i18n="benefit.dlc">DLC Vehicle Edit</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
-                    <tr><td data-i18n="benefit.mod">MOD Vehicle Edit</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
-                    <tr><td data-i18n="benefit.reset_btn">Reset Function</td><td><span class="cross-red">✗</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
-                    <tr><td data-i18n="benefit.save">Save Function</td><td><span class="cross-red">✗</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
-                    <tr><td data-i18n="benefit.snapshot">Snapshot Function</td><td><span class="cross-red">✗</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
-                    <tr><td data-i18n="benefit.export">Export to Game</td><td data-i18n="benefit.export.free">5 times/day</td><td data-i18n="benefit.export.pro">Unlimited</td><td data-i18n="benefit.export.pro">Unlimited</td></tr>
-                    <tr><td data-i18n="benefit.batch">Batch Export</td><td><span class="limit-badge" data-i18n="benefit.batch.free">Limited Free</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.local_cache">Local Cache</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.reset">Restore Original</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.auto_backup">Auto Backup</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.visual_edit">Visual UI Editor</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.basic_params">Basic Parameter Edit</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.dlc">DLC Vehicle Edit</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.mod">MOD Vehicle Edit</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.reset_btn">Reset Function</td><td><span class="cross-red">✗</span></td><td><span class="cross-red">✗</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.save">Save Function</td><td><span class="cross-red">✗</span></td><td><span class="cross-red">✗</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.snapshot">Snapshot Function</td><td><span class="cross-red">✗</span></td><td><span class="cross-red">✗</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+                    <tr><td data-i18n="benefit.export">Export to Game</td><td data-i18n="benefit.export.free">3 times/day</td><td data-i18n="benefit.export.pf">6 times/day</td><td data-i18n="benefit.export.pro">Unlimited</td><td data-i18n="benefit.export.pro">Unlimited</td></tr>
+                    <tr><td data-i18n="benefit.batch">Batch Export</td><td><span class="limit-badge" data-i18n="benefit.batch.free">Timed Free</span></td><td><span class="limit-badge" data-i18n="benefit.batch.free">Timed Free</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
                 </tbody>
             </table>
             <div class="action-buttons">
                 <div></div>
-                <button class="btn-outline" disabled style="background:#444;color:#888;border-color:#555;cursor:not-allowed;" data-i18n="benefit.start">Get Started</button>
-                <button class="btn-primary" disabled style="background:#555;color:#888;cursor:not-allowed;" data-i18n="benefit.upgrade.sub">Subscribe</button>
+                <button class="btn-outline" onclick="openDownloadPanel()" data-i18n="benefit.start">Download Free</button>
+                <button class="btn-outline" onclick="window.open('https://www.patreon.com/cw/GAMEditor','_blank')" data-i18n="benefit.pf.start">Download &amp; Login</button>
+                <button class="btn-primary" onclick="window.open('https://www.patreon.com/15853780/join', '_blank')" data-i18n="benefit.upgrade.sub">Subscribe on Patreon</button>
                 <button class="btn-primary" disabled style="background:#555;color:#888;cursor:not-allowed;" data-i18n="benefit.upgrade.perm">Buy Lifetime</button>
             </div>
         </div>
@@ -1568,17 +1623,17 @@
                     </details>
                     <details>
                         <summary>
-                            <span data-i18n="faq.q6">&quot;Game installation directory not found&quot; after switching games?</span>
+                            <span data-i18n="faq.q6">Game not found after switching?</span>
                             <span>+</span>
                         </summary>
-                        <p data-i18n="faq.a6">Please add the game in the GAM main application first. The editor reads game paths from GAM configuration. For BeamNG.Drive, make sure the mod deployment path is configured correctly.</p>
+                        <p data-i18n="faq.a6">Use the "Add Game" dialog in the editor to add the game. The editor will prompt you automatically when switching to a game that hasn't been added yet.</p>
                     </details>
                     <details>
                         <summary>
                             <span data-i18n="faq.q7">The editor cannot detect installed mods?</span>
                             <span>+</span>
                         </summary>
-                        <p data-i18n="faq.a7">For BeamNG.Drive, make sure the mod deployment path is set. Other games set it automatically after being added, so no manual configuration is needed.</p>
+                        <p data-i18n="faq.a7">For BeamNG.Drive, make sure the mods folder path is set correctly when adding the game. If mods are still not detected, re-add the game and verify the mods folder path.</p>
                     </details>
                     <details>
                         <summary>
@@ -1599,7 +1654,7 @@
                             <span data-i18n="faq.q10">How do I use the SnowRunner / BeamNG.Drive vehicle editor?</span>
                             <span>+</span>
                         </summary>
-                        <p data-i18n="faq.a10">After adding the game in GAM mod manager, click the "Editor" button in the top menu to launch it. The editor scans all vehicles automatically. Select a vehicle to adjust parameters, then click "Export to Game" to apply changes instantly.</p>
+                        <p data-i18n="faq.a10">Launch GAM Vehicle Editor directly. Add a supported game via the Add Game dialog. The editor scans all vehicles automatically. Select a vehicle, adjust parameters, then click "Export to Game" to apply changes instantly.</p>
                     </details>
                     <details>
                         <summary>
@@ -1774,9 +1829,13 @@
     }
     function doDownloadWinRAR() {
         closeWinRARModal();
-        window.open('https://www.win-rar.com/start.html?&L=0', '_blank');
+        window.open('https://www.win-rar.com/download.html?&L=0', '_blank');
     }
 
+var DOWNLOAD_URL = 'https://assets.gam-editor.com/editor/update/GAMEditor.zip';
+    function doDownload() {
+        window.open(DOWNLOAD_URL, '_blank');
+    }
     /* ===== 下载面板开关 ===== */
     function openDownloadPanel() {
         var panel = document.getElementById('download-panel');
@@ -2520,11 +2579,27 @@ var TRANSLATIONS = {
   en: {
     'nav.tab.intro': 'Introduction',
     'nav.tab.benefit': 'Benefits',
+    'benefit.col.patreon_free': 'Patreon Free',
+    'benefit.export.pf': '6 times/day',
+    'benefit.pf.start': 'Free Subscribe',
     'nav.tab.changelog': 'Changelog',
-    'nav.download': 'Coming Soon',
+    'nav.download': 'Download',
     'hero.subtitle': 'Professional Game Vehicle Parameter Editor',
-    'hero.cta': 'Coming Soon',
-    'download.btn': 'Coming Soon',
+    'hero.cta': 'Download for Windows',
+    'download.btn': 'Download Now',
+    'download.title': 'Download',
+    'download.headline': 'How to Use GAM Editor',
+    'download.step1': 'Download GAMEditor.zip',
+    'download.step2': 'Extract GAMEditor.zip (recommend using WinRAR)',
+    'download.step3': 'Double-click GAMEditor.exe to open the editor',
+    'download.step4': 'If a SmartScreen warning appears, click "More info" → "Run anyway". If this option doesn’t exist, disable this feature in Windows Defender',
+    'download.step5': 'In the "Add Game" popup, add your supported game. For BeamNG.Drive, add the MOD path in the subsequent dialog',
+    'download.step6': 'Done! You can now use GAM Editor normally',
+    'download.winrar_note': 'Important: SnowRunner requires WinRAR installed at C:\Program Files.',
+    'download.winrar_link': 'Click here to download WinRAR',
+    'download.support': 'If you have any questions, visit my Patreon page. I’ll do my best to help.',
+    'download.support_link': 'Go to Patreon',
+    'download.unsupported': 'Not supported:',
     'section.cache': 'Smart Caching',
     'section.cache.sub': 'Instant load - intelligent file analysis and caching for lightning-fast startup',
     'section.games': 'Multi-Game & Multi-Platform',
@@ -2547,16 +2622,16 @@ var TRANSLATIONS = {
     'faq.a4': 'Upgrading to a membership unlocks unlimited exports, along with advanced features like saves and snapshots.',
     'faq.q5': 'Does it support other games?',
     'faq.a5': 'Currently supports SnowRunner and BeamNG.Drive at launch. Support for more games will be added gradually.',
-    'faq.q6': 'Game installation directory not found after switching games?',
-    'faq.a6': 'Please add the game in the GAM main application first. The editor reads game paths from GAM configuration. For BeamNG.Drive, make sure the mod deployment path is configured correctly.',
+    'faq.q6': 'Game not found after switching?',
+    'faq.a6': 'Use the Add Game dialog in the editor to add the game. The editor will prompt you automatically when switching to a game that has not been added yet.',
     'faq.q7': 'The editor cannot detect installed mods?',
-    'faq.a7': 'For BeamNG.Drive, make sure the mod deployment path is set. Other games set it automatically after being added, so no manual configuration is needed.',
+    'faq.a7': 'For BeamNG.Drive, make sure the mods folder path is set correctly when adding the game. If mods are still not detected, re-add the game and verify the mods folder path.',
     'faq.q8': 'No changes appear in-game after editing?',
     'faq.a8': 'After editing, save the parameters first, then click Export to Game. Make sure the game is closed before exporting, otherwise the export will have no effect.',
     'faq.q9': 'How is GAM Vehicle Editor different from editing game files directly?',
     'faq.a9': 'Directly editing game files requires locating config files and writing code - error-prone and hard to undo. GAM Vehicle Editor provides a visual interface, auto-backup before editing, and one-click restore, greatly reducing the risk of mistakes.',
     'faq.q10': 'How do I use the SnowRunner / BeamNG.Drive vehicle editor?',
-    'faq.a10': 'After adding the game in GAM mod manager, click the Editor button in the top menu to launch it. The editor scans all vehicles automatically. Select a vehicle to adjust parameters, then click Export to Game to apply changes instantly.',
+    'faq.a10': 'Launch GAM Vehicle Editor directly. Add a supported game via the Add Game dialog. The editor scans all vehicles automatically. Select a vehicle, adjust parameters, then click Export to Game to apply changes instantly.',
     'faq.q11': 'Which tool is recommended for modifying BeamNG.Drive vehicles?',
     'faq.a11': 'GAM Vehicle Editor supports visual editing of BeamNG.Drive vehicle parameters - suspension, engine, tires - with auto-backup before changes, never corrupting original game data, and supporting reset to defaults at any time.',
     'sysreq.title': 'System Requirements',
@@ -2650,12 +2725,12 @@ var TRANSLATIONS = {
     'benefit.save': 'Save Function',
     'benefit.snapshot': 'Snapshot Function',
     'benefit.export': 'Export to Game',
-    'benefit.export.free': '5 times/day',
+    'benefit.export.free': '3 times/day',
     'benefit.export.pro': 'Unlimited',
     'benefit.batch': 'Batch Export',
-    'benefit.batch.free': 'Limited Free',
+    'benefit.batch.free': 'Timed Free',
     'benefit.start': 'Get Started',
-        'benefit.upgrade.sub': 'Subscribe',
+        'benefit.upgrade.sub': 'Upgrade Membership',
         'benefit.upgrade.perm': 'Buy Lifetime',
     'changelog.title': 'Changelog',
     'changelog.sub': 'GAM Vehicle Editor Version History',
@@ -2664,11 +2739,27 @@ var TRANSLATIONS = {
   zh: {
     'nav.tab.intro': '介绍',
     'nav.tab.benefit': '权益',
+    'benefit.col.patreon_free': 'Patreon 免费',
+    'benefit.export.pf': '6 次/天',
+    'benefit.pf.start': '免费订阅',
     'nav.tab.changelog': '更新',
-    'nav.download': '\u5373\u5c06\u53d1\u5e03',
+    'nav.download': '\u4e0b\u8f7d',
     'hero.subtitle': '\u4e13\u4e1a\u7684\u6e38\u620f\u8f7d\u5177\u5c5e\u6027\u7f16\u8f91\u5668',
-    'hero.cta': '\u5373\u5c06\u53d1\u5e03',
-    'download.btn': '\u5373\u5c06\u53d1\u5e03',
+    'hero.cta': '\u7acb\u5373\u4e0b\u8f7d',
+    'download.btn': '\u7acb\u5373\u4e0b\u8f7d',
+    'download.title': '下载',
+    'download.headline': '如何使用GAM编辑器',
+    'download.step1': '下载 GAMEditor.zip',
+    'download.step2': '解压 GAMEditor.zip（推荐使用 WinRAR 解压）',
+    'download.step3': '双击 GAMEditor.exe 打开编辑器',
+    'download.step4': '如果弹出智能应用管理提醒，请点击更多信息——仍要运行，如果没有这个选项，请在Windows安全中心关闭这个功能',
+    'download.step5': '在弹出添加游戏界面添加你需要的游戏，如果是 BeamNG.Drive，请在随后的弹窗中添加 MOD 路径',
+    'download.step6': '完成以上操作就可以正常打开 GAM 编辑器了',
+    'download.winrar_note': '特别提醒：SnowRunner 必须依赖 WinRAR，所以请将 WinRAR 安装在 C:\Program Files 路径下',
+    'download.winrar_link': '点击此处前往下载',
+    'download.support': '如果您有任何问题，请前往我的 Patreon 专区留言，我会尽全力帮你解决',
+    'download.support_link': '前往 Patreon 专区',
+    'download.unsupported': '不支持：',
     'section.cache': '智能缓存机制',
     'section.cache.sub': '极速启动 — 智能文件分析与缓存，瞬间加载',
     'section.games': '多游戏 · 多平台',
@@ -2691,16 +2782,16 @@ var TRANSLATIONS = {
     'faq.a4': '升级为会员即可获得无限次导出权限，同时解锁存档、快照等高级功能。',
     'faq.q5': '是否支持其他游戏的修改？',
     'faq.a5': '目前首发支持 SnowRunner、BeamNG.Drive，后续将陆续添加对更多游戏的支持。',
-    'faq.q6': '切换游戏后提示「找不到安装目录」？',
-    'faq.a6': '请先在 GAM 主程序中添加对应游戏，编辑器从 GAM 配置中读取游戏路径。如果是 BeamNG.Drive，请设置好模组部署路径。',
-    'faq.q7': '编辑器无法识别已安装的模组？',
-    'faq.a7': '如果是 BeamNG.Drive，请设置好模组部署路径，否则无法识别模组。其他游戏添加后会自动设置，无需手动配置。',
+    'faq.q6': '切换游戏后找不到对应游戏？',
+    'faq.a6': '请在编辑器内通过「添加游戏」弹窗添加游戏。切换到未添加的游戏时，编辑器会自动弹出添加界面。',
+    'faq.q7': '编辑器无法识别载具模组？',
+    'faq.a7': '如果是 BeamNG.Drive，请确认添加游戏时设置的模组文件夹路径是否正确。如果仍然无法识别，请重新添加游戏并核对模组文件夹路径。',
     'faq.q8': '修改后在游戏中没有变化？',
     'faq.a8': '修改完成后先保存参数，然后点击导出至游戏。并确保游戏已经退出，否则导出无效。',
     'faq.q9': 'GAM Vehicle Editor 和直接修改游戏文件有什么区别？',
     'faq.a9': '直接修改游戏文件需要手动找到配置文件并编辑代码，容易出错且难以恢复。GAM 提供可视化界面、自动备份和一键还原，大幅降低操作风险。',
     'faq.q10': '雪地奔驰（SnowRunner）/BeamNG.Drive 车辆属性编辑器怎么用？',
-    'faq.a10': '在 GAM 模组管理器中添加游戏后，点击顶部菜单的「编辑器」按鈕即可启动。编辑器会自动扫描游戏内全部载具，选择载具后调整参数，然后点击「导出至游戏」即刻生效。',
+    'faq.a10': '直接启动 GAM Vehicle Editor，通过「添加游戏」对话框添加游戏。编辑器会自动扫描游戏内全部载具，选择载具后调整参数，然后点击「导出至游戏」即刻生效。',
     'faq.q11': 'BeamNG.Drive 改车工具推荐用哪个？',
     'faq.a11': 'GAM Vehicle Editor 支持 BeamNG.Drive 车辆属性的可视化编辑，自动备份原始数据，不破坏游戏文件，支持随时重置还原。',
     'sysreq.title': '系统配置要求',
@@ -2794,12 +2885,12 @@ var TRANSLATIONS = {
     'benefit.save': '存档功能',
     'benefit.snapshot': '快照功能',
     'benefit.export': '导出至游戏',
-    'benefit.export.free': '5 次/天',
+    'benefit.export.free': '3 次/天',
     'benefit.export.pro': '无限次',
     'benefit.batch': '批量导出',
-    'benefit.batch.free': '免费限量',
+    'benefit.batch.free': '限免',
     'benefit.start': '\u5f00\u59cb\u4f7f\u7528',
-        'benefit.upgrade.sub': '\u8ba2\u9605',
+        'benefit.upgrade.sub': '\u5347\u7ea7\u4f1a\u5458',
         'benefit.upgrade.perm': '\u8d2d\u4e70\u7ec8\u8eab\u7248',
     'changelog.title': '更新日志',
     'changelog.sub': 'GAM Vehicle Editor 版本历史',
@@ -2808,11 +2899,27 @@ var TRANSLATIONS = {
   de: {
     'nav.tab.intro': 'Einf\u00fchrung',
     'nav.tab.benefit': 'Vorteile',
+    'benefit.col.patreon_free': 'Patreon Kostenlos',
+    'benefit.export.pf': '6 Mal/Tag',
+    'benefit.pf.start': 'Kostenlos abonnieren',
     'nav.tab.changelog': '\u00c4nderungen',
-    'nav.download': 'Demn\u00e4chst',
+    'nav.download': 'Herunterladen',
     'hero.subtitle': 'Professioneller Fahrzeugparameter-Editor f\u00fcr Spiele',
-    'hero.cta': 'Demn\u00e4chst verf\u00fcgbar',
-    'download.btn': 'Demn\u00e4chst verf\u00fcgbar',
+    'hero.cta': 'Jetzt herunterladen',
+    'download.btn': 'Jetzt herunterladen',
+    'download.title': 'Herunterladen',
+    'download.headline': 'So verwenden Sie den GAM Editor',
+    'download.step1': 'Laden Sie GAMEditor.zip herunter',
+    'download.step2': 'Entpacken Sie GAMEditor.zip (empfohlen mit WinRAR)',
+    'download.step3': 'Doppelklicken Sie auf GAMEditor.exe, um den Editor zu öffnen',
+    'download.step4': 'Wenn eine SmartScreen-Warnung erscheint, klicken Sie auf "Weitere Informationen" → "Trotzdem ausführen". Falls diese Option nicht existiert, deaktivieren Sie diese Funktion im Windows-Sicherheitscenter',
+    'download.step5': 'Fügen Sie im "Spiel hinzufügen"-Dialog Ihr unterstütztes Spiel hinzu. Für BeamNG.Drive fügen Sie den MOD-Pfad im anschließenden Dialog hinzu',
+    'download.step6': 'Fertig! Sie können den GAM Editor jetzt normal verwenden',
+    'download.winrar_note': 'Wichtig: SnowRunner benötigt WinRAR, installiert unter C:\Program Files.',
+    'download.winrar_link': 'Klicken Sie hier, um WinRAR herunterzuladen',
+    'download.support': 'Bei Fragen besuchen Sie meine Patreon-Seite. Ich helfe Ihnen gerne weiter.',
+    'download.support_link': 'Zu Patreon',
+    'download.unsupported': 'Nicht unterstützt:',
     'section.cache': 'Intelligentes Caching',
     'section.cache.sub': 'Sofortstart \u2014 intelligente Dateianalyse und Caching',
     'section.games': 'Multi-Spiel & Multi-Plattform',
@@ -2835,16 +2942,16 @@ var TRANSLATIONS = {
     'faq.a4': 'Mit einer Mitgliedschaft erhalten Sie unbegrenzte Exporte und erweiterte Funktionen.',
     'faq.q5': 'Werden weitere Spiele unterst\u00fctzt?',
     'faq.a5': 'Derzeit werden SnowRunner und BeamNG.Drive unterst\u00fctzt. Weitere Spiele folgen.',
-    'faq.q6': 'Spielinstallationsverzeichnis nicht gefunden nach dem Wechsel?',
-    'faq.a6': 'Bitte f\u00fcgen Sie das Spiel zun\u00e4chst in der GAM-Hauptanwendung hinzu.',
-    'faq.q7': 'Der Editor erkennt installierte Mods nicht?',
-    'faq.a7': 'F\u00fcr BeamNG.Drive muss der Mod-Bereitstellungspfad konfiguriert sein.',
+    'faq.q6': 'Spiel nach dem Wechsel nicht gefunden?',
+    'faq.a6': 'Verwenden Sie den Dialog \'Spiel hinzuf\u00fcgen\' im Editor, um zuerst ein unterst\u00fctztes Spiel hinzuzuf\u00fcgen.',
+    'faq.q7': 'Der Editor erkennt Mod-Fahrzeuge nicht?',
+    'faq.a7': 'Stellen Sie sicher, dass der Mod-Ordnerpfad korrekt konfiguriert ist. F\u00fcr BeamNG.Drive \u00f6ffnen Sie \'Spiel hinzuf\u00fcgen\' und setzen Sie den richtigen Mods-Ordner.',
     'faq.q8': 'Im Spiel sind keine \u00c4nderungen sichtbar?',
     'faq.a8': 'Speichern Sie zuerst die Parameter und klicken Sie dann auf In Spiel exportieren.',
     'faq.q9': 'Was ist der Unterschied zwischen GAM und direkter Dateibearbeitung?',
     'faq.a9': 'GAM bietet eine visuelle Oberfl\u00e4che, automatische Sicherungen und Einzel-Klick-Wiederherstellung.',
     'faq.q10': 'Wie benutze ich den Fahrzeugeditor?',
-    'faq.a10': 'F\u00fcgen Sie das Spiel in GAM hinzu, klicken Sie auf die Schaltfl\u00e4che Editor im Men\u00fc.',
+    'faq.a10': 'Starten Sie GAM Vehicle Editor direkt. Fügen Sie ein unterstütztes Spiel über den Dialog "Spiel hinzufügen" hinzu. Der Editor scannt alle Fahrzeuge automatisch. Wählen Sie ein Fahrzeug, passen Sie Parameter an und klicken Sie auf "In Spiel exportieren".',
     'faq.q11': 'Welches Tool empfehlen Sie f\u00fcr BeamNG.Drive?',
     'faq.a11': 'GAM Vehicle Editor unterst\u00fctzt die visuelle Bearbeitung von BeamNG.Drive-Fahrzeugparametern.',
     'sysreq.title': 'Systemanforderungen',
@@ -2938,12 +3045,12 @@ var TRANSLATIONS = {
     'benefit.save': 'Speichern-Funktion',
     'benefit.snapshot': 'Snapshot-Funktion',
     'benefit.export': 'Export ins Spiel',
-    'benefit.export.free': '5×/Tag',
+    'benefit.export.free': '3×/Tag',
     'benefit.export.pro': 'Unbegrenzt',
     'benefit.batch': 'Massenexport',
-    'benefit.batch.free': 'Begrenzt kostenlos',
+    'benefit.batch.free': 'Befristet',
     'benefit.start': 'Jetzt starten',
-        'benefit.upgrade.sub': 'Abonnieren',
+        'benefit.upgrade.sub': 'Mitgliedschaft upgraden',
         'benefit.upgrade.perm': 'Lebenslang kaufen',
     'changelog.title': 'Änderungsprotokoll',
     'changelog.sub': 'GAM Vehicle Editor Versionshistorie',
@@ -2952,11 +3059,27 @@ var TRANSLATIONS = {
   ru: {
     'nav.tab.intro': '\u0412\u0432\u0435\u0434\u0435\u043d\u0438\u0435',
     'nav.tab.benefit': '\u041f\u0440\u0435\u0438\u043c\u0443\u0449\u0435\u0441\u0442\u0432\u0430',
+    'benefit.col.patreon_free': 'Patreon \u0411\u0435\u0441\u043f\u043b\u0430\u0442\u043d\u043e',
+    'benefit.export.pf': '6 \u0440\u0430\u0437/\u0434\u0435\u043d\u044c',
+    'benefit.pf.start': '\u0411\u0435\u0441\u043f\u043b\u0430\u0442\u043d\u0430\u044f \u043f\u043e\u0434\u043f\u0438\u0441\u043a\u0430',
     'nav.tab.changelog': '\u041e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u044f',
-    'nav.download': '\u0421\u043a\u043e\u0440\u043e',
+    'nav.download': '\u0421\u043a\u0430\u0447\u0430\u0442\u044c',
     'hero.subtitle': '\u041f\u0440\u043e\u0444\u0435\u0441\u0441\u0438\u043e\u043d\u0430\u043b\u044c\u043d\u044b\u0439 \u0440\u0435\u0434\u0430\u043a\u0442\u043e\u0440 \u043f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u043e\u0432 \u0442\u0440\u0430\u043d\u0441\u043f\u043e\u0440\u0442\u043d\u044b\u0445 \u0441\u0440\u0435\u0434\u0441\u0442\u0432',
-    'hero.cta': '\u0421\u043a\u043e\u0440\u043e',
-    'download.btn': '\u0421\u043a\u043e\u0440\u043e',
+    'hero.cta': '\u0421\u043a\u0430\u0447\u0430\u0442\u044c \u0434\u043b\u044f Windows',
+    'download.btn': '\u0421\u043a\u0430\u0447\u0430\u0442\u044c \u0441\u0435\u0439\u0447\u0430\u0441',
+    'download.title': 'Скачать',
+    'download.headline': 'Как использовать GAM редактор',
+    'download.step1': 'Скачайте GAMEditor.zip',
+    'download.step2': 'Распакуйте GAMEditor.zip (рекомендуется WinRAR)',
+    'download.step3': 'Дважды щелкните GAMEditor.exe, чтобы открыть редактор',
+    'download.step4': 'Если появится предупреждение SmartScreen, нажмите "Подробнее" → "Все равно запустить". Если этого варианта нет, отключите эту функцию в центре безопасности Windows',
+    'download.step5': 'В диалоге "Добавить игру" добавьте вашу поддерживаемую игру. Для BeamNG.Drive добавьте путь MOD в последующем диалоге',
+    'download.step6': 'Готово! Теперь вы можете использовать GAM редактор обычно',
+    'download.winrar_note': 'Важно: SnowRunner требует WinRAR, установленный в C:\Program Files.',
+    'download.winrar_link': 'Нажмите здесь, чтобы скачать WinRAR',
+    'download.support': 'Если у вас есть вопросы, посетите мою страницу Patreon. Я сделаю всё возможное, чтобы помочь.',
+    'download.support_link': 'Перейти на Patreon',
+    'download.unsupported': 'Не поддерживается:',
     'section.cache': '\u0423\u043c\u043d\u043e\u0435 \u043a\u044d\u0448\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u0435',
     'section.cache.sub': '\u041c\u0433\u043d\u043e\u0432\u0435\u043d\u043d\u044b\u0439 \u0437\u0430\u043f\u0443\u0441\u043a',
     'section.games': '\u041c\u0443\u043b\u044c\u0442\u0438\u0438\u0433\u0440\u043e\u0432\u0430\u044f \u043f\u043e\u0434\u0434\u0435\u0440\u0436\u043a\u0430',
@@ -2979,16 +3102,16 @@ var TRANSLATIONS = {
     'faq.a4': '\u041f\u043e\u0434\u043f\u0438\u0441\u043a\u0430 \u043e\u0442\u043a\u0440\u044b\u0432\u0430\u0435\u0442 \u043d\u0435\u043e\u0433\u0440\u0430\u043d\u0438\u0447\u0435\u043d\u043d\u044b\u0439 \u044d\u043a\u0441\u043f\u043e\u0440\u0442 \u0438 \u0440\u0430\u0441\u0448\u0438\u0440\u0435\u043d\u043d\u044b\u0435 \u0444\u0443\u043d\u043a\u0446\u0438\u0438.',
     'faq.q5': '\u041f\u043e\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u044e\u0442\u0441\u044f \u043b\u0438 \u0434\u0440\u0443\u0433\u0438\u0435 \u0438\u0433\u0440\u044b?',
     'faq.a5': '\u0421\u0435\u0439\u0447\u0430\u0441 \u043f\u043e\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u044e\u0442\u0441\u044f SnowRunner \u0438 BeamNG.Drive. \u0414\u0440\u0443\u0433\u0438\u0435 \u0438\u0433\u0440\u044b \u0431\u0443\u0434\u0443\u0442 \u0434\u043e\u0431\u0430\u0432\u043b\u0435\u043d\u044b.',
-    'faq.q6': '\u041a\u0430\u0442\u0430\u043b\u043e\u0433 \u0443\u0441\u0442\u0430\u043d\u043e\u0432\u043a\u0438 \u0438\u0433\u0440\u044b \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d?',
-    'faq.a6': '\u0421\u043d\u0430\u0447\u0430\u043b\u0430 \u0434\u043e\u0431\u0430\u0432\u044c\u0442\u0435 \u0438\u0433\u0440\u0443 \u0432 \u043e\u0441\u043d\u043e\u0432\u043d\u043e\u0435 \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0435 GAM.',
-    'faq.q7': '\u0420\u0435\u0434\u0430\u043a\u0442\u043e\u0440 \u043d\u0435 \u043e\u0431\u043d\u0430\u0440\u0443\u0436\u0438\u0432\u0430\u0435\u0442 \u0443\u0441\u0442\u0430\u043d\u043e\u0432\u043b\u0435\u043d\u043d\u044b\u0435 \u043c\u043e\u0434\u044b?',
-    'faq.a7': '\u0414\u043b\u044f BeamNG.Drive \u0443\u043a\u0430\u0436\u0438\u0442\u0435 \u043f\u0443\u0442\u044c \u0440\u0430\u0437\u0432\u0451\u0440\u0442\u044b\u0432\u0430\u043d\u0438\u044f \u043c\u043e\u0434\u043e\u0432.',
+    'faq.q6': 'Игра не найдена после переключения?',
+    'faq.a6': 'Используйте диалог «Добавить игру» в редакторе, чтобы сначала добавить поддерживаемую игру.',
+    'faq.q7': 'Редактор не распознаёт моды транспортных средств?',
+    'faq.a7': 'Убедитесь, что путь к папке модов в настройках указан верно. Для BeamNG.Drive откройте «Добавить игру» и укажите правильный путь к папке с модами.',
     'faq.q8': '\u0412 \u0438\u0433\u0440\u0435 \u043d\u0435 \u0432\u0438\u0434\u043d\u044b \u0438\u0437\u043c\u0435\u043d\u0435\u043d\u0438\u044f?',
     'faq.a8': '\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u0435 \u043f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u044b, \u0437\u0430\u0442\u0435\u043c \u043d\u0430\u0436\u043c\u0438\u0442\u0435 \u042d\u043a\u0441\u043f\u043e\u0440\u0442 \u0432 \u0438\u0433\u0440\u0443. \u0423\u0431\u0435\u0434\u0438\u0442\u0435\u0441\u044c, \u0447\u0442\u043e \u0438\u0433\u0440\u0430 \u0437\u0430\u043a\u0440\u044b\u0442\u0430.',
     'faq.q9': '\u0427\u0435\u043c GAM \u043e\u0442\u043b\u0438\u0447\u0430\u0435\u0442\u0441\u044f \u043e\u0442 \u043f\u0440\u044f\u043c\u043e\u0433\u043e \u0440\u0435\u0434\u0430\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u044f \u0444\u0430\u0439\u043b\u043e\u0432?',
     'faq.a9': 'GAM \u043f\u0440\u0435\u0434\u043e\u0441\u0442\u0430\u0432\u043b\u044f\u0435\u0442 \u0432\u0438\u0437\u0443\u0430\u043b\u044c\u043d\u044b\u0439 \u0438\u043d\u0442\u0435\u0440\u0444\u0435\u0439\u0441, \u0430\u0432\u0442\u043e\u0440\u0435\u0437\u0435\u0440\u0432\u043d\u043e\u0435 \u043a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u0435 \u0438 \u0432\u043e\u0441\u0441\u0442\u0430\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u0435 \u043e\u0434\u043d\u0438\u043c \u043a\u043b\u0438\u043a\u043e\u043c.',
-    'faq.q10': '\u041a\u0430\u043a \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u044c \u0440\u0435\u0434\u0430\u043a\u0442\u043e\u0440 \u0442\u0440\u0430\u043d\u0441\u043f\u043e\u0440\u0442\u043d\u044b\u0445 \u0441\u0440\u0435\u0434\u0441\u0442\u0432?',
-    'faq.a10': '\u0414\u043e\u0431\u0430\u0432\u044c\u0442\u0435 \u0438\u0433\u0440\u0443 \u0432 GAM, \u043d\u0430\u0436\u043c\u0438\u0442\u0435 \u043a\u043d\u043e\u043f\u043a\u0443 \u0420\u0435\u0434\u0430\u043a\u0442\u043e\u0440 \u0432 \u043c\u0435\u043d\u044e.',
+    'faq.q10': 'Как использовать редактор транспортных средств?',
+    'faq.a10': 'Запустите GAM Vehicle Editor напрямую. Добавьте поддерживаемую игру через диалог «Добавить игру». Редактор автоматически сканирует все транспортные средства. Выберите транспортное средство, настройте параметры и нажмите «Экспорт в игру».',
     'faq.q11': '\u041a\u0430\u043a\u043e\u0439 \u0438\u043d\u0441\u0442\u0440\u0443\u043c\u0435\u043d\u0442 \u0440\u0435\u043a\u043e\u043c\u0435\u043d\u0434\u0443\u0435\u0442\u0435\u0441\u044c \u0434\u043b\u044f BeamNG.Drive?',
     'faq.a11': 'GAM Vehicle Editor \u043f\u043e\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0435\u0442 \u0432\u0438\u0437\u0443\u0430\u043b\u044c\u043d\u043e\u0435 \u0440\u0435\u0434\u0430\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u0435 \u043f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u043e\u0432 BeamNG.Drive.',
     'sysreq.title': '\u0421\u0438\u0441\u0442\u0435\u043c\u043d\u044b\u0435 \u0442\u0440\u0435\u0431\u043e\u0432\u0430\u043d\u0438\u044f',
@@ -3082,12 +3205,12 @@ var TRANSLATIONS = {
     'benefit.save': 'Функция сохранения',
     'benefit.snapshot': 'Функция снимка',
     'benefit.export': 'Экспорт в игру',
-    'benefit.export.free': '5 раз/день',
+    'benefit.export.free': '3 раза/день',
     'benefit.export.pro': 'Без ограничений',
     'benefit.batch': 'Пакетный экспорт',
-    'benefit.batch.free': 'Бесплатно с ограничениями',
+    'benefit.batch.free': 'Временно',
     'benefit.start': '\u041d\u0430\u0447\u0430\u0442\u044c',
-        'benefit.upgrade.sub': '\u041f\u043e\u0434\u043f\u0438\u0441\u0430\u0442\u044c\u0441\u044f',
+        'benefit.upgrade.sub': '\u0423\u043b\u0443\u0447\u0448\u0438\u0442\u044c \u043f\u043e\u0434\u043f\u0438\u0441\u043a\u0443',
         'benefit.upgrade.perm': '\u041a\u0443\u043f\u0438\u0442\u044c \u043d\u0430\u0432\u0441\u0435\u0433\u0434\u0430',
     'changelog.title': 'История версий',
     'changelog.sub': 'История версий GAM Vehicle Editor',
@@ -3096,11 +3219,27 @@ var TRANSLATIONS = {
   fr: {
     'nav.tab.intro': 'Introduction',
     'nav.tab.benefit': 'Avantages',
+    'benefit.col.patreon_free': 'Patreon Gratuit',
+    'benefit.export.pf': '6 fois/jour',
+    'benefit.pf.start': 'Abonnement gratuit',
     'nav.tab.changelog': 'Mises \u00e0 jour',
-    'nav.download': 'Bient\u00f4t',
+    'nav.download': 'T\u00e9l\u00e9charger',
     'hero.subtitle': '\u00c9diteur professionnel de param\u00e8tres de v\u00e9hicules de jeu',
-    'hero.cta': 'Bient\u00f4t disponible',
-    'download.btn': 'Bient\u00f4t disponible',
+    'hero.cta': 'T\u00e9l\u00e9charger maintenant',
+    'download.btn': 'T\u00e9l\u00e9charger maintenant',
+    'download.title': 'Télécharger',
+    'download.headline': 'Comment utiliser GAM Editor',
+    'download.step1': 'Téléchargez GAMEditor.zip',
+    'download.step2': 'Décompressez GAMEditor.zip (recommandé avec WinRAR)',
+    'download.step3': 'Double-cliquez sur GAMEditor.exe pour ouvrir l’éditeur',
+    'download.step4': 'Si un avertissement SmartScreen apparaît, cliquez sur "Informations complémentaires" → "Exécuter quand même". Si cette option n’existe pas, désactivez cette fonction dans Windows Defender',
+    'download.step5': 'Dans la fenêtre "Ajouter un jeu", ajoutez votre jeu pris en charge. Pour BeamNG.Drive, ajoutez le chemin MOD dans la boîte de dialogue suivante',
+    'download.step6': 'Terminé ! Vous pouvez maintenant utiliser GAM Editor normalement',
+    'download.winrar_note': 'Important : SnowRunner nécessite WinRAR installé dans C:\Program Files.',
+    'download.winrar_link': 'Cliquez ici pour télécharger WinRAR',
+    'download.support': 'Si vous avez des questions, visitez ma page Patreon. Je ferai de mon mieux pour vous aider.',
+    'download.support_link': 'Aller sur Patreon',
+    'download.unsupported': 'Non pris en charge :',
     'section.cache': 'Cache Intelligent',
     'section.cache.sub': 'D\u00e9marrage instantan\u00e9 \u2014 analyse et mise en cache intelligentes',
     'section.games': 'Multi-Jeux & Multi-Plateformes',
@@ -3123,16 +3262,16 @@ var TRANSLATIONS = {
     'faq.a4': 'Un abonnement premium d\u00e9bloque des exportations illimit\u00e9es.',
     'faq.q5': 'D\u2019autres jeux sont-ils pris en charge?',
     'faq.a5': 'Actuellement SnowRunner et BeamNG.Drive. D\u2019autres seront ajout\u00e9s.',
-    'faq.q6': 'R\u00e9pertoire d\u2019installation introuvable apr\u00e8s le changement?',
-    'faq.a6': 'Ajoutez d\u2019abord le jeu dans l\u2019application principale GAM.',
-    'faq.q7': 'L\u2019\u00e9diteur ne d\u00e9tecte pas les mods install\u00e9s?',
-    'faq.a7': 'Pour BeamNG.Drive, configurez le chemin de d\u00e9ploiement des mods.',
+    'faq.q6': 'Jeu introuvable après le changement?',
+    'faq.a6': "Utilisez la boîte de dialogue \"Ajouter un jeu\" dans l'éditeur pour ajouter d'abord un jeu pris en charge.",
+    'faq.q7': "L'éditeur ne reconnaît pas les véhicules modés?",
+    'faq.a7': "Vérifiez que le chemin du dossier de mods est correctement configuré dans les paramètres. Pour BeamNG.Drive, ouvrez \"Ajouter un jeu\" et indiquez le bon dossier de mods.",
     'faq.q8': 'Aucune modification n\u2019appara\u00eet dans le jeu?',
     'faq.a8': 'Enregistrez d\u2019abord les param\u00e8tres, puis cliquez sur Exporter vers le jeu.',
     'faq.q9': 'Quelle est la diff\u00e9rence entre GAM et l\u2019\u00e9dition directe?',
     'faq.a9': 'GAM offre une interface visuelle, des sauvegardes automatiques et une restauration en un clic.',
-    'faq.q10': 'Comment utiliser l\u2019\u00e9diteur de v\u00e9hicules?',
-    'faq.a10': 'Ajoutez le jeu dans GAM, cliquez sur le bouton \u00c9diteur dans le menu.',
+    'faq.q10': "Comment utiliser l'éditeur de véhicules?",
+    'faq.a10': "Lancez GAM Vehicle Editor directement. Ajoutez un jeu pris en charge via la boîte de dialogue \"Ajouter un jeu\". L'éditeur analyse automatiquement tous les véhicules. Sélectionnez un véhicule, ajustez les paramètres et cliquez sur \"Exporter vers le jeu\".",
     'faq.q11': 'Quel outil recommandez-vous pour BeamNG.Drive?',
     'faq.a11': 'GAM Vehicle Editor prend en charge l\u2019\u00e9dition visuelle des param\u00e8tres de v\u00e9hicules BeamNG.Drive.',
     'sysreq.title': 'Configuration requise',
@@ -3226,12 +3365,12 @@ var TRANSLATIONS = {
     'benefit.save': 'Fonction Sauvegarder',
     'benefit.snapshot': 'Fonction Instantané',
     'benefit.export': 'Exporter vers le jeu',
-    'benefit.export.free': '5 fois/jour',
+    'benefit.export.free': '3 fois/jour',
     'benefit.export.pro': 'Illimité',
     'benefit.batch': 'Export en lot',
-    'benefit.batch.free': 'Gratuit limité',
+    'benefit.batch.free': 'Temporaire',
     'benefit.start': 'Commencer',
-        'benefit.upgrade.sub': "S'abonner",
+        'benefit.upgrade.sub': 'Mettre \u00e0 niveau',
         'benefit.upgrade.perm': 'Acheter \u00e0 vie',
     'changelog.title': 'Journal des modifications',
     'changelog.sub': 'Historique des versions de GAM Vehicle Editor',
@@ -3240,11 +3379,27 @@ var TRANSLATIONS = {
   es: {
     'nav.tab.intro': 'Introducci\u00f3n',
     'nav.tab.benefit': 'Beneficios',
+    'benefit.col.patreon_free': 'Patreon Gratis',
+    'benefit.export.pf': '6 veces/día',
+    'benefit.pf.start': 'Suscribirse gratis',
     'nav.tab.changelog': 'Cambios',
-    'nav.download': 'Pr\u00f3ximamente',
+    'nav.download': 'Descargar',
     'hero.subtitle': 'Editor profesional de par\u00e1metros de veh\u00edculos de juego',
-    'hero.cta': 'Pr\u00f3ximamente',
-    'download.btn': 'Pr\u00f3ximamente',
+    'hero.cta': 'Descargar ahora',
+    'download.btn': 'Descargar ahora',
+    'download.title': 'Descargar',
+    'download.headline': 'Cómo usar GAM Editor',
+    'download.step1': 'Descargue GAMEditor.zip',
+    'download.step2': 'Extraiga GAMEditor.zip (recomendado usar WinRAR)',
+    'download.step3': 'Haga doble clic en GAMEditor.exe para abrir el editor',
+    'download.step4': 'Si aparece una advertencia de SmartScreen, haga clic en "Más información" → "Ejecutar de todos modos". Si esta opción no existe, desactive esta función en Windows Defender',
+    'download.step5': 'En la ventana "Añadir juego", añada su juego compatible. Para BeamNG.Drive, añada la ruta MOD en el diálogo posterior',
+    'download.step6': '¡Hecho! Ya puede usar GAM Editor normalmente',
+    'download.winrar_note': 'Importante: SnowRunner requiere WinRAR instalado en C:\Program Files.',
+    'download.winrar_link': 'Haga clic aquí para descargar WinRAR',
+    'download.support': 'Si tiene alguna pregunta, visite mi página de Patreon. Haré todo lo posible para ayudarle.',
+    'download.support_link': 'Ir a Patreon',
+    'download.unsupported': 'No compatible:',
     'section.cache': 'Cach\u00e9 Inteligente',
     'section.cache.sub': 'Inicio instant\u00e1neo \u2014 an\u00e1lisis y cach\u00e9 de archivos inteligentes',
     'section.games': 'Multi-Juego y Multi-Plataforma',
@@ -3267,16 +3422,16 @@ var TRANSLATIONS = {
     'faq.a4': 'Una membres\u00eda premium desbloquea exportaciones ilimitadas.',
     'faq.q5': '\u00bfSe admiten otros juegos?',
     'faq.a5': 'Actualmente SnowRunner y BeamNG.Drive. Se a\u00f1adir\u00e1n m\u00e1s.',
-    'faq.q6': 'Directorio de instalaci\u00f3n no encontrado al cambiar de juego?',
-    'faq.a6': 'Primero a\u00f1ade el juego en la aplicaci\u00f3n principal de GAM.',
-    'faq.q7': '\u00bfEl editor no detecta los mods instalados?',
-    'faq.a7': 'Para BeamNG.Drive, configura la ruta de despliegue de mods.',
+    'faq.q6': '¿Juego no encontrado al cambiar?',
+    'faq.a6': 'Usa el diálogo \"Añadir juego\" en el editor para añadir primero un juego compatible.',
+    'faq.q7': '¿El editor no reconoce los vehículos mod?',
+    'faq.a7': 'Asegúrate de que la ruta de la carpeta de mods esté correctamente configurada en los ajustes. Para BeamNG.Drive, abre \"Añadir juego\" y establece la carpeta de mods correcta.',
     'faq.q8': '\u00bfNo aparecen cambios en el juego?',
     'faq.a8': 'Guarda los par\u00e1metros primero, luego haz clic en Exportar al juego.',
     'faq.q9': '\u00bfEn qu\u00e9 se diferencia GAM de editar archivos directamente?',
     'faq.a9': 'GAM ofrece una interfaz visual, copias de seguridad autom\u00e1ticas y restauraci\u00f3n con un clic.',
-    'faq.q10': '\u00bfC\u00f3mo uso el editor de veh\u00edculos?',
-    'faq.a10': 'A\u00f1ade el juego en GAM, haz clic en el bot\u00f3n Editor del men\u00fa.',
+    'faq.q10': '¿Cómo uso el editor de vehículos?',
+    'faq.a10': 'Inicia GAM Vehicle Editor directamente. Añade un juego compatible a través del diálogo \"Añadir juego\". El editor escanea automáticamente todos los vehículos. Selecciona un vehículo, ajusta los parámetros y haz clic en \"Exportar al juego\".',
     'faq.q11': '\u00bfQu\u00e9 herramienta recomiendas para BeamNG.Drive?',
     'faq.a11': 'GAM Vehicle Editor admite la edici\u00f3n visual de par\u00e1metros de veh\u00edculos de BeamNG.Drive.',
     'sysreq.title': 'Requisitos del sistema',
@@ -3370,12 +3525,12 @@ var TRANSLATIONS = {
     'benefit.save': 'Función Guardar',
     'benefit.snapshot': 'Función Instantánea',
     'benefit.export': 'Exportar al juego',
-    'benefit.export.free': '5 veces/día',
+    'benefit.export.free': '3 veces/día',
     'benefit.export.pro': 'Ilimitado',
     'benefit.batch': 'Exportación en lote',
-    'benefit.batch.free': 'Gratis limitado',
+    'benefit.batch.free': 'Temporal',
     'benefit.start': 'Empezar',
-    'benefit.upgrade.sub': 'Suscribirse',
+    'benefit.upgrade.sub': 'Mejorar membres\u00eda',
     'benefit.upgrade.perm': 'Comprar vitalicio',
     'changelog.title': 'Registro de cambios',
     'changelog.sub': 'Historial de versiones de GAM Vehicle Editor',
@@ -3383,6 +3538,36 @@ var TRANSLATIONS = {
   }
 };
 
+/* ===== 轮播 ===== */
+var currentSlide = 0;
+var slideCount = 4;
+var slideInterval = 3000;
+var carouselTimer = null;
+
+function goToSlide(n) {
+    currentSlide = n;
+    var slides = document.querySelectorAll('.carousel-slide');
+    var dots = document.querySelectorAll('.carousel-dots .dot');
+    slides.forEach(function(s, i) { s.classList.toggle('active', i === n); });
+    dots.forEach(function(d, i) { d.classList.toggle('active', i === n); });
+    resetCarouselTimer();
+}
+
+function nextSlide() {
+    goToSlide((currentSlide + 1) % slideCount);
+}
+
+function resetCarouselTimer() {
+    if (carouselTimer) clearInterval(carouselTimer);
+    carouselTimer = setInterval(nextSlide, slideInterval);
+}
+
+// 初始化
+(function() {
+    carouselTimer = setInterval(nextSlide, slideInterval);
+})();
+
+/* ===== 语言切换 ===== */
 function switchLang(code) {
   var dict = TRANSLATIONS[code] || TRANSLATIONS['en'];
   document.querySelectorAll('[data-i18n]').forEach(function(el) {
